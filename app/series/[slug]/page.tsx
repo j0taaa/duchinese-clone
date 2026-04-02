@@ -3,7 +3,6 @@ import { ChevronLeft, Layers3 } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
-import { SeriesCard } from "@/components/series-card";
 import { StoryCard } from "@/components/story-card";
 import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "@/lib/session";
@@ -88,13 +87,6 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
               {seriesReadCount}/{series.stories.length} read
             </Badge>
           </div>
-        </section>
-
-        <section className="max-w-[28rem]">
-          <SeriesCard
-            series={series}
-            readCount={seriesReadCount}
-          />
         </section>
 
         <section className="space-y-4">
