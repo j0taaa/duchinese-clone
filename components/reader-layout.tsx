@@ -83,9 +83,6 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
 
   const [selectedWord, setSelectedWord] =
     useState<DictionaryToken | null>(firstInteractiveToken);
-  const [selectedSentence, setSelectedSentence] = useState(
-    story.tokenizedSections[0]?.english ?? "",
-  );
   const levelMeta = storyLevelMeta[story.level];
 
   useEffect(() => {
@@ -149,24 +146,6 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
           </div>
 
           <div className="sticky top-[92px] z-20 rounded-[28px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm">
-            <div className="border-b border-[#efe2d8] px-5 py-4 sm:px-6">
-              <div className="flex items-center justify-between gap-4 text-sm text-[#877870]">
-                <span>Sentence meaning</span>
-                <button
-                  type="button"
-                  onClick={() => setShowEnglish((value) => !value)}
-                  className="font-medium text-[#d14f43]"
-                >
-                  {showEnglish ? "Hide" : "Show"}
-                </button>
-              </div>
-              <div className="min-h-20 pt-3 text-[1rem] leading-8 text-[#4f433d]">
-                {showEnglish
-                  ? selectedSentence
-                  : "Hover or tap a sentence section to reveal its translation."}
-              </div>
-            </div>
-
             <div className="px-5 py-4 sm:px-6">
               <div className="min-w-0">
                 <p className="text-sm text-[#9b8e87]">Word meaning</p>
@@ -209,11 +188,9 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
                         selectedWord: selectedWord?.text ?? "",
                         onHoverWord: (token) => {
                           setSelectedWord(token);
-                          setSelectedSentence(section.english);
                         },
                         onSelectWord: (token) => {
                           setSelectedWord(token);
-                          setSelectedSentence(section.english);
                           setSheetOpen(true);
                         },
                       })}
