@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
 
-export default function SettingsPage() {
-  redirect("/profile");
+import { getServerSession } from "@/lib/session";
+
+export default async function SettingsPage() {
+  const session = await getServerSession();
+
+  redirect(session ? "/profile" : "/sign-in");
 }
