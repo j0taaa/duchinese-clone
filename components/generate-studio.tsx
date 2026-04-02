@@ -109,6 +109,7 @@ export function GenerateStudio({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [topic, setTopic] = useState("");
+  const [useCustomTopic, setUseCustomTopic] = useState(false);
   const [hskLevel, setHskLevel] = useState<HskLevel>("2");
   const [type, setType] = useState<AppStory["type"]>("dialogue");
   const [length, setLength] = useState<"short" | "medium" | "long">("short");
@@ -141,7 +142,7 @@ export function GenerateStudio({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          topic,
+          topic: useCustomTopic ? topic : "",
           hskLevel,
           type,
           length,
@@ -242,30 +243,61 @@ export function GenerateStudio({
               })}
             </div>
 
-            <label className="block space-y-3">
-              <span className="flex items-center gap-2 text-sm font-medium text-[#4f433d]">
-                <ScanSearch className="size-4" />
-                Topic or direction
-              </span>
-              <textarea
-                value={topic}
-                onChange={(event) => setTopic(event.target.value)}
-                placeholder="Leave this blank for a random idea, or describe the scene, setting, or subject you want."
-                className="min-h-44 w-full rounded-[28px] border border-[#e4d8cf] bg-[#fcfaf7] px-5 py-4 text-sm leading-7 text-[#241815] outline-none transition-colors placeholder:text-[#a2958e] focus:border-[#d8b1a6]"
-              />
-            </label>
+            <div className="space-y-4 rounded-[30px] border border-[#ece0d7] bg-[#fcfaf7] p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <p className="flex items-center gap-2 text-sm font-medium text-[#4f433d]">
+                    <ScanSearch className="size-4" />
+                    Topic or direction
+                  </p>
+                  <p className="text-sm leading-6 text-[#6d615b]">
+                    Leave this off for a random idea, or turn it on to guide the generation.
+                  </p>
+                </div>
 
-            <div className="flex flex-wrap gap-3">
-              {promptSuggestions.map((item) => (
                 <button
-                  key={item}
                   type="button"
-                  onClick={() => setTopic(item)}
-                  className="rounded-full border border-[#e8dacf] bg-white px-4 py-2 text-sm text-[#564943] hover:bg-[#faf4ef]"
+                  onClick={() => setUseCustomTopic((current) => !current)}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                    useCustomTopic
+                      ? "border-[#f0cfc1] bg-[#fff0ea] text-[#b25045]"
+                      : "border-[#e5d8cf] bg-white text-[#5f534d] hover:bg-[#faf4ef]",
+                  )}
                 >
-                  {item}
+                  <span
+                    className={cn(
+                      "size-2.5 rounded-full",
+                      useCustomTopic ? "bg-[#ea4e47]" : "bg-[#d4c5bc]",
+                    )}
+                  />
+                  {useCustomTopic ? "Using custom topic" : "Use random topic"}
                 </button>
-              ))}
+              </div>
+
+              {useCustomTopic ? (
+                <>
+                  <textarea
+                    value={topic}
+                    onChange={(event) => setTopic(event.target.value)}
+                    placeholder="Describe the scene, setting, or subject you want."
+                    className="min-h-44 w-full rounded-[28px] border border-[#e4d8cf] bg-white px-5 py-4 text-sm leading-7 text-[#241815] outline-none transition-colors placeholder:text-[#a2958e] focus:border-[#d8b1a6]"
+                  />
+
+                  <div className="flex flex-wrap gap-3">
+                    {promptSuggestions.map((item) => (
+                      <button
+                        key={item}
+                        type="button"
+                        onClick={() => setTopic(item)}
+                        className="rounded-full border border-[#e8dacf] bg-white px-4 py-2 text-sm text-[#564943] hover:bg-[#faf4ef]"
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : null}
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[1.25fr_0.95fr]">
@@ -374,6 +406,7 @@ export function GenerateStudio({
                 className="h-13 rounded-2xl border-[#e4d8cf] bg-white px-6 text-[#473b35] hover:bg-[#faf4ef]"
                 onClick={() => {
                   setTopic("");
+                  setUseCustomTopic(false);
                   setError(null);
                   setSuccess(null);
                 }}
