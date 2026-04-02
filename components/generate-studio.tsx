@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Loader2, Sparkles, WandSparkles } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
@@ -75,25 +75,8 @@ export function GenerateStudio({
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
       <section className="rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] xl:p-8">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#f0d6ce] bg-[#fff3ef] px-3 py-1 text-xs font-semibold tracking-[0.16em] text-[#d14f43] uppercase">
-            <WandSparkles className="size-3.5" />
-            AI Story Generator
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-[#241815] sm:text-4xl">
-              Generate a new Chinese lesson from your own model settings
-            </h1>
-            <p className="max-w-3xl text-sm leading-7 text-[#6a5b55] sm:text-base">
-              Choose a topic, difficulty, lesson shape, and privacy level. The app
-              will call your saved OpenAI-compatible endpoint, validate the JSON
-              response, and store the result in Postgres under your account.
-            </p>
-          </div>
-        </div>
-
         {!settingsSummary ? (
-          <div className="mt-6 rounded-[24px] border border-[#f0d6ce] bg-[#fff6f3] p-5 text-sm leading-7 text-[#7b5951]">
+          <div className="rounded-[24px] border border-[#f0d6ce] bg-[#fff6f3] p-5 text-sm leading-7 text-[#7b5951]">
             <p className="font-semibold text-[#9f4339]">Model settings missing</p>
             <p className="mt-2">
               Save your `Model URL`, `API key`, and `Model` first.
@@ -107,7 +90,7 @@ export function GenerateStudio({
           </div>
         ) : (
           <>
-            <div className="mt-8 grid gap-5">
+            <div className="grid gap-5">
               <label className="space-y-2">
                 <span className="text-sm font-medium text-[#4f433d]">
                   Topic or prompt
