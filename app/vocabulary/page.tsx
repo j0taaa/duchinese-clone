@@ -1,8 +1,15 @@
 import { AppHeader } from "@/components/app-header";
-import { getVocabularyLevelGroups } from "@/lib/vocabulary";
+import { getServerSession } from "@/lib/session";
+import { getVocabularyReadStatsForUser } from "@/lib/story-service";
+import { getVocabularyLevelGroups, mergeVocabularyReadStats } from "@/lib/vocabulary";
 
-export default function VocabularyPage() {
-  const levels = getVocabularyLevelGroups();
+export default async function VocabularyPage() {
+  const session = await getServerSession();
+  const baseLevels = getVocabularyLevelGroups();
+  const readStats = session
+    ? await getVocabularyReadStatsForUser(session.user.id)
+    : new Map();
+  const levels = mergeVocabularyReadStats(baseLevels, readStats);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f4,_#f7f1e9_52%,_#f2ece4_100%)]">
@@ -52,6 +59,20 @@ export default function VocabularyPage() {
                     <p className="mt-3 text-sm leading-6 text-[#645852]">
                       {entry.definition ?? "No definition available."}
                     </p>
+                    <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-[#7b6f68]">
+                      <span className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-2.5 py-1">
+                        {entry.readCount} reads
+                      </span>
+                      <span className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-2.5 py-1">
+                        {entry.lastReadAt
+                          ? `Last read ${new Date(entry.lastReadAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}`
+                          : "Not read yet"}
+                      </span>
+                    </div>
                   </article>
                 ))}
               </div>

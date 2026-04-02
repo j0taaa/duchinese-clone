@@ -10,6 +10,8 @@ export type VocabularyLevelGroup = {
     hanzi: string;
     pinyin: string | null;
     definition: string | null;
+    readCount: number;
+    lastReadAt: Date | string | null;
   }>;
 };
 
@@ -23,6 +25,7 @@ const hskFiles = [
 ] as const;
 
 let cachedVocabulary: VocabularyLevelGroup[] | null = null;
+let cachedVocabularyCharacters: Set<string> | null = null;
 
 export function getVocabularyLevelGroups() {
   if (cachedVocabulary) {
@@ -42,6 +45,8 @@ export function getVocabularyLevelGroups() {
         hanzi,
         pinyin: result.pinyin,
         definition: result.definition,
+        readCount: 0,
+        lastReadAt: null,
       };
     });
 
@@ -53,4 +58,52 @@ export function getVocabularyLevelGroups() {
   });
 
   return cachedVocabulary;
+}
+
+export function getTrackedVocabularyCharacters() {
+  if (cachedVocabularyCharacters) {
+    return cachedVocabularyCharacters;
+  }
+
+  const characters = new Set(
+    getVocabularyLevelGroups().flatMap((level) =>
+      level.characters.map((entry) => entry.hanzi),
+    ),
+  );
+
+  cachedVocabularyCharacters = characters;
+  return characters;
+}
+
+export function countTrackedVocabularyOccurrences(text: string) {
+  const tracked = getTrackedVocabularyCharacters();
+  const counts = new Map<string, number>();
+
+  for (const char of Array.from(text)) {
+    if (!tracked.has(char)) {
+      continue;
+    }
+
+    counts.set(char, (counts.get(char) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+export function mergeVocabularyReadStats(
+  levels: VocabularyLevelGroup[],
+  stats: Map<string, { readCount: number; lastReadAt: Date | string | null }>,
+) {
+  return levels.map((level) => ({
+    ...level,
+    characters: level.characters.map((entry) => {
+      const stat = stats.get(entry.hanzi);
+
+      return {
+        ...entry,
+        readCount: stat?.readCount ?? 0,
+        lastReadAt: stat?.lastReadAt ?? null,
+      };
+    }),
+  }));
 }

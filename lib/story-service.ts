@@ -9,6 +9,7 @@ import {
   type StoryType,
   type StoryVisibility,
 } from "@/lib/stories";
+import { countTrackedVocabularyOccurrences } from "@/lib/vocabulary";
 
 const publicVisibilities = ["public_seeded", "public_user"] as const;
 
@@ -156,20 +157,65 @@ export async function getStoryListForReader(userId?: string | null) {
 }
 
 export async function markStoryRead(userId: string, storyId: string) {
-  return prisma.storyRead.upsert({
+  const now = new Date();
+  const story = await prisma.story.findUnique({
     where: {
-      userId_storyId: {
+      id: storyId,
+    },
+    select: {
+      hanziText: true,
+    },
+  });
+
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
+  const vocabularyCounts = countTrackedVocabularyOccurrences(story.hanziText);
+
+  return prisma.$transaction(async (tx) => {
+    const read = await tx.storyRead.upsert({
+      where: {
+        userId_storyId: {
+          userId,
+          storyId,
+        },
+      },
+      update: {
+        readAt: now,
+      },
+      create: {
         userId,
         storyId,
       },
-    },
-    update: {
-      readAt: new Date(),
-    },
-    create: {
-      userId,
-      storyId,
-    },
+    });
+
+    for (const [hanzi, count] of vocabularyCounts.entries()) {
+      await tx.vocabularyRead.upsert({
+        where: {
+          userId_hanzi: {
+            userId,
+            hanzi,
+          },
+        },
+        update: {
+          readCount: {
+            increment: count,
+          },
+          lastReadAt: now,
+        },
+        create: {
+          userId,
+          hanzi,
+          readCount: count,
+          lastReadAt: now,
+        },
+      });
+    }
+
+    return read;
+  }, {
+    timeout: 20000,
   });
 }
 
@@ -184,6 +230,29 @@ export async function listReadStoryIdsForUser(userId: string) {
   });
 
   return reads.map((read) => read.storyId);
+}
+
+export async function getVocabularyReadStatsForUser(userId: string) {
+  const reads = await prisma.vocabularyRead.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      hanzi: true,
+      readCount: true,
+      lastReadAt: true,
+    },
+  });
+
+  return new Map(
+    reads.map((entry) => [
+      entry.hanzi,
+      {
+        readCount: entry.readCount,
+        lastReadAt: entry.lastReadAt,
+      },
+    ]),
+  );
 }
 
 export async function listPublicSeries(userId?: string | null) {

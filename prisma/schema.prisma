@@ -38,6 +38,7 @@ model User {
   aiSettings    UserAiSettings?
   stories       Story[]
   storyReads    StoryRead[]
+  vocabularyReads VocabularyRead[]
 
   @@map("user")
 }
@@ -140,4 +141,17 @@ model StoryRead {
   @@index([userId, readAt(sort: Desc)])
   @@index([storyId])
   @@map("story_read")
+}
+
+model VocabularyRead {
+  id         String   @id @default(cuid())
+  userId     String
+  hanzi      String
+  readCount  Int      @default(0)
+  lastReadAt DateTime
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hanzi])
+  @@index([userId, lastReadAt(sort: Desc)])
+  @@map("vocabulary_read")
 }
