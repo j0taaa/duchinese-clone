@@ -3,13 +3,33 @@ import { getServerSession } from "@/lib/session";
 import { getVocabularyReadStatsForUser } from "@/lib/story-service";
 import { getVocabularyLevelGroups, mergeVocabularyReadStats } from "@/lib/vocabulary";
 
-export default async function VocabularyPage() {
+type VocabularyPageProps = {
+  searchParams?: Promise<{
+    level?: string;
+  }>;
+};
+
+const validLevels = new Set(["all", "hsk1", "hsk2", "hsk3", "hsk4", "hsk5", "hsk6"]);
+
+export default async function VocabularyPage({ searchParams }: VocabularyPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const selectedLevel = validLevels.has(resolvedSearchParams?.level ?? "")
+    ? (resolvedSearchParams?.level as string)
+    : "all";
   const session = await getServerSession();
   const baseLevels = getVocabularyLevelGroups();
   const readStats = session
     ? await getVocabularyReadStatsForUser(session.user.id)
     : new Map();
   const levels = mergeVocabularyReadStats(baseLevels, readStats);
+  const visibleLevels =
+    selectedLevel === "all"
+      ? levels
+      : levels.filter((level) => level.key === selectedLevel);
+  const filters = [
+    { key: "all", title: "All" },
+    ...levels.map((level) => ({ key: level.key, title: level.title })),
+  ];
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f4,_#f7f1e9_52%,_#f2ece4_100%)]">
@@ -17,11 +37,16 @@ export default async function VocabularyPage() {
 
       <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-8 px-4 py-8 sm:px-6 xl:px-10">
         <div className="flex flex-wrap gap-3">
-          {levels.map((level) => (
+          {filters.map((level) => (
             <a
               key={level.key}
-              href={`#${level.key}`}
-              className="rounded-full border border-[#ead9cf] bg-white px-4 py-2 text-sm text-[#554842] hover:bg-[#faf4ef]"
+              href={level.key === "all" ? "/vocabulary" : `/vocabulary?level=${level.key}`}
+              className={[
+                "rounded-full border px-4 py-2 text-sm transition-colors",
+                selectedLevel === level.key
+                  ? "border-[#ea4e47] bg-[#ea4e47] text-white shadow-[0_14px_28px_-18px_rgba(234,78,71,0.8)]"
+                  : "border-[#ead9cf] bg-white text-[#554842] hover:bg-[#faf4ef]",
+              ].join(" ")}
             >
               {level.title}
             </a>
@@ -29,7 +54,7 @@ export default async function VocabularyPage() {
         </div>
 
         <div className="space-y-8">
-          {levels.map((level) => (
+          {visibleLevels.map((level) => (
             <section
               key={level.key}
               id={level.key}
