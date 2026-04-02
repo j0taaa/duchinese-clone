@@ -104,7 +104,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-white/70 bg-white/90 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)]">
+          <div className="sticky top-[92px] z-20 rounded-[28px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm">
             <div className="border-b border-[#efe2d8] px-5 py-4 sm:px-6">
               <div className="flex items-center justify-between gap-4 text-sm text-[#877870]">
                 <span>Sentence meaning</span>
