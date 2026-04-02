@@ -3,17 +3,21 @@
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { SeriesCard } from "@/components/series-card";
 import { StoryCard } from "@/components/story-card";
+import { type AppSeries } from "@/lib/series";
 import { type AppStory, getLevelLabel, storyLevelValues } from "@/lib/stories";
 
 const filterOptions = ["all", ...storyLevelValues] as const;
 
 export function LibraryScreen({
   publicStories,
+  publicSeries,
   latestUserStories,
   signedIn,
 }: {
   publicStories: AppStory[];
+  publicSeries: AppSeries[];
   latestUserStories: AppStory[];
   signedIn: boolean;
 }) {
@@ -35,6 +39,31 @@ export function LibraryScreen({
       return matchesLevel && matchesQuery;
     });
   }, [filter, publicStories, query]);
+
+  const filteredSeries = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+
+    return publicSeries.filter((series) => {
+      const matchesLevel = filter === "all" ? true : series.level === filter;
+      const matchesQuery = needle
+        ? [
+            series.title,
+            series.titleTranslation,
+            series.summary,
+            ...series.stories.flatMap((story) => [
+              story.title,
+              story.titleTranslation,
+              story.summary,
+            ]),
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(needle)
+        : true;
+
+      return matchesLevel && matchesQuery;
+    });
+  }, [filter, publicSeries, query]);
 
   const starterStories = filteredStories.filter((story) => story.isSeeded);
   const communityStories = filteredStories.filter((story) => !story.isSeeded);
@@ -80,6 +109,14 @@ export function LibraryScreen({
         />
       ) : null}
 
+      {filteredSeries.length ? (
+        <SeriesSection
+          title="Series"
+          description="Collections of lessons around the same subject."
+          series={filteredSeries}
+        />
+      ) : null}
+
       <LibrarySection
         title="Starter library"
         description="Bundled public lessons ready to read without signing in."
@@ -94,6 +131,32 @@ export function LibraryScreen({
         />
       ) : null}
     </div>
+  );
+}
+
+function SeriesSection({
+  title,
+  description,
+  series,
+}: {
+  title: string;
+  description: string;
+  series: AppSeries[];
+}) {
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#271d18]">
+          {title}
+        </h2>
+        <p className="text-sm leading-6 text-[#6d615b]">{description}</p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {series.map((entry) => (
+          <SeriesCard key={entry.slug} series={entry} />
+        ))}
+      </div>
+    </section>
   );
 }
 

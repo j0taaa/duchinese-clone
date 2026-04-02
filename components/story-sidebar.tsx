@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Layers3, Menu } from "lucide-react";
 
+import { type AppSeries } from "@/lib/series";
 import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
 
 import {
@@ -112,7 +113,8 @@ function SidebarContent({
 export function RecommendedLessons({
   stories,
   activeSlug,
-}: Pick<StorySidebarProps, "stories" | "activeSlug">) {
+  series,
+}: Pick<StorySidebarProps, "stories" | "activeSlug"> & { series?: AppSeries | null }) {
   return (
     <section className="space-y-4 rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.28)] sm:p-6">
       <div className="space-y-1">
@@ -123,6 +125,8 @@ export function RecommendedLessons({
           Keep reading with another lesson from your library.
         </p>
       </div>
+
+      {series ? <SeriesCallout series={series} /> : null}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {stories.map((story) => (
@@ -154,5 +158,29 @@ export function RecommendedLessons({
         ))}
       </div>
     </section>
+  );
+}
+
+function SeriesCallout({ series }: { series: AppSeries }) {
+  return (
+    <Link
+      href={`/series/${series.slug}`}
+      prefetch={false}
+      className="flex items-start justify-between gap-4 rounded-[24px] border border-[#eadcd2] bg-[#fff8f3] px-5 py-4 transition-colors hover:bg-white"
+    >
+      <div className="space-y-1">
+        <p className="inline-flex items-center gap-2 text-sm font-medium text-[#8b6759]">
+          <Layers3 className="size-4" />
+          Part of a series
+        </p>
+        <p className="text-lg font-semibold tracking-tight text-[#241815]">
+          {series.titleTranslation}
+        </p>
+        <p className="text-sm leading-6 text-[#6c625d]">{series.summary}</p>
+      </div>
+      <span className="shrink-0 rounded-full border border-[#ead6cb] bg-white px-3 py-1 text-xs font-medium text-[#7a5a4f]">
+        {series.stories.length} lessons
+      </span>
+    </Link>
   );
 }

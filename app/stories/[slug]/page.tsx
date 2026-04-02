@@ -6,6 +6,7 @@ import { buildReaderStory } from "@/lib/dictionary";
 import { getServerSession } from "@/lib/session";
 import {
   getAccessibleStoryBySlug,
+  getSeriesForAccessibleStory,
   getStoryListForReader,
 } from "@/lib/story-service";
 
@@ -34,9 +35,10 @@ export async function generateMetadata({ params }: StoryPageProps) {
 export default async function StoryPage({ params }: StoryPageProps) {
   const { slug } = await params;
   const session = await getServerSession();
-  const [story, stories] = await Promise.all([
+  const [story, stories, series] = await Promise.all([
     getAccessibleStoryBySlug(slug, session?.user.id),
     getStoryListForReader(session?.user.id),
+    getSeriesForAccessibleStory(slug, session?.user.id),
   ]);
 
   if (!story) {
@@ -46,7 +48,11 @@ export default async function StoryPage({ params }: StoryPageProps) {
   return (
     <div className="min-h-screen">
       <AppHeader active="library" />
-      <ReaderLayout stories={stories} story={buildReaderStory(story)} />
+      <ReaderLayout
+        stories={stories}
+        story={buildReaderStory(story)}
+        series={series}
+      />
     </div>
   );
 }

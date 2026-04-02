@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { DictionaryToken, ReaderStory } from "@/lib/dictionary";
 import { getStoryHskLabel } from "@/lib/hsk";
+import { type AppSeries } from "@/lib/series";
 import { getLevelLabel, storyLevelMeta, type AppStory } from "@/lib/stories";
 
 import { RecommendedLessons, StorySidebar } from "@/components/story-sidebar";
@@ -33,6 +34,7 @@ import { cn } from "@/lib/utils";
 type ReaderLayoutProps = {
   stories: AppStory[];
   story: ReaderStory;
+  series?: AppSeries | null;
 };
 
 const READER_PREFERENCES_KEY = "hanzilane-reader-preferences";
@@ -59,7 +61,7 @@ function getStoredReaderPreferences() {
   }
 }
 
-export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
+export function ReaderLayout({ stories, story, series }: ReaderLayoutProps) {
   const [showPinyin, setShowPinyin] = useState(() => {
     const stored = getStoredReaderPreferences();
     return stored?.showPinyin ?? true;
@@ -256,7 +258,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
             </CardContent>
           </Card>
 
-          <RecommendedLessons stories={stories} activeSlug={story.slug} />
+          <RecommendedLessons stories={stories} activeSlug={story.slug} series={series} />
 
           <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white/90 backdrop-blur-xl">
             <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between xl:px-10">

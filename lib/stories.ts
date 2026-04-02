@@ -11,6 +11,11 @@ export const storyVisibilityValues = [
 export type StoryType = (typeof storyTypeValues)[number];
 export type StoryLevel = (typeof storyLevelValues)[number];
 export type StoryVisibility = (typeof storyVisibilityValues)[number];
+const storyLevelRank: Record<StoryLevel, number> = {
+  beginner: 1,
+  elementary: 2,
+  intermediate: 3,
+};
 
 export const storySectionSchema = z.object({
   hanzi: z.string().min(1),
@@ -196,8 +201,137 @@ export const seedStories: SeedStory[] = [
       },
     ],
   },
+  {
+    slug: "subway-ride",
+    title: "地铁上的小帮忙",
+    titleTranslation: "A Small Favor on the Subway",
+    type: "dialogue",
+    level: "beginner",
+    summary:
+      "A short subway encounter about helping someone find the right stop.",
+    excerpt: "在地铁上，一个学生问林娜：“请问，人民广场是不是下一站？”",
+    hanziText:
+      "在地铁上，一个学生问林娜：“请问，人民广场是不是下一站？”林娜看了一眼地铁图，说：“对，下一站就是。你可以先准备下车。”学生笑着说谢谢，又问出站以后怎么去博物馆。林娜告诉他，出站以后一直往前走，过一个路口就到了。",
+    pinyinText:
+      "Zài dì tiě shàng, yí ge xué sheng wèn Lín Nà: qǐng wèn, Rén mín Guǎng chǎng shì bu shì xià yí zhàn? Lín Nà kàn le yì yǎn dì tiě tú, shuō: duì, xià yí zhàn jiù shì. Nǐ kě yǐ xiān zhǔn bèi xià chē. Xué sheng xiào zhe shuō xiè xie, yòu wèn chū zhàn yǐ hòu zěn me qù bó wù guǎn. Lín Nà gào su tā, chū zhàn yǐ hòu yì zhí wǎng qián zǒu, guò yí ge lù kǒu jiù dào le.",
+    englishTranslation:
+      "On the subway, a student asks Lin Na whether People’s Square is the next stop. Lin Na checks the map and says yes, and suggests getting ready to get off. The student thanks her and then asks how to get to the museum after leaving the station. Lin Na explains that he should walk straight ahead and it will be there after one intersection.",
+    sections: [
+      {
+        hanzi: "在地铁上，一个学生问林娜：“请问，人民广场是不是下一站？”",
+        pinyin:
+          "Zài dì tiě shàng, yí ge xué sheng wèn Lín Nà: qǐng wèn, Rén mín Guǎng chǎng shì bu shì xià yí zhàn?",
+        english:
+          "On the subway, a student asks Lin Na, 'Excuse me, is People’s Square the next stop?'",
+      },
+      {
+        hanzi: "林娜看了一眼地铁图，说：“对，下一站就是。你可以先准备下车。”",
+        pinyin:
+          "Lín Nà kàn le yì yǎn dì tiě tú, shuō: duì, xià yí zhàn jiù shì. Nǐ kě yǐ xiān zhǔn bèi xià chē.",
+        english:
+          "Lin Na glances at the subway map and says, 'Yes, the next stop is it. You can get ready to get off now.'",
+      },
+      {
+        hanzi: "学生笑着说谢谢，又问出站以后怎么去博物馆。林娜告诉他，出站以后一直往前走，过一个路口就到了。",
+        pinyin:
+          "Xué sheng xiào zhe shuō xiè xie, yòu wèn chū zhàn yǐ hòu zěn me qù bó wù guǎn. Lín Nà gào su tā, chū zhàn yǐ hòu yì zhí wǎng qián zǒu, guò yí ge lù kǒu jiù dào le.",
+        english:
+          "The student smiles and says thanks, then asks how to get to the museum after exiting the station. Lin Na tells him to walk straight ahead, and it will be there after one intersection.",
+      },
+    ],
+  },
+  {
+    slug: "park-lunch",
+    title: "公园里的午饭",
+    titleTranslation: "Lunch in the Park",
+    type: "story",
+    level: "elementary",
+    summary:
+      "Coworkers bring lunch to the park and talk about why small breaks matter.",
+    excerpt: "中午的时候，小王和同事带着午饭去公园。",
+    hanziText:
+      "中午的时候，小王和同事带着午饭去公园。今天阳光很好，风也不大，所以大家都想在外面坐一会儿。有人带了三明治，有人带了水果，还有人买了热豆浆。小王说，在办公室附近有这样一个安静的地方，工作的时候会觉得轻松一点。",
+    pinyinText:
+      "Zhōng wǔ de shí hou, Xiǎo Wáng hé tóng shì dài zhe wǔ fàn qù gōng yuán. Jīn tiān yáng guāng hěn hǎo, fēng yě bú dà, suǒ yǐ dà jiā dōu xiǎng zài wài miàn zuò yí huìr. Yǒu rén dài le sān míng zhì, yǒu rén dài le shuǐ guǒ, hái yǒu rén mǎi le rè dòu jiāng. Xiǎo Wáng shuō, zài bàn gōng shì fù jìn yǒu zhè yàng yí ge ān jìng de dì fang, gōng zuò de shí hou huì jué de qīng sōng yì diǎn.",
+    englishTranslation:
+      "At noon, Xiao Wang and his coworkers bring lunch to the park. The sunlight is nice and the wind is light, so everyone wants to sit outside for a while. Some bring sandwiches, some bring fruit, and some buy hot soy milk. Xiao Wang says that having a quiet place like this near the office makes work feel a little easier.",
+    sections: [
+      {
+        hanzi: "中午的时候，小王和同事带着午饭去公园。今天阳光很好，风也不大，所以大家都想在外面坐一会儿。",
+        pinyin:
+          "Zhōng wǔ de shí hou, Xiǎo Wáng hé tóng shì dài zhe wǔ fàn qù gōng yuán. Jīn tiān yáng guāng hěn hǎo, fēng yě bú dà, suǒ yǐ dà jiā dōu xiǎng zài wài miàn zuò yí huìr.",
+        english:
+          "At noon, Xiao Wang and his coworkers bring lunch to the park. The sunlight is nice and the wind is not strong, so everyone wants to sit outside for a while.",
+      },
+      {
+        hanzi: "有人带了三明治，有人带了水果，还有人买了热豆浆。",
+        pinyin:
+          "Yǒu rén dài le sān míng zhì, yǒu rén dài le shuǐ guǒ, hái yǒu rén mǎi le rè dòu jiāng.",
+        english:
+          "Some people brought sandwiches, some brought fruit, and others bought hot soy milk.",
+      },
+      {
+        hanzi: "小王说，在办公室附近有这样一个安静的地方，工作的时候会觉得轻松一点。",
+        pinyin:
+          "Xiǎo Wáng shuō, zài bàn gōng shì fù jìn yǒu zhè yàng yí ge ān jìng de dì fang, gōng zuò de shí hou huì jué de qīng sōng yì diǎn.",
+        english:
+          "Xiao Wang says that having a quiet place like this near the office makes work feel a little lighter.",
+      },
+    ],
+  },
+  {
+    slug: "weekend-bookshelf",
+    title: "周末整理书架",
+    titleTranslation: "Reorganizing the Bookshelf",
+    type: "journal",
+    level: "intermediate",
+    summary:
+      "A weekend reflection about cleaning, sorting old books, and remembering different stages of life.",
+    excerpt: "这个周末，我没有安排太多事情，只想在家整理一下书架。",
+    hanziText:
+      "这个周末，我没有安排太多事情，只想在家整理一下书架。平常总觉得没有时间，可是真的开始整理以后，才发现很多书已经很久没有碰过。有些书是上大学的时候买的，有些是搬家以后朋友送的。一本一本拿下来以后，我忽然觉得，书架不只是放书的地方，也像是在安静地记录过去几年的生活。",
+    pinyinText:
+      "Zhè ge zhōu mò, wǒ méi yǒu ān pái tài duō shì qing, zhǐ xiǎng zài jiā zhěng lǐ yí xià shū jià. Píng cháng zǒng jué de méi yǒu shí jiān, kě shì zhēn de kāi shǐ zhěng lǐ yǐ hòu, cái fā xiàn hěn duō shū yǐ jīng hěn jiǔ méi yǒu pèng guò. Yǒu xiē shū shì shàng dà xué de shí hou mǎi de, yǒu xiē shì bān jiā yǐ hòu péng you sòng de. Yì běn yì běn ná xià lái yǐ hòu, wǒ hū rán jué de, shū jià bú zhǐ shì fàng shū de dì fang, yě xiàng shì zài ān jìng de jì lù guò qù jǐ nián de shēng huó.",
+    englishTranslation:
+      "This weekend, I did not plan too many things. I just wanted to organize the bookshelf at home. I always feel like I do not have time, but once I really started, I realized many of the books had not been touched in a long while. Some were bought in college, and some were gifts from friends after I moved. As I took them down one by one, I suddenly felt that a bookshelf is not only a place to keep books, but also a quiet record of the past few years of life.",
+    sections: [
+      {
+        hanzi: "这个周末，我没有安排太多事情，只想在家整理一下书架。",
+        pinyin:
+          "Zhè ge zhōu mò, wǒ méi yǒu ān pái tài duō shì qing, zhǐ xiǎng zài jiā zhěng lǐ yí xià shū jià.",
+        english:
+          "This weekend, I did not plan too many things and only wanted to organize the bookshelf at home.",
+      },
+      {
+        hanzi: "平常总觉得没有时间，可是真的开始整理以后，才发现很多书已经很久没有碰过。",
+        pinyin:
+          "Píng cháng zǒng jué de méi yǒu shí jiān, kě shì zhēn de kāi shǐ zhěng lǐ yǐ hòu, cái fā xiàn hěn duō shū yǐ jīng hěn jiǔ méi yǒu pèng guò.",
+        english:
+          "I usually feel there is no time, but after really starting to tidy up, I realized many books had not been touched for a long time.",
+      },
+      {
+        hanzi: "一本一本拿下来以后，我忽然觉得，书架不只是放书的地方，也像是在安静地记录过去几年的生活。",
+        pinyin:
+          "Yì běn yì běn ná xià lái yǐ hòu, wǒ hū rán jué de, shū jià bú zhǐ shì fàng shū de dì fang, yě xiàng shì zài ān jìng de jì lù guò qù jǐ nián de shēng huó.",
+        english:
+          "After taking them down one by one, I suddenly felt that a bookshelf is not just a place for books, but also quietly records the life of the past few years.",
+      },
+    ],
+  },
 ];
 
 export function getLevelLabel(level: StoryLevel) {
   return storyLevelMeta[level].label;
+}
+
+export function compareStoryLevels(left: StoryLevel, right: StoryLevel) {
+  return storyLevelRank[left] - storyLevelRank[right];
+}
+
+export function getHighestStoryLevel(levels: StoryLevel[]) {
+  return levels.reduce<StoryLevel>(
+    (highest, current) =>
+      compareStoryLevels(current, highest) > 0 ? current : highest,
+    "beginner",
+  );
 }

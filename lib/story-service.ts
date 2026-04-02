@@ -1,5 +1,6 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getSeriesBySlug, getSeriesForStory, hydrateSeries } from "@/lib/series";
 import {
   type AppStory,
   type SeedStory,
@@ -152,6 +153,30 @@ export async function getStoryListForReader(userId?: string | null) {
     : await listPublicStories();
 
   return stories;
+}
+
+export async function listPublicSeries(userId?: string | null) {
+  const stories = userId
+    ? await listStoriesForUser(userId)
+    : await listPublicStories();
+
+  return hydrateSeries(stories);
+}
+
+export async function getAccessibleSeriesBySlug(slug: string, userId?: string | null) {
+  const stories = userId
+    ? await listStoriesForUser(userId)
+    : await listPublicStories();
+
+  return getSeriesBySlug(slug, stories);
+}
+
+export async function getSeriesForAccessibleStory(storySlug: string, userId?: string | null) {
+  const stories = userId
+    ? await listStoriesForUser(userId)
+    : await listPublicStories();
+
+  return getSeriesForStory(storySlug, stories);
 }
 
 export async function getAiSettingsSummary(userId: string) {
