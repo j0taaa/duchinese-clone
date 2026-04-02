@@ -1,20 +1,14 @@
 import type { ReactNode } from "react";
-import { BookOpenText, Lock, Sparkles } from "lucide-react";
+import { Lock, Sparkles } from "lucide-react";
 
 import { AppHeader } from "@/components/app-header";
 import { StoryCard } from "@/components/story-card";
 import { requireServerSession } from "@/lib/session";
-import {
-  listGeneratedStoriesForUser,
-  listSeededStories,
-} from "@/lib/story-service";
+import { listGeneratedStoriesForUser } from "@/lib/story-service";
 
 export default async function MyLibraryPage() {
   const session = await requireServerSession();
-  const [starterStories, userStories] = await Promise.all([
-    listSeededStories(),
-    listGeneratedStoriesForUser(session.user.id),
-  ]);
+  const userStories = await listGeneratedStoriesForUser(session.user.id);
 
   const privateStories = userStories.filter(
     (story) => story.visibility === "private_user",
@@ -40,19 +34,13 @@ export default async function MyLibraryPage() {
                   Your saved stories, synced to your account
                 </h1>
                 <p className="max-w-3xl text-sm leading-7 text-[#6a5b55] sm:text-base">
-                  Seeded starter lessons stay available here, and every story you
-                  generate is saved server-side so you can reopen it from any
-                  device after signing in.
+                  Every story you generate is saved server-side so you can reopen
+                  it from any device after signing in.
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <StatCard
-                icon={<BookOpenText className="size-4" />}
-                label="Starter library"
-                value={String(starterStories.length)}
-              />
+            <div className="grid gap-3 sm:grid-cols-2">
               <StatCard
                 icon={<Lock className="size-4" />}
                 label="Private stories"
@@ -73,12 +61,6 @@ export default async function MyLibraryPage() {
           stories={userStories}
           emptyMessage="You haven’t generated a story yet. Open the Generate page to create your first lesson."
         />
-
-        <Section
-          title="Starter library"
-          description="The bundled lessons everyone can read, even before signing in."
-          stories={starterStories}
-        />
       </div>
     </main>
   );
@@ -92,7 +74,7 @@ function Section({
 }: {
   title: string;
   description: string;
-  stories: Awaited<ReturnType<typeof listSeededStories>>;
+  stories: Awaited<ReturnType<typeof listGeneratedStoriesForUser>>;
   emptyMessage?: string;
 }) {
   return (
