@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { BookOpenText, LibraryBig, Settings2, Sparkles } from "lucide-react";
+import { BookOpenText, LibraryBig, Sparkles } from "lucide-react";
 
 import { getServerSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/user-menu";
 
 type AppHeaderProps = {
-  active: "library" | "my-library" | "generate" | "settings" | "auth";
+  active: "library" | "my-library" | "generate" | "profile" | "auth";
 };
 
 export async function AppHeader({ active }: AppHeaderProps) {
@@ -27,12 +27,6 @@ export async function AppHeader({ active }: AppHeaderProps) {
             label: "Generate",
             key: "generate",
             icon: Sparkles,
-          },
-          {
-            href: "/settings",
-            label: "Settings",
-            key: "settings",
-            icon: Settings2,
           },
         ]
       : []),
@@ -79,7 +73,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
 
         <div className="flex items-center gap-3">
           {session ? (
-            <UserMenu name={session.user.name} email={session.user.email} />
+            <UserMenu name={session.user.name} />
           ) : (
             <div className="flex items-center gap-2">
               <Link

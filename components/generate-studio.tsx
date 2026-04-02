@@ -99,10 +99,10 @@ export function GenerateStudio({
               Save your `Model URL`, `API key`, and `Model` first.
             </p>
             <Link
-              href="/settings"
+              href="/profile"
               className="mt-4 inline-flex rounded-full bg-[#ea4e47] px-4 py-2 font-medium text-white"
             >
-              Open settings
+              Open profile
             </Link>
           </div>
         ) : (

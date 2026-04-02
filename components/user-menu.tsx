@@ -1,45 +1,18 @@
 "use client";
 
-import { Loader2, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import Link from "next/link";
+import { UserRound } from "lucide-react";
 
-import { authClient } from "@/lib/auth-client";
-import { Button } from "@/components/ui/button";
-
-export function UserMenu({
-  name,
-  email,
-}: {
-  name: string;
-  email: string;
-}) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-
-  function handleSignOut() {
-    startTransition(async () => {
-      await authClient.signOut();
-      router.push("/");
-      router.refresh();
-    });
-  }
-
+export function UserMenu({ name }: { name: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="hidden rounded-full border border-[#ecdcd2] bg-white/90 px-4 py-2 text-right shadow-sm sm:block">
-        <p className="text-sm font-semibold text-[#2b201c]">{name}</p>
-        <p className="text-xs text-[#7f736d]">{email}</p>
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        className="h-11 rounded-full border-[#eadcd2] bg-white/90 px-4 text-[#2b201c] hover:bg-[#f9f4ef]"
-        onClick={handleSignOut}
-      >
-        {isPending ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
-        Sign out
-      </Button>
-    </div>
+    <Link
+      href="/profile"
+      className="inline-flex h-12 items-center gap-3 rounded-full border border-[#eadcd2] bg-white/92 px-4 text-[#2b201c] shadow-sm transition-colors hover:bg-[#f9f4ef]"
+    >
+      <span className="inline-flex size-8 items-center justify-center rounded-full bg-[#fff3ef] text-[#d14f43]">
+        <UserRound className="size-4" />
+      </span>
+      <span className="max-w-[11rem] truncate text-sm font-semibold">{name}</span>
+    </Link>
   );
 }
