@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { DictionaryToken, ReaderStory } from "@/lib/dictionary";
 import { getLevelLabel, storyLevelMeta, type AppStory } from "@/lib/stories";
 
-import { StorySidebar } from "@/components/story-sidebar";
+import { RecommendedLessons, StorySidebar } from "@/components/story-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -105,6 +105,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
         <StorySidebar
           stories={stories}
           activeSlug={story.slug}
+          hideDesktop
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-5 pb-24">
@@ -230,6 +231,8 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
               </div>
             </CardContent>
           </Card>
+
+          <RecommendedLessons stories={stories} activeSlug={story.slug} />
 
           <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white/90 backdrop-blur-xl">
             <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between xl:px-10">

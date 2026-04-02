@@ -46,7 +46,7 @@ export function StorySidebar({
         className={
           hideDesktop
             ? "hidden"
-            : "sticky top-28 hidden h-[calc(100vh-8rem)] w-[310px] shrink-0 xl:block"
+            : "hidden"
         }
       >
         <div className="h-full overflow-hidden rounded-[30px] border border-white/70 bg-white/86 shadow-[0_18px_60px_-46px_rgba(80,45,24,0.3)] backdrop-blur">
@@ -106,5 +106,53 @@ function SidebarContent({
         </div>
       </div>
     </div>
+  );
+}
+
+export function RecommendedLessons({
+  stories,
+  activeSlug,
+}: Pick<StorySidebarProps, "stories" | "activeSlug">) {
+  return (
+    <section className="space-y-4 rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.28)] sm:p-6">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight text-[#241815]">
+          Recommended lessons
+        </h2>
+        <p className="text-sm leading-6 text-[#6c625d]">
+          Keep reading with another lesson from your library.
+        </p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {stories.map((story) => (
+          <Link
+            key={story.id}
+            href={`/stories/${story.slug}`}
+            prefetch={false}
+            className={[
+              "block rounded-[22px] border px-4 py-4 transition-colors",
+              activeSlug === story.slug
+                ? "border-[#efd8cf] bg-[#fff7f4]"
+                : "border-[#efe3d9] bg-[#fcf8f4] hover:bg-white",
+            ].join(" ")}
+          >
+            <div className="mb-3 flex items-center gap-2 text-sm text-[#666]">
+              <span
+                className={[
+                  "size-3 rounded-full",
+                  storyLevelMeta[story.level].dotClass,
+                ].join(" ")}
+              />
+              <span>{getLevelLabel(story.level)}</span>
+            </div>
+            <p className="text-lg font-medium leading-7 text-[#202020]">
+              {story.titleTranslation}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#757575]">{story.title}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
