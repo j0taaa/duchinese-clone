@@ -71,6 +71,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
                 <div className="flex items-center gap-3 text-sm text-[#6e625c]">
                   <Link
                     href="/"
+                    prefetch={false}
                     className={cn(
                       buttonVariants({
                         variant: "ghost",

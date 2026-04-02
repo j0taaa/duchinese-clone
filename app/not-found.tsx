@@ -14,6 +14,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
+          prefetch={false}
           className="inline-flex h-8 items-center justify-center rounded-full bg-[#3f2313] px-5 text-sm font-medium whitespace-nowrap text-white transition-colors hover:bg-[#5b3420]"
         >
           Return to the library

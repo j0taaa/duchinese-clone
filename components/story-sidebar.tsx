@@ -84,6 +84,7 @@ function SidebarContent({
             <Link
               key={story.id}
               href={`/stories/${story.slug}`}
+              prefetch={false}
               className={[
                 "block rounded-[22px] border px-4 py-4 transition-colors",
                 activeSlug === story.slug

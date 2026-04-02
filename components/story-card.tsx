@@ -40,6 +40,7 @@ export function StoryCard({
   return (
     <Link
       href={`/stories/${story.slug}`}
+      prefetch={false}
       className="group flex min-w-0 flex-col rounded-[28px] border border-[#ebddd2] bg-white/92 p-4 shadow-[0_18px_50px_-42px_rgba(80,45,24,0.34)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_30px_70px_-48px_rgba(80,45,24,0.44)]"
     >
       <div

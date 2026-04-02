@@ -83,6 +83,7 @@ export function GenerateStudio({
             </p>
             <Link
               href="/profile"
+              prefetch={false}
               className="mt-4 inline-flex rounded-full bg-[#ea4e47] px-4 py-2 font-medium text-white"
             >
               Open profile
@@ -232,6 +233,7 @@ export function GenerateStudio({
                 <Link
                   key={story.id}
                   href={`/stories/${story.slug}`}
+                  prefetch={false}
                   className="block rounded-[20px] border border-[#eadcd2] bg-[#fcf8f4] px-4 py-4 transition-colors hover:bg-white"
                 >
                   <p className="text-sm font-semibold text-[#241815]">

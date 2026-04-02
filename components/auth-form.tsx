@@ -106,6 +106,7 @@ export function AuthForm({
         {mode === "sign-up" ? "Already have an account?" : "Need an account?"}{" "}
         <Link
           href={mode === "sign-up" ? "/sign-in" : "/sign-up"}
+          prefetch={false}
           className="font-semibold text-[#d34d43]"
         >
           {mode === "sign-up" ? "Sign in" : "Create one"}

@@ -32,6 +32,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${outfit.variable} ${notoSerifSc.variable} ${jetbrainsMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col text-[#241815]">{children}</body>
