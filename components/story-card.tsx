@@ -50,11 +50,10 @@ export function StoryCard({
             {visibilityIcon}
           </span>
         </div>
-        <div className="relative z-10 mt-12 space-y-2">
-          <p className="font-reading text-3xl leading-none text-white sm:text-[2.15rem]">
-            {story.title}
+        <div className="relative z-10 flex min-h-[136px] items-center justify-center px-6 text-center">
+          <p className="text-[2.3rem] leading-none tracking-[0.18em] text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:text-[2.8rem]">
+            {story.emojiTitle}
           </p>
-          <p className="max-w-[14rem] text-sm text-white/85">{story.titleTranslation}</p>
         </div>
       </div>
 
@@ -81,8 +80,9 @@ export function StoryCard({
           {showAuthor && story.authorName ? <span>by {story.authorName}</span> : null}
         </div>
         <p className="line-clamp-2 text-lg font-semibold leading-7 tracking-tight text-[#211814]">
-          {story.titleTranslation}
+          {story.title}
         </p>
+        <p className="text-sm font-medium text-[#6f625c]">{story.titleTranslation}</p>
         <p className="line-clamp-3 text-sm leading-6 text-[#6f625c]">{story.summary}</p>
       </div>
     </Link>

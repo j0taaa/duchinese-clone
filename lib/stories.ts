@@ -34,6 +34,7 @@ export type AppStory = {
   slug: string;
   title: string;
   titleTranslation: string;
+  emojiTitle: string;
   summary: string;
   excerpt: string;
   hanziText: string;
@@ -59,6 +60,7 @@ export type SeedStory = Omit<
   | "authorName"
   | "createdAt"
   | "updatedAt"
+  | "emojiTitle"
 >;
 
 export const storyLevelMeta: Record<

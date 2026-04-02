@@ -1,5 +1,6 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getStoryEmojiTitle } from "@/lib/story-labels";
 import { getSeriesBySlug, getSeriesForStory, hydrateSeries } from "@/lib/series";
 import {
   type AppStory,
@@ -40,6 +41,13 @@ function mapStory(record: {
     slug: record.slug,
     title: record.title,
     titleTranslation: record.titleTranslation,
+    emojiTitle: getStoryEmojiTitle({
+      id: record.id,
+      slug: record.slug,
+      titleTranslation: record.titleTranslation,
+      summary: record.summary,
+      type: record.type,
+    }),
     summary: record.summary,
     excerpt: record.excerpt,
     hanziText: record.hanziText,
