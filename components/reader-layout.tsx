@@ -10,7 +10,7 @@ import {
   NotebookPen,
   XIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { DictionaryToken, ReaderStory } from "@/lib/dictionary";
 import { getLevelLabel, storyLevelMeta, type AppStory } from "@/lib/stories";
@@ -34,10 +34,43 @@ type ReaderLayoutProps = {
   story: ReaderStory;
 };
 
+const READER_PREFERENCES_KEY = "hanzilane-reader-preferences";
+
+function getStoredReaderPreferences() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const raw = window.localStorage.getItem(READER_PREFERENCES_KEY);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as {
+      showPinyin?: boolean;
+      showEnglish?: boolean;
+      showCharacters?: boolean;
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
-  const [showPinyin, setShowPinyin] = useState(true);
-  const [showEnglish, setShowEnglish] = useState(true);
-  const [showCharacters, setShowCharacters] = useState(true);
+  const [showPinyin, setShowPinyin] = useState(() => {
+    const stored = getStoredReaderPreferences();
+    return stored?.showPinyin ?? true;
+  });
+  const [showEnglish, setShowEnglish] = useState(() => {
+    const stored = getStoredReaderPreferences();
+    return stored?.showEnglish ?? true;
+  });
+  const [showCharacters, setShowCharacters] = useState(() => {
+    const stored = getStoredReaderPreferences();
+    return stored?.showCharacters ?? true;
+  });
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const firstInteractiveToken = useMemo(
@@ -54,6 +87,17 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
     story.tokenizedSections[0]?.english ?? "",
   );
   const levelMeta = storyLevelMeta[story.level];
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      READER_PREFERENCES_KEY,
+      JSON.stringify({
+        showPinyin,
+        showEnglish,
+        showCharacters,
+      }),
+    );
+  }, [showCharacters, showEnglish, showPinyin]);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fbf7f1,_#f3eee7_55%,_#f1ece5_100%)] text-[#202020]">
