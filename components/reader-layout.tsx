@@ -13,6 +13,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import type { DictionaryToken, ReaderStory } from "@/lib/dictionary";
+import { getStoryHskLabel } from "@/lib/hsk";
 import { getLevelLabel, storyLevelMeta, type AppStory } from "@/lib/stories";
 
 import { RecommendedLessons, StorySidebar } from "@/components/story-sidebar";
@@ -86,6 +87,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
   const [sheetWord, setSheetWord] =
     useState<DictionaryToken | null>(firstInteractiveToken);
   const levelMeta = storyLevelMeta[story.level];
+  const hskLabel = getStoryHskLabel(story);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -172,7 +174,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
                 variant="outline"
                 className={`rounded-full border px-4 py-2 text-sm font-medium ${levelMeta.chipClass}`}
               >
-                {levelMeta.hsk}
+                {hskLabel}
               </Badge>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Globe2, LockKeyhole, Sparkles } from "lucide-react";
 
+import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
 
 const palettes = {
@@ -27,6 +28,7 @@ export function StoryCard({
 }) {
   const palette = palettes[story.level];
   const level = storyLevelMeta[story.level];
+  const hskLabel = getStoryHskLabel(story);
   const createdAt = new Date(story.createdAt);
   const visibilityIcon =
     story.visibility === "private_user" ? (
@@ -72,7 +74,7 @@ export function StoryCard({
           <span
             className={`inline-flex items-center rounded-full border px-2.5 py-1 ${level.chipClass}`}
           >
-            {level.hsk}
+            {hskLabel}
           </span>
           <span>
             {createdAt.toLocaleDateString("en-US", {
