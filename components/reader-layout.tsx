@@ -181,7 +181,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
 
           <div className="sticky top-[92px] z-20 rounded-[28px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm">
             <div className="px-5 py-4 sm:px-6">
-              <div className="min-w-0">
+              <div className="min-h-[104px] min-w-0">
                 <p className="text-sm text-[#9b8e87]">Word meaning</p>
                 {activeWord ? (
                   <div className="flex flex-wrap items-end gap-x-3 gap-y-2 pt-2">
