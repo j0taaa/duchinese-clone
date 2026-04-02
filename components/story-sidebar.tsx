@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Layers3, Menu } from "lucide-react";
+import { CheckCircle2, Layers3, Menu, PlayCircle } from "lucide-react";
 
 import { type AppSeries } from "@/lib/series";
 import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
@@ -107,6 +107,82 @@ function SidebarContent({
         </div>
       </div>
     </div>
+  );
+}
+
+export function SeriesEpisodesSidebar({
+  series,
+  activeSlug,
+  readStoryIds = [],
+}: {
+  series: AppSeries;
+  activeSlug: string;
+  readStoryIds?: string[];
+}) {
+  return (
+    <aside className="hidden w-[320px] shrink-0 xl:block">
+      <div className="sticky top-[92px] rounded-[30px] border border-white/70 bg-white/90 shadow-[0_18px_60px_-46px_rgba(80,45,24,0.3)] backdrop-blur">
+        <div className="border-b border-[#efe3d9] px-6 py-6">
+          <p className="inline-flex items-center gap-2 text-sm font-medium text-[#8b6759]">
+            <Layers3 className="size-4" />
+            Series episodes
+          </p>
+          <p className="mt-2 text-[1.45rem] font-semibold tracking-tight text-[#1f1b18]">
+            {series.titleTranslation}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[#6b615c]">
+            Read through the full sequence in order.
+          </p>
+        </div>
+
+        <div className="max-h-[calc(100vh-140px)] overflow-y-auto px-4 py-4">
+          <div className="space-y-3">
+            {series.stories.map((story, index) => {
+              const isActive = activeSlug === story.slug;
+              const isRead = readStoryIds.includes(story.id);
+
+              return (
+                <Link
+                  key={story.id}
+                  href={`/stories/${story.slug}`}
+                  prefetch={false}
+                  className={[
+                    "block rounded-[22px] border px-4 py-4 transition-colors",
+                    isActive
+                      ? "border-[#efd8cf] bg-[#fff7f4]"
+                      : "border-[#efe3d9] bg-[#fcf8f4] hover:bg-white",
+                  ].join(" ")}
+                >
+                  <div className="mb-3 flex items-center justify-between gap-3 text-sm">
+                    <span className="rounded-full border border-[#ead9cf] bg-white px-2.5 py-1 text-xs font-medium text-[#7d6b61]">
+                      Episode {index + 1}
+                    </span>
+                    {isActive ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[#f0d8cd] bg-[#fff1ea] px-2.5 py-1 text-xs text-[#ba5a4d]">
+                        <PlayCircle className="size-3.5" />
+                        Current
+                      </span>
+                    ) : isRead ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2.5 py-1 text-xs text-[#4f8454]">
+                        <CheckCircle2 className="size-3.5" />
+                        Read
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p className="text-lg font-medium leading-7 text-[#202020]">
+                    {story.titleTranslation}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#757575]">
+                    {story.title}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </aside>
   );
 }
 

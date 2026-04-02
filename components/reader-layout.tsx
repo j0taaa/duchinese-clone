@@ -17,7 +17,11 @@ import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppSeries } from "@/lib/series";
 import { getLevelLabel, storyLevelMeta, type AppStory } from "@/lib/stories";
 
-import { RecommendedLessons, StorySidebar } from "@/components/story-sidebar";
+import {
+  RecommendedLessons,
+  SeriesEpisodesSidebar,
+  StorySidebar,
+} from "@/components/story-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -306,6 +310,14 @@ export function ReaderLayout({
             </div>
           </footer>
         </div>
+
+        {series ? (
+          <SeriesEpisodesSidebar
+            series={series}
+            activeSlug={story.slug}
+            readStoryIds={readStoryIds}
+          />
+        ) : null}
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
