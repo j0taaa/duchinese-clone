@@ -6,27 +6,46 @@ import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/user-menu";
 
 type AppHeaderProps = {
-  active: "library" | "my-library" | "generate" | "profile" | "auth";
+  active: "library" | "vocabulary" | "my-library" | "generate" | "profile" | "auth";
 };
+
+function HanziIcon() {
+  return (
+    <span className="font-reading text-base leading-none" aria-hidden="true">
+      汉
+    </span>
+  );
+}
 
 export async function AppHeader({ active }: AppHeaderProps) {
   const session = await getServerSession();
 
   const navItems = [
-    { href: "/", label: "Library", key: "library", icon: LibraryBig },
+    {
+      href: "/",
+      label: "Library",
+      key: "library",
+      icon: <LibraryBig className="size-4" />,
+    },
+    {
+      href: "/vocabulary",
+      label: "Vocabulary",
+      key: "vocabulary",
+      icon: <HanziIcon />,
+    },
     ...(session
       ? [
           {
             href: "/my-library",
             label: "My Stories",
             key: "my-library",
-            icon: BookOpenText,
+            icon: <BookOpenText className="size-4" />,
           },
           {
             href: "/generate",
             label: "Generate",
             key: "generate",
-            icon: Sparkles,
+            icon: <Sparkles className="size-4" />,
           },
         ]
       : []),
@@ -51,8 +70,6 @@ export async function AppHeader({ active }: AppHeaderProps) {
 
           <nav className="hidden items-center gap-2 lg:flex">
             {navItems.map((item) => {
-              const Icon = item.icon;
-
               return (
                 <Link
                   key={item.key}
@@ -65,7 +82,9 @@ export async function AppHeader({ active }: AppHeaderProps) {
                       : "text-[#4e433d] hover:bg-[#f8f1eb]",
                   )}
                 >
-                  <Icon className="size-4" />
+                  <span className="inline-flex items-center justify-center">
+                    {item.icon}
+                  </span>
                   {item.label}
                 </Link>
               );
