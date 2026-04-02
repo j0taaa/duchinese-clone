@@ -8,6 +8,8 @@ import {
   getAccessibleStoryBySlug,
   getSeriesForAccessibleStory,
   getStoryListForReader,
+  listReadStoryIdsForUser,
+  markStoryRead,
 } from "@/lib/story-service";
 
 type StoryPageProps = {
@@ -45,6 +47,14 @@ export default async function StoryPage({ params }: StoryPageProps) {
     notFound();
   }
 
+  if (session) {
+    await markStoryRead(session.user.id, story.id);
+  }
+
+  const readStoryIds = session
+    ? await listReadStoryIdsForUser(session.user.id)
+    : [];
+
   return (
     <div className="min-h-screen">
       <AppHeader active="library" />
@@ -52,6 +62,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
         stories={stories}
         story={buildReaderStory(story)}
         series={series}
+        readStoryIds={readStoryIds}
       />
     </div>
   );

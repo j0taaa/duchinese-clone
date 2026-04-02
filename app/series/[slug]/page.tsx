@@ -3,10 +3,11 @@ import { ChevronLeft, Layers3 } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
+import { SeriesCard } from "@/components/series-card";
 import { StoryCard } from "@/components/story-card";
 import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "@/lib/session";
-import { getAccessibleSeriesBySlug } from "@/lib/story-service";
+import { getAccessibleSeriesBySlug, listReadStoryIdsForUser } from "@/lib/story-service";
 
 type SeriesPageProps = {
   params: Promise<{
@@ -33,11 +34,18 @@ export async function generateMetadata({ params }: SeriesPageProps) {
 export default async function SeriesPage({ params }: SeriesPageProps) {
   const { slug } = await params;
   const session = await getServerSession();
-  const series = await getAccessibleSeriesBySlug(slug, session?.user.id);
+  const [series, readStoryIds] = await Promise.all([
+    getAccessibleSeriesBySlug(slug, session?.user.id),
+    session ? listReadStoryIdsForUser(session.user.id) : Promise.resolve<string[]>([]),
+  ]);
 
   if (!series) {
     notFound();
   }
+
+  const seriesReadCount = readStoryIds.filter((id: string) =>
+    series.stories.some((story) => story.id === id),
+  ).length;
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f5,_#f7f0e8_52%,_#f3ede4_100%)] text-[#202020]">
@@ -77,9 +85,16 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
               variant="outline"
               className="rounded-full border-[#ead9cf] bg-[#fff9f5] px-4 py-2 text-sm font-medium text-[#72584b]"
             >
-              {series.stories.length} lessons inside
+              {seriesReadCount}/{series.stories.length} read
             </Badge>
           </div>
+        </section>
+
+        <section className="max-w-[28rem]">
+          <SeriesCard
+            series={series}
+            readCount={seriesReadCount}
+          />
         </section>
 
         <section className="space-y-4">
@@ -94,7 +109,11 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {series.stories.map((story) => (
-              <StoryCard key={story.id} story={story} />
+              <StoryCard
+                key={story.id}
+                story={story}
+                isRead={readStoryIds.includes(story.id)}
+              />
             ))}
           </div>
         </section>

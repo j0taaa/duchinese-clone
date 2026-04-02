@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Globe2, LockKeyhole, Sparkles } from "lucide-react";
+import { CheckCircle2, Globe2, LockKeyhole, Sparkles } from "lucide-react";
 
 import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
@@ -22,9 +22,11 @@ const palettes = {
 export function StoryCard({
   story,
   showAuthor = true,
+  isRead = false,
 }: {
   story: AppStory;
   showAuthor?: boolean;
+  isRead?: boolean;
 }) {
   const palette = palettes[story.level];
   const level = storyLevelMeta[story.level];
@@ -76,6 +78,12 @@ export function StoryCard({
           >
             {hskLabel}
           </span>
+          {isRead ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2.5 py-1 text-[#4f8454]">
+              <CheckCircle2 className="size-3.5" />
+              Read
+            </span>
+          ) : null}
           <span>
             {createdAt.toLocaleDateString("en-US", {
               month: "short",

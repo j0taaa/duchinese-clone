@@ -14,11 +14,13 @@ export function LibraryScreen({
   publicStories,
   publicSeries,
   latestUserStories,
+  readStoryIds,
   signedIn,
 }: {
   publicStories: AppStory[];
   publicSeries: AppSeries[];
   latestUserStories: AppStory[];
+  readStoryIds: string[];
   signedIn: boolean;
 }) {
   const [query, setQuery] = useState("");
@@ -106,6 +108,7 @@ export function LibraryScreen({
           title="Your latest stories"
           description="Freshly generated lessons attached to your account."
           stories={latestUserStories}
+          readStoryIds={readStoryIds}
         />
       ) : null}
 
@@ -114,6 +117,7 @@ export function LibraryScreen({
           title="Series"
           description="Collections of lessons around the same subject."
           series={filteredSeries}
+          readStoryIds={readStoryIds}
         />
       ) : null}
 
@@ -121,6 +125,7 @@ export function LibraryScreen({
         title="Starter library"
         description="Bundled public lessons ready to read without signing in."
         stories={starterStories}
+        readStoryIds={readStoryIds}
       />
 
       {communityStories.length ? (
@@ -128,6 +133,7 @@ export function LibraryScreen({
           title="Public community stories"
           description="User-generated lessons that have been published."
           stories={communityStories}
+          readStoryIds={readStoryIds}
         />
       ) : null}
     </div>
@@ -138,10 +144,12 @@ function SeriesSection({
   title,
   description,
   series,
+  readStoryIds,
 }: {
   title: string;
   description: string;
   series: AppSeries[];
+  readStoryIds: string[];
 }) {
   return (
     <section className="space-y-4">
@@ -153,7 +161,11 @@ function SeriesSection({
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {series.map((entry) => (
-          <SeriesCard key={entry.slug} series={entry} />
+          <SeriesCard
+            key={entry.slug}
+            series={entry}
+            readCount={entry.stories.filter((story) => readStoryIds.includes(story.id)).length}
+          />
         ))}
       </div>
     </section>
@@ -164,10 +176,12 @@ function LibrarySection({
   title,
   description,
   stories,
+  readStoryIds,
 }: {
   title: string;
   description: string;
   stories: AppStory[];
+  readStoryIds: string[];
 }) {
   return (
     <section className="space-y-4">
@@ -180,7 +194,11 @@ function LibrarySection({
       {stories.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {stories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+            <StoryCard
+              key={story.id}
+              story={story}
+              isRead={readStoryIds.includes(story.id)}
+            />
           ))}
         </div>
       ) : (

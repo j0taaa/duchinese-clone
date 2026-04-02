@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Layers3 } from "lucide-react";
+import { CheckCircle2, Layers3 } from "lucide-react";
 
 import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppSeries } from "@/lib/series";
@@ -20,7 +20,13 @@ const palettes = {
   },
 } as const;
 
-export function SeriesCard({ series }: { series: AppSeries }) {
+export function SeriesCard({
+  series,
+  readCount = 0,
+}: {
+  series: AppSeries;
+  readCount?: number;
+}) {
   const palette = palettes[series.level];
   const levelMeta = storyLevelMeta[series.level];
   const highestHsk = series.stories.reduce(
@@ -71,6 +77,12 @@ export function SeriesCard({ series }: { series: AppSeries }) {
             HSK{highestHsk}
           </span>
           <span>{series.stories.length} lessons</span>
+          {readCount ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2.5 py-1 text-[#4f8454]">
+              <CheckCircle2 className="size-3.5" />
+              {readCount}/{series.stories.length} read
+            </span>
+          ) : null}
         </div>
         <p className="line-clamp-2 text-lg font-semibold leading-7 tracking-tight text-[#211814]">
           {series.titleTranslation}

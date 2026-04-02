@@ -5,14 +5,16 @@ import {
   listGeneratedStoriesForUser,
   listPublicStories,
   listPublicSeries,
+  listReadStoryIdsForUser,
 } from "@/lib/story-service";
 
 export default async function Home() {
   const session = await getServerSession();
-  const [publicStories, publicSeries, latestUserStories] = await Promise.all([
+  const [publicStories, publicSeries, latestUserStories, readStoryIds] = await Promise.all([
     listPublicStories(),
     listPublicSeries(session?.user.id),
     session ? listGeneratedStoriesForUser(session.user.id) : Promise.resolve([]),
+    session ? listReadStoryIdsForUser(session.user.id) : Promise.resolve([]),
   ]);
 
   return (
@@ -22,6 +24,7 @@ export default async function Home() {
         publicStories={publicStories}
         publicSeries={publicSeries}
         latestUserStories={latestUserStories}
+        readStoryIds={readStoryIds}
         signedIn={Boolean(session)}
       />
     </main>

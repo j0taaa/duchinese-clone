@@ -37,6 +37,7 @@ model User {
   accounts      Account[]
   aiSettings    UserAiSettings?
   stories       Story[]
+  storyReads    StoryRead[]
 
   @@map("user")
 }
@@ -118,10 +119,25 @@ model Story {
   isSeeded           Boolean         @default(false)
   authorUserId       String?
   author             User?           @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+  reads              StoryRead[]
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 
   @@index([visibility, createdAt(sort: Desc)])
   @@index([authorUserId, createdAt(sort: Desc)])
   @@map("story")
+}
+
+model StoryRead {
+  id        String   @id @default(cuid())
+  userId    String
+  storyId   String
+  readAt    DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, storyId])
+  @@index([userId, readAt(sort: Desc)])
+  @@index([storyId])
+  @@map("story_read")
 }

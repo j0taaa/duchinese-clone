@@ -35,6 +35,7 @@ type ReaderLayoutProps = {
   stories: AppStory[];
   story: ReaderStory;
   series?: AppSeries | null;
+  readStoryIds?: string[];
 };
 
 const READER_PREFERENCES_KEY = "hanzilane-reader-preferences";
@@ -61,7 +62,12 @@ function getStoredReaderPreferences() {
   }
 }
 
-export function ReaderLayout({ stories, story, series }: ReaderLayoutProps) {
+export function ReaderLayout({
+  stories,
+  story,
+  series,
+  readStoryIds = [],
+}: ReaderLayoutProps) {
   const [showPinyin, setShowPinyin] = useState(() => {
     const stored = getStoredReaderPreferences();
     return stored?.showPinyin ?? true;
@@ -258,7 +264,12 @@ export function ReaderLayout({ stories, story, series }: ReaderLayoutProps) {
             </CardContent>
           </Card>
 
-          <RecommendedLessons stories={stories} activeSlug={story.slug} series={series} />
+          <RecommendedLessons
+            stories={stories}
+            activeSlug={story.slug}
+            series={series}
+            readStoryIds={readStoryIds}
+          />
 
           <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white/90 backdrop-blur-xl">
             <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between xl:px-10">

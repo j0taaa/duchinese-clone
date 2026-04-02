@@ -155,6 +155,37 @@ export async function getStoryListForReader(userId?: string | null) {
   return stories;
 }
 
+export async function markStoryRead(userId: string, storyId: string) {
+  return prisma.storyRead.upsert({
+    where: {
+      userId_storyId: {
+        userId,
+        storyId,
+      },
+    },
+    update: {
+      readAt: new Date(),
+    },
+    create: {
+      userId,
+      storyId,
+    },
+  });
+}
+
+export async function listReadStoryIdsForUser(userId: string) {
+  const reads = await prisma.storyRead.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      storyId: true,
+    },
+  });
+
+  return reads.map((read) => read.storyId);
+}
+
 export async function listPublicSeries(userId?: string | null) {
   const stories = userId
     ? await listStoriesForUser(userId)

@@ -1,11 +1,14 @@
 import { AppHeader } from "@/components/app-header";
 import { StoryCard } from "@/components/story-card";
 import { requireServerSession } from "@/lib/session";
-import { listGeneratedStoriesForUser } from "@/lib/story-service";
+import { listGeneratedStoriesForUser, listReadStoryIdsForUser } from "@/lib/story-service";
 
 export default async function MyLibraryPage() {
   const session = await requireServerSession();
-  const userStories = await listGeneratedStoriesForUser(session.user.id);
+  const [userStories, readStoryIds] = await Promise.all([
+    listGeneratedStoriesForUser(session.user.id),
+    listReadStoryIdsForUser(session.user.id),
+  ]);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7f3,_#f7f1eb_48%,_#f4efe8_100%)]">
@@ -16,6 +19,7 @@ export default async function MyLibraryPage() {
           title="Your latest generations"
           description="Private by default. Public if you chose to publish them."
           stories={userStories}
+          readStoryIds={readStoryIds}
           emptyMessage="You haven’t generated a story yet. Open the Generate page to create your first lesson."
         />
       </div>
@@ -27,11 +31,13 @@ function Section({
   title,
   description,
   stories,
+  readStoryIds,
   emptyMessage,
 }: {
   title: string;
   description: string;
   stories: Awaited<ReturnType<typeof listGeneratedStoriesForUser>>;
+  readStoryIds: string[];
   emptyMessage?: string;
 }) {
   return (
@@ -46,7 +52,11 @@ function Section({
       {stories.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {stories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+            <StoryCard
+              key={story.id}
+              story={story}
+              isRead={readStoryIds.includes(story.id)}
+            />
           ))}
         </div>
       ) : (

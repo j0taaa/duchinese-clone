@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Layers3, Menu } from "lucide-react";
+import { CheckCircle2, Layers3, Menu } from "lucide-react";
 
 import { type AppSeries } from "@/lib/series";
 import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
@@ -114,7 +114,11 @@ export function RecommendedLessons({
   stories,
   activeSlug,
   series,
-}: Pick<StorySidebarProps, "stories" | "activeSlug"> & { series?: AppSeries | null }) {
+  readStoryIds = [],
+}: Pick<StorySidebarProps, "stories" | "activeSlug"> & {
+  series?: AppSeries | null;
+  readStoryIds?: string[];
+}) {
   return (
     <section className="space-y-4 rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.28)] sm:p-6">
       <div className="space-y-1">
@@ -149,6 +153,12 @@ export function RecommendedLessons({
                 ].join(" ")}
               />
               <span>{getLevelLabel(story.level)}</span>
+              {readStoryIds.includes(story.id) ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2 py-0.5 text-xs text-[#4f8454]">
+                  <CheckCircle2 className="size-3" />
+                  Read
+                </span>
+              ) : null}
             </div>
             <p className="text-lg font-medium leading-7 text-[#202020]">
               {story.titleTranslation}
