@@ -13,14 +13,12 @@ import {
 type StorySidebarProps = {
   stories: AppStory[];
   activeSlug?: string;
-  description: string;
   hideDesktop?: boolean;
 };
 
 export function StorySidebar({
   stories,
   activeSlug,
-  description,
   hideDesktop = false,
 }: StorySidebarProps) {
   return (
@@ -39,7 +37,6 @@ export function StorySidebar({
             <SidebarContent
               stories={stories}
               activeSlug={activeSlug}
-              description={description}
             />
           </SheetContent>
         </Sheet>
@@ -56,7 +53,6 @@ export function StorySidebar({
           <SidebarContent
             stories={stories}
             activeSlug={activeSlug}
-            description={description}
           />
         </div>
       </aside>
@@ -67,7 +63,6 @@ export function StorySidebar({
 function SidebarContent({
   stories,
   activeSlug,
-  description,
 }: StorySidebarProps) {
   return (
     <div className="flex h-full flex-col">
@@ -75,7 +70,6 @@ function SidebarContent({
         <p className="text-[1.55rem] font-semibold tracking-tight text-[#1f1b18]">
           Lessons
         </p>
-        <p className="mt-2 text-sm leading-6 text-[#6c625d]">{description}</p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">

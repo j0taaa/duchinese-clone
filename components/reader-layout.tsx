@@ -105,7 +105,6 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
         <StorySidebar
           stories={stories}
           activeSlug={story.slug}
-          description="Switch between public lessons and any stories available in your library."
         />
 
         <div className="flex min-w-0 flex-1 flex-col gap-5 pb-24">
