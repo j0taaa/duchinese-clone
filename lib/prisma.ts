@@ -8,9 +8,25 @@ declare global {
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 
+function hasCurrentReadDelegates(client: PrismaClient) {
+  const candidate = client as PrismaClient & {
+    storyRead?: object;
+    vocabularyRead?: object;
+  };
+
+  return Boolean(candidate.storyRead && candidate.vocabularyRead);
+}
+
+function createPrismaClient() {
+  return new PrismaClient({ adapter });
+}
+
+const cachedClient = globalThis.__hanzilane_prisma__;
+
 export const prisma =
-  globalThis.__hanzilane_prisma__ ??
-  new PrismaClient({ adapter });
+  cachedClient && hasCurrentReadDelegates(cachedClient)
+    ? cachedClient
+    : createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.__hanzilane_prisma__ = prisma;
