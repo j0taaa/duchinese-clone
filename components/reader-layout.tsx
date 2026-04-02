@@ -72,6 +72,7 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
     return stored?.showCharacters ?? true;
   });
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [isTouchMode, setIsTouchMode] = useState(false);
 
   const firstInteractiveToken = useMemo(
     () =>
@@ -81,7 +82,8 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
     [story.tokenizedSections],
   );
 
-  const [selectedWord, setSelectedWord] =
+  const [activeWord, setActiveWord] = useState<DictionaryToken | null>(null);
+  const [sheetWord, setSheetWord] =
     useState<DictionaryToken | null>(firstInteractiveToken);
   const levelMeta = storyLevelMeta[story.level];
 
@@ -96,8 +98,38 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
     );
   }, [showCharacters, showEnglish, showPinyin]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(hover: none), (pointer: coarse)");
+
+    const syncTouchMode = () => {
+      setIsTouchMode(mediaQuery.matches);
+    };
+
+    syncTouchMode();
+    mediaQuery.addEventListener("change", syncTouchMode);
+
+    return () => {
+      mediaQuery.removeEventListener("change", syncTouchMode);
+    };
+  }, []);
+
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fbf7f1,_#f3eee7_55%,_#f1ece5_100%)] text-[#202020]">
+    <main
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_#fbf7f1,_#f3eee7_55%,_#f1ece5_100%)] text-[#202020]"
+      onClickCapture={(event) => {
+        if (!isTouchMode) {
+          return;
+        }
+
+        const target = event.target as HTMLElement | null;
+
+        if (target?.closest("[data-token-button='true']")) {
+          return;
+        }
+
+        setActiveWord(null);
+      }}
+    >
       <div className="mx-auto flex min-h-screen max-w-[1600px] gap-8 px-4 py-6 sm:px-6 xl:px-10">
         <StorySidebar
           stories={stories}
@@ -149,22 +181,23 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
             <div className="px-5 py-4 sm:px-6">
               <div className="min-w-0">
                 <p className="text-sm text-[#9b8e87]">Word meaning</p>
-                {selectedWord ? (
+                {activeWord ? (
                   <div className="flex flex-wrap items-end gap-x-3 gap-y-2 pt-2">
                     <span className="font-reading text-[2.15rem] leading-none text-[#3a86ea]">
-                      {selectedWord.text}
+                      {activeWord.text}
                     </span>
                     <span className="text-[1.1rem] text-[#ef625a]">
-                      {selectedWord.pinyin ?? ""}
+                      {activeWord.pinyin ?? ""}
                     </span>
                     <span className="text-[1rem] text-[#3e3e3e]">
-                      {selectedWord.definition ?? ""}
+                      {activeWord.definition ?? ""}
                     </span>
                   </div>
                 ) : (
                   <p className="pt-2 text-sm text-[#6f625c]">
-                    Hover a word to inspect it. Click or tap a word to open the
-                    study sheet.
+                    {isTouchMode
+                      ? "Tap a word to inspect it. Tap outside the text to clear it."
+                      : "Hover a word to inspect it. Click a word to open the study sheet."}
                   </p>
                 )}
               </div>
@@ -178,19 +211,31 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
                   <section
                     key={`${story.id}-${index}`}
                     className="space-y-4"
-                    onMouseEnter={() => setSelectedSentence(section.english)}
                   >
                     <div className="leading-none">
                       {renderTokenLine({
                         tokens: section.tokens,
                         showPinyin,
                         showCharacters,
-                        selectedWord: selectedWord?.text ?? "",
+                        selectedWord: activeWord?.text ?? "",
+                        isTouchMode,
                         onHoverWord: (token) => {
-                          setSelectedWord(token);
+                          if (!isTouchMode) {
+                            setActiveWord(token);
+                          }
+                        },
+                        onLeaveWord: () => {
+                          if (!isTouchMode) {
+                            setActiveWord(null);
+                          }
                         },
                         onSelectWord: (token) => {
-                          setSelectedWord(token);
+                          if (isTouchMode) {
+                            setActiveWord(token);
+                            return;
+                          }
+
+                          setSheetWord(token);
                           setSheetOpen(true);
                         },
                       })}
@@ -263,18 +308,18 @@ export function ReaderLayout({ stories, story }: ReaderLayoutProps) {
             </SheetDescription>
           </SheetHeader>
           <div className="space-y-4 p-5">
-            {selectedWord ? (
+            {sheetWord ? (
               <>
                 <div className="flex flex-wrap items-end gap-3">
                   <span className="font-reading text-5xl text-[#3a86ea]">
-                    {selectedWord.text}
+                    {sheetWord.text}
                   </span>
                   <span className="text-xl text-[#ef625a]">
-                    {selectedWord.pinyin ?? ""}
+                    {sheetWord.pinyin ?? ""}
                   </span>
                 </div>
                 <div className="rounded-[24px] border border-[#eadecf] bg-[#fcf8f4] p-4 text-base leading-8 text-[#443934]">
-                  {selectedWord.definition ?? "No dictionary definition available."}
+                  {sheetWord.definition ?? "No dictionary definition available."}
                 </div>
                 <button
                   type="button"
@@ -331,14 +376,18 @@ function renderTokenLine({
   showPinyin,
   showCharacters,
   selectedWord,
+  isTouchMode,
   onHoverWord,
+  onLeaveWord,
   onSelectWord,
 }: {
   tokens: DictionaryToken[];
   showPinyin: boolean;
   showCharacters: boolean;
   selectedWord: string;
+  isTouchMode: boolean;
   onHoverWord: (token: DictionaryToken) => void;
+  onLeaveWord: () => void;
   onSelectWord: (token: DictionaryToken) => void;
 }) {
   return tokens.map((token, index) => {
@@ -361,12 +410,15 @@ function renderTokenLine({
         <button
           type="button"
           onMouseEnter={() => token.interactive && onHoverWord(token)}
+          onMouseLeave={() => token.interactive && onLeaveWord()}
           onFocus={() => token.interactive && onHoverWord(token)}
           onClick={() => token.interactive && onSelectWord(token)}
+          data-token-button="true"
           className={cn(
             "inline-flex flex-col items-start rounded-[10px] px-1 text-left transition-colors",
             token.interactive && "hover:bg-[#f0f7ff]",
-            isSelected && "bg-[#e5f3ff]",
+            isSelected && !isTouchMode && "bg-[#e5f3ff]",
+            isSelected && isTouchMode && "bg-[#eef6ff]",
           )}
         >
           <span className="min-h-7 text-[1.02rem] leading-7 text-[#696969] sm:text-[1.12rem]">
