@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const storyTypeValues = ["story", "dialogue", "journal"] as const;
 export const storyLevelValues = ["beginner", "elementary", "intermediate"] as const;
+export const hskLevelValues = ["1", "2", "3", "4", "5", "6"] as const;
 export const storyVisibilityValues = [
   "public_seeded",
   "private_user",
@@ -10,6 +11,7 @@ export const storyVisibilityValues = [
 
 export type StoryType = (typeof storyTypeValues)[number];
 export type StoryLevel = (typeof storyLevelValues)[number];
+export type HskLevel = (typeof hskLevelValues)[number];
 export type StoryVisibility = (typeof storyVisibilityValues)[number];
 const storyLevelRank: Record<StoryLevel, number> = {
   beginner: 1,
@@ -334,4 +336,16 @@ export function getHighestStoryLevel(levels: StoryLevel[]) {
       compareStoryLevels(current, highest) > 0 ? current : highest,
     "beginner",
   );
+}
+
+export function mapHskLevelToStoryLevel(hskLevel: HskLevel): StoryLevel {
+  if (hskLevel === "1" || hskLevel === "2") {
+    return "beginner";
+  }
+
+  if (hskLevel === "3" || hskLevel === "4") {
+    return "elementary";
+  }
+
+  return "intermediate";
 }

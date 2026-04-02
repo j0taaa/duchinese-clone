@@ -8,14 +8,15 @@ import {
   getAiSettingsForGeneration,
 } from "@/lib/story-service";
 import {
-  storyLevelValues,
+  hskLevelValues,
+  mapHskLevelToStoryLevel,
   storyTypeValues,
   storyVisibilityValues,
 } from "@/lib/stories";
 
 const generateSchema = z.object({
   topic: z.string().trim().optional().default(""),
-  level: z.enum(storyLevelValues),
+  hskLevel: z.enum(hskLevelValues),
   type: z.enum(storyTypeValues),
   length: z.enum(["short", "medium", "long"]),
   visibility: z.enum(storyVisibilityValues).refine(
@@ -70,13 +71,14 @@ export async function POST(request: Request) {
 
   try {
     const topic = parsed.data.topic || randomTopics[Math.floor(Math.random() * randomTopics.length)];
+    const storyLevel = mapHskLevelToStoryLevel(parsed.data.hskLevel);
 
     const generated = await generateStoryWithModel({
       apiKey: settings.apiKey,
       baseUrl: settings.baseUrl,
       model: settings.model,
       topic,
-      level: parsed.data.level,
+      hskLevel: parsed.data.hskLevel,
       type: parsed.data.type,
       length: parsed.data.length,
     });
@@ -98,7 +100,7 @@ export async function POST(request: Request) {
       englishTranslation: generated.englishTranslation,
       sections: generated.sections,
       type: parsed.data.type,
-      level: parsed.data.level,
+      level: storyLevel,
       visibility: parsed.data.visibility,
     });
 

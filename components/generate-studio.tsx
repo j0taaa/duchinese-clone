@@ -16,7 +16,7 @@ import { useMemo, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { type AppStory, getLevelLabel } from "@/lib/stories";
+import { type AppStory, getLevelLabel, type HskLevel } from "@/lib/stories";
 
 const promptSuggestions = [
   "Two classmates trying to find a quiet cafe to study in.",
@@ -66,12 +66,15 @@ const lessonTypes = [
   icon: typeof MessageCircleMore;
 }>;
 
-const levelOptions = [
-  { value: "beginner", label: "Beginner" },
-  { value: "elementary", label: "Elementary" },
-  { value: "intermediate", label: "Intermediate" },
+const hskOptions = [
+  { value: "1", label: "HSK 1" },
+  { value: "2", label: "HSK 2" },
+  { value: "3", label: "HSK 3" },
+  { value: "4", label: "HSK 4" },
+  { value: "5", label: "HSK 5" },
+  { value: "6", label: "HSK 6" },
 ] as const satisfies ReadonlyArray<{
-  value: AppStory["level"];
+  value: HskLevel;
   label: string;
 }>;
 
@@ -106,7 +109,7 @@ export function GenerateStudio({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [topic, setTopic] = useState("");
-  const [level, setLevel] = useState<AppStory["level"]>("elementary");
+  const [hskLevel, setHskLevel] = useState<HskLevel>("2");
   const [type, setType] = useState<AppStory["type"]>("dialogue");
   const [length, setLength] = useState<"short" | "medium" | "long">("short");
   const [visibility, setVisibility] =
@@ -139,7 +142,7 @@ export function GenerateStudio({
         },
         body: JSON.stringify({
           topic,
-          level,
+          hskLevel,
           type,
           length,
           visibility,
@@ -314,10 +317,10 @@ export function GenerateStudio({
               <div className="space-y-4 rounded-[30px] border border-[#ece0d7] bg-[#fcfaf7] p-5">
                 <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
                   <SelectPills
-                    label="Level"
-                    value={level}
-                    onChange={setLevel}
-                    options={levelOptions}
+                    label="HSK level"
+                    value={hskLevel}
+                    onChange={setHskLevel}
+                    options={hskOptions}
                   />
                   <SelectPills
                     label="Length"

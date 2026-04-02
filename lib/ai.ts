@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { type StoryLevel, storySectionsSchema, type StoryType } from "@/lib/stories";
+import { type HskLevel, storySectionsSchema, type StoryType } from "@/lib/stories";
 
 const generatedStorySchema = z.object({
   title: z.string().min(1),
@@ -17,16 +17,28 @@ function getLengthBrief(length: string) {
   return "3 to 4 short sections, around 90 to 150 Chinese characters total";
 }
 
-function getLevelBrief(level: StoryLevel) {
-  if (level === "intermediate") {
-    return "Use intermediate Chinese with natural but still learner-friendly sentence patterns. Avoid highly literary language.";
+function getHskBrief(hskLevel: HskLevel) {
+  if (hskLevel === "6") {
+    return "Target HSK 6. Use advanced but readable Chinese with richer vocabulary, varied sentence structure, and clear flow. Keep it learner-friendly rather than literary.";
   }
 
-  if (level === "elementary") {
-    return "Use everyday elementary Chinese with short sentences and common grammar.";
+  if (hskLevel === "5") {
+    return "Target HSK 5. Use upper-intermediate Chinese with broader everyday vocabulary and moderately complex sentences.";
   }
 
-  return "Use very simple beginner Chinese with short, clear sentences, frequent repetition, and common vocabulary.";
+  if (hskLevel === "4") {
+    return "Target HSK 4. Use intermediate Chinese with practical vocabulary, connected ideas, and manageable sentence variety.";
+  }
+
+  if (hskLevel === "3") {
+    return "Target HSK 3. Use lower-intermediate Chinese with common daily vocabulary and clear sentence patterns.";
+  }
+
+  if (hskLevel === "2") {
+    return "Target HSK 2. Use simple everyday Chinese with short sentences, common grammar, and familiar vocabulary.";
+  }
+
+  return "Target HSK 1. Use very simple Chinese with short, clear sentences, frequent repetition, and very common vocabulary.";
 }
 
 function getTypeBrief(type: StoryType) {
@@ -57,7 +69,7 @@ export async function generateStoryWithModel(input: {
   baseUrl: string;
   model: string;
   topic: string;
-  level: StoryLevel;
+  hskLevel: HskLevel;
   type: StoryType;
   length: "short" | "medium" | "long";
 }) {
@@ -78,11 +90,11 @@ export async function generateStoryWithModel(input: {
         },
         {
           role: "user",
-          content: `Create a ${input.level} Chinese ${input.type} about: ${input.topic}
+          content: `Create an HSK ${input.hskLevel} Chinese ${input.type} about: ${input.topic}
 
 Requirements:
 - ${getTypeBrief(input.type)}
-- ${getLevelBrief(input.level)}
+- ${getHskBrief(input.hskLevel)}
 - Length: ${getLengthBrief(input.length)}
 - Return JSON with this exact shape:
 {
