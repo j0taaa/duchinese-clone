@@ -3,22 +3,8 @@ import { CheckCircle2, Layers3 } from "lucide-react";
 
 import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppSeries } from "@/lib/series";
+import { getStoryArtwork } from "@/lib/story-art";
 import { getLevelLabel, storyLevelMeta } from "@/lib/stories";
-
-const palettes = {
-  beginner: {
-    surface: "from-[#fde0c7] via-[#f3b786] to-[#dd875d]",
-    glow: "from-white/55 via-white/8 to-transparent",
-  },
-  elementary: {
-    surface: "from-[#bed8f7] via-[#8db2de] to-[#5d80ab]",
-    glow: "from-white/45 via-white/10 to-transparent",
-  },
-  intermediate: {
-    surface: "from-[#e3eaf2] via-[#bbc8d8] to-[#90a1b6]",
-    glow: "from-white/50 via-white/12 to-transparent",
-  },
-} as const;
 
 export function SeriesCard({
   series,
@@ -27,7 +13,7 @@ export function SeriesCard({
   series: AppSeries;
   readCount?: number;
 }) {
-  const palette = palettes[series.level];
+  const artwork = getStoryArtwork(series.slug || series.title);
   const levelMeta = storyLevelMeta[series.level];
   const highestHsk = series.stories.reduce(
     (highest, story) => {
@@ -44,9 +30,10 @@ export function SeriesCard({
       className="group flex min-w-0 flex-col rounded-[28px] border border-[#ebddd2] bg-white/92 p-4 shadow-[0_18px_50px_-42px_rgba(80,45,24,0.34)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_30px_70px_-48px_rgba(80,45,24,0.44)]"
     >
       <div
-        className={`relative overflow-hidden rounded-[24px] bg-gradient-to-br ${palette.surface} p-4`}
+        className="relative overflow-hidden rounded-[24px] p-4"
+        style={{ backgroundImage: artwork.surface }}
       >
-        <div className={`absolute inset-0 bg-gradient-to-br ${palette.glow}`} />
+        <div className="absolute inset-0" style={{ backgroundImage: artwork.glow }} />
         <div className="absolute -right-2 -bottom-5 font-reading text-[6rem] leading-none text-white/22">
           {series.coverHanzi}
         </div>

@@ -1,23 +1,9 @@
 import Link from "next/link";
 import { CheckCircle2, Globe2, LockKeyhole, Sparkles } from "lucide-react";
 
+import { getStoryArtwork } from "@/lib/story-art";
 import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
-
-const palettes = {
-  beginner: {
-    surface: "from-[#ffd4bd] via-[#f4ac73] to-[#d9734e]",
-    glow: "from-white/55 via-white/10 to-transparent",
-  },
-  elementary: {
-    surface: "from-[#a8c7ed] via-[#6b93c5] to-[#435f89]",
-    glow: "from-white/45 via-white/10 to-transparent",
-  },
-  intermediate: {
-    surface: "from-[#d8e5f1] via-[#a5b6c8] to-[#7d8fa4]",
-    glow: "from-white/55 via-white/15 to-transparent",
-  },
-} as const;
 
 export function StoryCard({
   story,
@@ -28,7 +14,7 @@ export function StoryCard({
   showAuthor?: boolean;
   isRead?: boolean;
 }) {
-  const palette = palettes[story.level];
+  const artwork = getStoryArtwork(story.id || story.slug || story.title);
   const level = storyLevelMeta[story.level];
   const hskLabel = getStoryHskLabel(story);
   const createdAt = new Date(story.createdAt);
@@ -48,9 +34,10 @@ export function StoryCard({
       className="group flex min-w-0 flex-col rounded-[28px] border border-[#ebddd2] bg-white/92 p-4 shadow-[0_18px_50px_-42px_rgba(80,45,24,0.34)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_30px_70px_-48px_rgba(80,45,24,0.44)]"
     >
       <div
-        className={`relative overflow-hidden rounded-[24px] bg-gradient-to-br ${palette.surface} p-4`}
+        className="relative overflow-hidden rounded-[24px] p-4"
+        style={{ backgroundImage: artwork.surface }}
       >
-        <div className={`absolute inset-0 bg-gradient-to-br ${palette.glow}`} />
+        <div className="absolute inset-0" style={{ backgroundImage: artwork.glow }} />
         <div className="absolute -right-2 -bottom-5 font-reading text-[6rem] leading-none text-white/22">
           {Array.from(story.title)[0] ?? "汉"}
         </div>
