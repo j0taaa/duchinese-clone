@@ -14,7 +14,7 @@ import {
 } from "@/lib/stories";
 
 const generateSchema = z.object({
-  topic: z.string().min(3),
+  topic: z.string().trim().optional().default(""),
   level: z.enum(storyLevelValues),
   type: z.enum(storyTypeValues),
   length: z.enum(["short", "medium", "long"]),
@@ -23,6 +23,15 @@ const generateSchema = z.object({
     "Seed visibility is reserved for starter stories.",
   ),
 });
+
+const randomTopics = [
+  "A quiet evening in a city bookstore",
+  "Two friends trying a new breakfast place before class",
+  "A small misunderstanding while buying fruit at a market",
+  "A rainy subway ride home after work",
+  "Planning a weekend walk in the park",
+  "A first visit to a neighborhood tea shop",
+];
 
 function slugify(input: string) {
   return input
@@ -60,11 +69,13 @@ export async function POST(request: Request) {
   }
 
   try {
+    const topic = parsed.data.topic || randomTopics[Math.floor(Math.random() * randomTopics.length)];
+
     const generated = await generateStoryWithModel({
       apiKey: settings.apiKey,
       baseUrl: settings.baseUrl,
       model: settings.model,
-      topic: parsed.data.topic,
+      topic,
       level: parsed.data.level,
       type: parsed.data.type,
       length: parsed.data.length,

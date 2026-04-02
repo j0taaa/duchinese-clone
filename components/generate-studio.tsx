@@ -1,18 +1,93 @@
 "use client";
 
 import Link from "next/link";
-import { Loader2, Sparkles } from "lucide-react";
+import {
+  BookOpenText,
+  Layers3,
+  Loader2,
+  MessageCircleMore,
+  NotebookPen,
+  ScanSearch,
+  Sparkles,
+  TextCursorInput,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { type AppStory, getLevelLabel } from "@/lib/stories";
 
 const promptSuggestions = [
-  "Two coworkers deciding where to eat after work in Shanghai.",
-  "A beginner story about shopping for fruit at a neighborhood market.",
-  "A diary entry about studying Chinese on the subway ride home.",
+  "Two classmates trying to find a quiet cafe to study in.",
+  "A neighborhood morning where someone buys breakfast before work.",
+  "A journal entry about taking the subway home after Chinese class.",
+  "Three friends planning a weekend walk by the river.",
 ];
+
+const creationModes = [
+  {
+    value: "story",
+    label: "Story",
+    description: "One standalone lesson to read right away.",
+    icon: BookOpenText,
+  },
+  {
+    value: "series",
+    label: "Series",
+    description: "A collection around one subject. Multi-part generation comes next.",
+    icon: Layers3,
+  },
+] as const;
+
+const lessonTypes = [
+  {
+    value: "dialogue",
+    label: "Dialogue",
+    description: "Natural back-and-forth conversation.",
+    icon: MessageCircleMore,
+  },
+  {
+    value: "story",
+    label: "Narrative",
+    description: "A short scene or event with flow.",
+    icon: TextCursorInput,
+  },
+  {
+    value: "journal",
+    label: "Journal",
+    description: "First-person and reflective.",
+    icon: NotebookPen,
+  },
+] as const satisfies ReadonlyArray<{
+  value: AppStory["type"];
+  label: string;
+  description: string;
+  icon: typeof MessageCircleMore;
+}>;
+
+const levelOptions = [
+  { value: "beginner", label: "Beginner" },
+  { value: "elementary", label: "Elementary" },
+  { value: "intermediate", label: "Intermediate" },
+] as const satisfies ReadonlyArray<{
+  value: AppStory["level"];
+  label: string;
+}>;
+
+const lengthOptions = [
+  { value: "short", label: "Short" },
+  { value: "medium", label: "Medium" },
+  { value: "long", label: "Long" },
+] as const;
+
+const visibilityOptions = [
+  { value: "private_user", label: "Private" },
+  { value: "public_user", label: "Public" },
+] as const satisfies ReadonlyArray<{
+  value: AppStory["visibility"];
+  label: string;
+}>;
 
 export function GenerateStudio({
   settingsSummary,
@@ -36,10 +111,25 @@ export function GenerateStudio({
   const [length, setLength] = useState<"short" | "medium" | "long">("short");
   const [visibility, setVisibility] =
     useState<AppStory["visibility"]>("private_user");
+  const [creationMode, setCreationMode] =
+    useState<(typeof creationModes)[number]["value"]>("story");
+
+  const helperCopy = useMemo(() => {
+    if (creationMode === "series") {
+      return "Choose the tone and difficulty for the first lesson in a new series direction.";
+    }
+
+    return "Set the lesson style, length, and difficulty. If you leave the topic empty, HanziLane will pick a random idea.";
+  }, [creationMode]);
 
   function submitGeneration() {
     setError(null);
     setSuccess(null);
+
+    if (creationMode === "series") {
+      setError("Series generation UI is ready, but the backend still generates a single lesson for now.");
+      return;
+    }
 
     startTransition(async () => {
       const response = await fetch("/api/stories/generate", {
@@ -73,194 +163,268 @@ export function GenerateStudio({
   }
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
-      <section className="rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] xl:p-8">
-        {!settingsSummary ? (
-          <div className="rounded-[24px] border border-[#f0d6ce] bg-[#fff6f3] p-5 text-sm leading-7 text-[#7b5951]">
-            <p className="font-semibold text-[#9f4339]">Model settings missing</p>
-            <p className="mt-2">
-              Save your `Model URL`, `API key`, and `Model` first.
-            </p>
-            <Link
-              href="/profile"
-              prefetch={false}
-              className="mt-4 inline-flex rounded-full bg-[#ea4e47] px-4 py-2 font-medium text-white"
-            >
-              Open profile
-            </Link>
-          </div>
-        ) : (
-          <>
-            <div className="grid gap-5">
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-[#4f433d]">
-                  Topic or prompt
-                </span>
-                <textarea
-                  value={topic}
-                  onChange={(event) => setTopic(event.target.value)}
-                  placeholder="Example: Two friends meeting after work and trying to decide whether to get noodles or dumplings."
-                  className="min-h-40 w-full rounded-[24px] border border-[#e4d8cf] bg-[#fcfaf7] px-5 py-4 text-sm leading-7 text-[#241815] outline-none transition-colors placeholder:text-[#a2958e] focus:border-[#d8b1a6]"
-                />
-              </label>
-
-              <div className="grid gap-4 lg:grid-cols-4">
-                <Select
-                  label="Level"
-                  value={level}
-                  onChange={setLevel}
-                  options={[
-                    { value: "beginner", label: "Beginner" },
-                    { value: "elementary", label: "Elementary" },
-                    { value: "intermediate", label: "Intermediate" },
-                  ]}
-                />
-                <Select
-                  label="Lesson type"
-                  value={type}
-                  onChange={setType}
-                  options={[
-                    { value: "dialogue", label: "Dialogue" },
-                    { value: "story", label: "Story" },
-                    { value: "journal", label: "Journal" },
-                  ]}
-                />
-                <Select
-                  label="Length"
-                  value={length}
-                  onChange={setLength}
-                  options={[
-                    { value: "short", label: "Short" },
-                    { value: "medium", label: "Medium" },
-                    { value: "long", label: "Long" },
-                  ]}
-                />
-                <Select
-                  label="Visibility"
-                  value={visibility}
-                  onChange={setVisibility}
-                  options={[
-                    { value: "private_user", label: "Private" },
-                    { value: "public_user", label: "Public" },
-                  ]}
-                />
+    <div className="space-y-8">
+      {!settingsSummary ? (
+        <section className="rounded-[32px] border border-[#f0d6ce] bg-[#fff6f3] p-6 text-sm leading-7 text-[#7b5951] shadow-[0_24px_80px_-56px_rgba(92,46,24,0.34)] sm:p-7">
+          <p className="font-semibold text-[#9f4339]">Model settings missing</p>
+          <p className="mt-2">
+            Save your `Model URL`, `API key`, and `Model` in your profile before generating.
+          </p>
+          <Link
+            href="/profile"
+            prefetch={false}
+            className="mt-5 inline-flex rounded-full bg-[#ea4e47] px-4 py-2 font-medium text-white"
+          >
+            Open profile
+          </Link>
+        </section>
+      ) : (
+        <section className="rounded-[34px] border border-white/70 bg-white/92 p-6 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] sm:p-7 xl:p-8">
+          <div className="space-y-8">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="space-y-2">
+                <p className="inline-flex items-center gap-2 rounded-full border border-[#edd8cf] bg-[#fff7f3] px-3 py-1 text-xs font-semibold tracking-[0.16em] text-[#c66052] uppercase">
+                  <Sparkles className="size-3.5" />
+                  AI lesson builder
+                </p>
+                <h1 className="text-3xl font-semibold tracking-tight text-[#241815] sm:text-4xl">
+                  Generate something new to read
+                </h1>
+                <p className="max-w-3xl text-sm leading-7 text-[#6d615b]">
+                  {helperCopy}
+                </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                {promptSuggestions.map((item) => (
+              <div className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-4 py-2 text-sm text-[#6c5f58]">
+                {recentStories.length} saved {recentStories.length === 1 ? "lesson" : "lessons"}
+              </div>
+            </div>
+
+            <div className="grid gap-4 xl:grid-cols-2">
+              {creationModes.map((option) => {
+                const Icon = option.icon;
+
+                return (
                   <button
-                    key={item}
+                    key={option.value}
                     type="button"
-                    onClick={() => setTopic(item)}
-                    className="rounded-full border border-[#e8dacf] bg-white px-4 py-2 text-sm text-[#564943] hover:bg-[#faf4ef]"
+                    onClick={() => setCreationMode(option.value)}
+                    className={cn(
+                      "flex items-start gap-4 rounded-[28px] border px-5 py-5 text-left transition-all",
+                      creationMode === option.value
+                        ? "border-[#f0cfc1] bg-[#fff7f3] shadow-[0_16px_40px_-28px_rgba(92,46,24,0.28)]"
+                        : "border-[#ecdfd5] bg-[#fcfaf7] hover:border-[#e3d2c7] hover:bg-white",
+                    )}
                   >
-                    {item}
+                    <span
+                      className={cn(
+                        "mt-0.5 inline-flex size-11 shrink-0 items-center justify-center rounded-2xl",
+                        creationMode === option.value
+                          ? "bg-[#ea4e47] text-white"
+                          : "bg-white text-[#715f57]",
+                      )}
+                    >
+                      <Icon className="size-5" />
+                    </span>
+                    <span className="space-y-1">
+                      <span className="block text-lg font-semibold text-[#241815]">
+                        {option.label}
+                      </span>
+                      <span className="block text-sm leading-6 text-[#6d615b]">
+                        {option.description}
+                      </span>
+                    </span>
                   </button>
-                ))}
+                );
+              })}
+            </div>
+
+            <label className="block space-y-3">
+              <span className="flex items-center gap-2 text-sm font-medium text-[#4f433d]">
+                <ScanSearch className="size-4" />
+                Topic or direction
+              </span>
+              <textarea
+                value={topic}
+                onChange={(event) => setTopic(event.target.value)}
+                placeholder="Leave this blank for a random idea, or describe the scene, setting, or subject you want."
+                className="min-h-44 w-full rounded-[28px] border border-[#e4d8cf] bg-[#fcfaf7] px-5 py-4 text-sm leading-7 text-[#241815] outline-none transition-colors placeholder:text-[#a2958e] focus:border-[#d8b1a6]"
+              />
+            </label>
+
+            <div className="flex flex-wrap gap-3">
+              {promptSuggestions.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setTopic(item)}
+                  className="rounded-full border border-[#e8dacf] bg-white px-4 py-2 text-sm text-[#564943] hover:bg-[#faf4ef]"
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[1.25fr_0.95fr]">
+              <div className="space-y-4 rounded-[30px] border border-[#ece0d7] bg-[#fcfaf7] p-5">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-[#4f433d]">Lesson format</p>
+                  <p className="text-sm leading-6 text-[#6d615b]">
+                    Pick the style that best matches the reading experience you want.
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {lessonTypes.map((option) => {
+                    const Icon = option.icon;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setType(option.value)}
+                        className={cn(
+                          "rounded-[24px] border px-4 py-4 text-left transition-all",
+                          type === option.value
+                            ? "border-[#f0cfc1] bg-[#fff7f3]"
+                            : "border-[#eadcd2] bg-white hover:bg-[#fffdfa]",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "mb-3 inline-flex size-10 items-center justify-center rounded-2xl",
+                            type === option.value
+                              ? "bg-[#ea4e47] text-white"
+                              : "bg-[#f8f2ec] text-[#6b5950]",
+                          )}
+                        >
+                          <Icon className="size-4.5" />
+                        </span>
+                        <p className="text-base font-semibold text-[#241815]">
+                          {option.label}
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-[#6d615b]">
+                          {option.description}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {error ? (
-                <div className="rounded-[20px] border border-[#f2c2bc] bg-[#fff2f0] px-4 py-3 text-sm text-[#a03d34]">
-                  {error}
+              <div className="space-y-4 rounded-[30px] border border-[#ece0d7] bg-[#fcfaf7] p-5">
+                <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+                  <SelectPills
+                    label="Level"
+                    value={level}
+                    onChange={setLevel}
+                    options={levelOptions}
+                  />
+                  <SelectPills
+                    label="Length"
+                    value={length}
+                    onChange={setLength}
+                    options={lengthOptions}
+                  />
+                  <SelectPills
+                    label="Visibility"
+                    value={visibility}
+                    onChange={setVisibility}
+                    options={visibilityOptions}
+                  />
                 </div>
-              ) : null}
-
-              {success ? (
-                <div className="rounded-[20px] border border-[#d6efe7] bg-[#f4fcf8] px-4 py-3 text-sm text-[#2f7a65]">
-                  {success}
-                </div>
-              ) : null}
-
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Button
-                  type="button"
-                  size="lg"
-                  className="h-12 rounded-2xl bg-[#ea4e47] px-6 text-white hover:bg-[#dd433d]"
-                  onClick={submitGeneration}
-                  disabled={isPending || !topic.trim()}
-                >
-                  {isPending ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="size-4" />
-                  )}
-                  Generate story
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  className="h-12 rounded-2xl border-[#e4d8cf] bg-white px-6 text-[#473b35] hover:bg-[#faf4ef]"
-                  onClick={() => {
-                    setTopic("");
-                    setError(null);
-                    setSuccess(null);
-                  }}
-                >
-                  Clear
-                </Button>
               </div>
             </div>
 
-            <div className="mt-8 rounded-[26px] border border-[#efe3d9] bg-[#fcf8f4] p-5">
-              <p className="text-sm font-semibold text-[#241815]">
-                Current server-side model settings
-              </p>
-              <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                <InfoTile label="Model URL" value={settingsSummary.baseUrl} />
-                <InfoTile label="Model" value={settingsSummary.model} />
-                <InfoTile
-                  label="API key"
-                  value={settingsSummary.apiKeyHint ?? "Saved"}
-                />
+            {error ? (
+              <div className="rounded-[20px] border border-[#f2c2bc] bg-[#fff2f0] px-4 py-3 text-sm text-[#a03d34]">
+                {error}
               </div>
-            </div>
-          </>
-        )}
-      </section>
+            ) : null}
 
-      <aside className="space-y-4">
-        <div className="rounded-[28px] border border-[#efe3db] bg-white/86 p-6">
-          <h2 className="text-xl font-semibold text-[#241815]">
+            {success ? (
+              <div className="rounded-[20px] border border-[#d6efe7] bg-[#f4fcf8] px-4 py-3 text-sm text-[#2f7a65]">
+                {success}
+              </div>
+            ) : null}
+
+            <div className="flex flex-wrap gap-3 pt-1">
+              <Button
+                type="button"
+                size="lg"
+                className="h-13 rounded-2xl bg-[#ea4e47] px-7 text-white hover:bg-[#dd433d]"
+                onClick={submitGeneration}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : creationMode === "series" ? (
+                  <Layers3 className="size-4" />
+                ) : (
+                  <Sparkles className="size-4" />
+                )}
+                {creationMode === "series" ? "Generate series" : "Generate story"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="h-13 rounded-2xl border-[#e4d8cf] bg-white px-6 text-[#473b35] hover:bg-[#faf4ef]"
+                onClick={() => {
+                  setTopic("");
+                  setError(null);
+                  setSuccess(null);
+                }}
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.32)] sm:p-7">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#241815]">
             Recent generated stories
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[#6f625c]">
-            Every successful generation is stored on the server for your account.
+          <p className="text-sm leading-6 text-[#6f625c]">
+            Everything generated here is saved on the server for your account.
           </p>
-          <div className="mt-4 space-y-3">
-            {recentStories.length ? (
-              recentStories.map((story) => (
-                <Link
-                  key={story.id}
-                  href={`/stories/${story.slug}`}
-                  prefetch={false}
-                  className="block rounded-[20px] border border-[#eadcd2] bg-[#fcf8f4] px-4 py-4 transition-colors hover:bg-white"
-                >
-                  <p className="text-sm font-semibold text-[#241815]">
-                    {story.titleTranslation}
-                  </p>
-                  <p className="mt-1 font-reading text-2xl text-[#3a2c27]">
-                    {story.title}
-                  </p>
-                  <p className="mt-2 text-xs text-[#7b6f69]">
-                    {getLevelLabel(story.level)} •{" "}
-                    {story.visibility === "public_user" ? "Public" : "Private"}
-                  </p>
-                </Link>
-              ))
-            ) : (
-              <div className="rounded-[20px] border border-dashed border-[#e0d3ca] bg-[#fcf8f4] px-4 py-8 text-sm text-[#72655e]">
-                No generated stories yet.
-              </div>
-            )}
-          </div>
         </div>
-      </aside>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {recentStories.length ? (
+            recentStories.map((story) => (
+              <Link
+                key={story.id}
+                href={`/stories/${story.slug}`}
+                prefetch={false}
+                className="block rounded-[24px] border border-[#eadcd2] bg-[#fcf8f4] px-5 py-5 transition-colors hover:bg-white"
+              >
+                <p className="text-sm font-semibold text-[#241815]">
+                  {story.titleTranslation}
+                </p>
+                <p className="mt-2 font-reading text-3xl text-[#3a2c27]">
+                  {story.title}
+                </p>
+                <p className="mt-3 text-xs text-[#7b6f69]">
+                  {getLevelLabel(story.level)} •{" "}
+                  {story.visibility === "public_user" ? "Public" : "Private"}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <div className="rounded-[24px] border border-dashed border-[#e0d3ca] bg-[#fcf8f4] px-5 py-10 text-sm text-[#72655e]">
+              No generated stories yet.
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
 
-function Select<T extends string>({
+function SelectPills<T extends string>({
   label,
   value,
   onChange,
@@ -269,35 +433,28 @@ function Select<T extends string>({
   label: string;
   value: T;
   onChange: (value: T) => void;
-  options: Array<{ value: T; label: string }>;
+  options: ReadonlyArray<{ value: T; label: string }>;
 }) {
   return (
-    <label className="space-y-2">
-      <span className="text-sm font-medium text-[#4f433d]">{label}</span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value as T)}
-        className="h-12 w-full rounded-2xl border border-[#e4d8cf] bg-[#fcfaf7] px-4 text-sm text-[#241815] outline-none transition-colors focus:border-[#d8b1a6]"
-      >
+    <div className="space-y-3">
+      <p className="text-sm font-medium text-[#4f433d]">{label}</p>
+      <div className="flex flex-wrap gap-2">
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onChange(option.value)}
+            className={cn(
+              "rounded-full border px-4 py-2 text-sm transition-colors",
+              value === option.value
+                ? "border-[#f0cfc1] bg-[#fff0ea] text-[#b25045]"
+                : "border-[#e5d8cf] bg-white text-[#5f534d] hover:bg-[#faf4ef]",
+            )}
+          >
             {option.label}
-          </option>
+          </button>
         ))}
-      </select>
-    </label>
-  );
-}
-
-function InfoTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[20px] border border-[#eadcd2] bg-white px-4 py-4">
-      <p className="text-xs tracking-[0.12em] text-[#84766e] uppercase">
-        {label}
-      </p>
-      <p className="mt-2 break-all text-sm font-medium text-[#241815]">
-        {value}
-      </p>
+      </div>
     </div>
   );
 }
