@@ -1,5 +1,6 @@
 import { getHighestHskLevel } from "@/lib/hsk";
 import { type AppStory, type HskLevel } from "@/lib/stories";
+import { getStoryEmojiTitle } from "@/lib/story-labels";
 
 export type AppSeries = {
   slug: string;
@@ -7,12 +8,13 @@ export type AppSeries = {
   titleTranslation: string;
   summary: string;
   coverHanzi: string;
+  emojiTitle: string;
   storySlugs: string[];
   stories: AppStory[];
   hskLevel: HskLevel;
 };
 
-type SeedSeries = Omit<AppSeries, "stories" | "hskLevel">;
+type SeedSeries = Omit<AppSeries, "stories" | "hskLevel" | "emojiTitle">;
 
 const seedSeries: SeedSeries[] = [
   {
@@ -50,6 +52,13 @@ export function hydrateSeries(stories: AppStory[]) {
 
       return {
         ...series,
+        emojiTitle: getStoryEmojiTitle({
+          id: `series-${series.slug}`,
+          slug: series.slug,
+          titleTranslation: series.titleTranslation,
+          summary: series.summary,
+          type: "story",
+        }),
         stories: seriesStories,
         hskLevel: getHighestHskLevel(seriesStories.map((story) => story.hskLevel)),
       };
