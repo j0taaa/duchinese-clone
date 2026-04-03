@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { ReaderLayout } from "@/components/reader-layout";
 import { buildReaderStory } from "@/lib/dictionary";
+import { getSeriesForStory } from "@/lib/series";
 import { getServerSession } from "@/lib/session";
 import {
   getAccessibleStoryBySlug,
-  getSeriesForAccessibleStory,
   getStoryListForReader,
   listReadStoryIdsForUser,
   markStoryRead,
@@ -37,15 +37,15 @@ export async function generateMetadata({ params }: StoryPageProps) {
 export default async function StoryPage({ params }: StoryPageProps) {
   const { slug } = await params;
   const session = await getServerSession();
-  const [story, stories, series] = await Promise.all([
+  const [story, stories] = await Promise.all([
     getAccessibleStoryBySlug(slug, session?.user.id),
     getStoryListForReader(session?.user.id),
-    getSeriesForAccessibleStory(slug, session?.user.id),
   ]);
 
   if (!story) {
     notFound();
   }
+  const series = getSeriesForStory(slug, stories);
 
   if (session) {
     await markStoryRead(session.user.id, story.id);

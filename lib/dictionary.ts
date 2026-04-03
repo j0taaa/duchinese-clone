@@ -18,6 +18,9 @@ export type ReaderStory = AppStory & {
 };
 
 let started = false;
+const wordLookupCache = new Map<string, DictionaryToken>();
+const tokenizedSectionCache = new Map<string, DictionaryToken[]>();
+const readerStoryCache = new Map<string, ReaderStory>();
 
 function ensureDictionary() {
   if (!started) {
@@ -228,34 +231,47 @@ export function lookupWordWithPinyin(
   word: string,
   expectedPinyin: string | null,
 ): DictionaryToken {
+  const cacheKey = `${word}::${expectedPinyin ?? ""}`;
+  const cachedResult = wordLookupCache.get(cacheKey);
+
+  if (cachedResult) {
+    return cachedResult;
+  }
+
   ensureDictionary();
 
   if (!hasChinese(word)) {
-    return {
+    const plainToken = {
       text: word,
       pinyin: null,
       definition: null,
       interactive: false,
     };
+    wordLookupCache.set(cacheKey, plainToken);
+    return plainToken;
   }
 
   const entry = pickBestEntry(Hanzi.definitionLookup(word), expectedPinyin);
 
   if (!entry) {
-    return {
+    const missingToken = {
       text: word,
       pinyin: null,
       definition: null,
       interactive: false,
     };
+    wordLookupCache.set(cacheKey, missingToken);
+    return missingToken;
   }
 
-  return {
+  const token = {
     text: word,
     pinyin: numberedPinyinToMarked(entry.pinyin),
     definition: compactDefinition(entry.definition),
     interactive: true,
   };
+  wordLookupCache.set(cacheKey, token);
+  return token;
 }
 
 export function tokenizeChineseText(text: string) {
@@ -264,12 +280,19 @@ export function tokenizeChineseText(text: string) {
 }
 
 export function tokenizeChineseTextWithPinyin(text: string, pinyinText: string) {
+  const cacheKey = `${text}::${pinyinText}`;
+  const cachedTokens = tokenizedSectionCache.get(cacheKey);
+
+  if (cachedTokens) {
+    return cachedTokens;
+  }
+
   ensureDictionary();
 
   const pinyinUnits = extractPinyinUnits(pinyinText);
   let pinyinIndex = 0;
 
-  return Hanzi.segment(text).map((token) => {
+  const tokens = Hanzi.segment(text).map((token) => {
     const syllableCount = countChineseCharacters(token);
 
     if (!syllableCount) {
@@ -284,14 +307,26 @@ export function tokenizeChineseTextWithPinyin(text: string, pinyinText: string) 
 
     return lookupWordWithPinyin(token, expectedPinyin || null);
   });
+
+  tokenizedSectionCache.set(cacheKey, tokens);
+  return tokens;
 }
 
 export function buildReaderStory(story: AppStory): ReaderStory {
-  return {
+  const cacheKey = `${story.id}:${new Date(story.updatedAt).toISOString()}`;
+  const cachedStory = readerStoryCache.get(cacheKey);
+
+  if (cachedStory) {
+    return cachedStory;
+  }
+
+  const readerStory = {
     ...story,
     tokenizedSections: story.sections.map((section) => ({
       ...section,
       tokens: tokenizeChineseTextWithPinyin(section.hanzi, section.pinyin),
     })),
   };
+  readerStoryCache.set(cacheKey, readerStory);
+  return readerStory;
 }
