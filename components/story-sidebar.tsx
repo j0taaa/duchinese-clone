@@ -68,7 +68,7 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-[#efe3d9] px-6 py-6">
-        <p className="text-[1.55rem] font-semibold tracking-tight text-[#1f1b18]">
+        <p className="text-[1.3rem] font-semibold tracking-tight text-[#1f1b18] sm:text-[1.55rem]">
           Lessons
         </p>
       </div>
@@ -96,7 +96,7 @@ function SidebarContent({
                 />
                 <span>{getHskLabel(story.hskLevel)}</span>
               </div>
-              <p className="text-lg font-medium leading-7 text-[#202020]">
+              <p className="text-base font-medium leading-6 text-[#202020] sm:text-lg sm:leading-7">
                 {story.titleTranslation}
               </p>
               <p className="mt-2 text-sm leading-6 text-[#757575]">
@@ -127,7 +127,7 @@ export function SeriesEpisodesSidebar({
             <Layers3 className="size-4" />
             Series episodes
           </p>
-          <p className="mt-2 text-[1.45rem] font-semibold tracking-tight text-[#1f1b18]">
+          <p className="mt-2 text-[1.2rem] font-semibold tracking-tight text-[#1f1b18] sm:text-[1.45rem]">
             {series.titleTranslation}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#6b615c]">
@@ -170,7 +170,7 @@ export function SeriesEpisodesSidebar({
                     ) : null}
                   </div>
 
-                  <p className="text-lg font-medium leading-7 text-[#202020]">
+                  <p className="text-base font-medium leading-6 text-[#202020] sm:text-lg sm:leading-7">
                     {story.titleTranslation}
                   </p>
                   <p className="mt-2 text-sm leading-6 text-[#757575]">
@@ -198,7 +198,7 @@ export function RecommendedLessons({
   return (
     <section className="space-y-4 rounded-[28px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.28)] sm:p-6">
       <div className="space-y-1">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#241815]">
+        <h2 className="text-xl font-semibold tracking-tight text-[#241815] sm:text-2xl">
           Recommended lessons
         </h2>
         <p className="text-sm leading-6 text-[#6c625d]">
@@ -236,7 +236,7 @@ export function RecommendedLessons({
                 </span>
               ) : null}
             </div>
-            <p className="text-lg font-medium leading-7 text-[#202020]">
+            <p className="text-base font-medium leading-6 text-[#202020] sm:text-lg sm:leading-7">
               {story.titleTranslation}
             </p>
             <p className="mt-2 text-sm leading-6 text-[#757575]">{story.title}</p>
@@ -259,7 +259,7 @@ function SeriesCallout({ series }: { series: AppSeries }) {
           <Layers3 className="size-4" />
           Part of a series
         </p>
-        <p className="text-lg font-semibold tracking-tight text-[#241815]">
+        <p className="text-base font-semibold tracking-tight text-[#241815] sm:text-lg">
           {series.titleTranslation}
         </p>
         <p className="text-sm leading-6 text-[#6c625d]">{series.summary}</p>

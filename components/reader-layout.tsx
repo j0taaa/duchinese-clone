@@ -154,7 +154,7 @@ export function ReaderLayout({
         setActiveWord(null);
       }}
     >
-      <div className="mx-auto flex min-h-screen max-w-[1600px] gap-8 px-4 py-6 sm:px-6 xl:px-10">
+      <div className="mx-auto flex min-h-screen max-w-[1600px] gap-5 px-4 py-4 sm:gap-8 sm:px-6 sm:py-6 xl:px-10">
         <StorySidebar
           stories={stories}
           activeSlug={story.slug}
@@ -170,10 +170,10 @@ export function ReaderLayout({
         ) : null}
 
         <div className="flex min-w-0 flex-1 flex-col gap-5 pb-24">
-          <div className="rounded-[28px] border border-white/70 bg-white/92 p-5 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] sm:p-6">
+          <div className="rounded-[24px] border border-white/70 bg-white/92 p-4 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] sm:rounded-[28px] sm:p-6">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-sm text-[#6e625c]">
+                <div className="flex flex-wrap items-center gap-2 text-[0.82rem] text-[#6e625c] sm:gap-3 sm:text-sm">
                   <Link
                     href="/"
                     prefetch={false}
@@ -193,14 +193,14 @@ export function ReaderLayout({
                 </div>
 
                 <div className="space-y-2">
-                  <h1 className="font-reading text-4xl text-[#241815]">
+                  <h1 className="font-reading text-[2rem] text-[#241815] sm:text-4xl">
                     {story.title}
                   </h1>
-                  <p className="text-lg text-[#5f534d]">{story.titleTranslation}</p>
+                  <p className="text-base text-[#5f534d] sm:text-lg">{story.titleTranslation}</p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {series ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <SeriesStepButton
@@ -224,19 +224,19 @@ export function ReaderLayout({
             </div>
           </div>
 
-          <div className="sticky top-[92px] z-20 rounded-[28px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm">
-            <div className="px-5 py-4 sm:px-6">
-              <div className="min-h-[104px] min-w-0">
+          <div className="sticky top-[112px] z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm sm:top-[92px] sm:rounded-[28px]">
+            <div className="px-4 py-3 sm:px-6 sm:py-4">
+              <div className="min-h-[88px] min-w-0 sm:min-h-[104px]">
                 <p className="text-sm text-[#9b8e87]">Word meaning</p>
                 {activeWord ? (
                   <div className="flex flex-wrap items-end gap-x-3 gap-y-2 pt-2">
-                    <span className="font-reading text-[2.15rem] leading-none text-[#3a86ea]">
+                    <span className="font-reading text-[1.8rem] leading-none text-[#3a86ea] sm:text-[2.15rem]">
                       {activeWord.text}
                     </span>
-                    <span className="text-[1.1rem] text-[#ef625a]">
+                    <span className="text-[0.95rem] text-[#ef625a] sm:text-[1.1rem]">
                       {activeWord.pinyin ?? ""}
                     </span>
-                    <span className="text-[1rem] text-[#3e3e3e]">
+                    <span className="text-[0.92rem] text-[#3e3e3e] sm:text-[1rem]">
                       {activeWord.definition ?? ""}
                     </span>
                   </div>
@@ -252,8 +252,8 @@ export function ReaderLayout({
           </div>
 
           <Card className="border-white/70 bg-white/92 py-0 shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
-            <CardContent className="px-5 py-8 sm:px-8 xl:px-12">
-              <div className="space-y-10">
+            <CardContent className="px-4 py-6 sm:px-8 sm:py-8 xl:px-12">
+              <div className="space-y-8 sm:space-y-10">
                 {story.tokenizedSections.map((section, index) => (
                   <section
                     key={`${story.id}-${index}`}
