@@ -415,16 +415,21 @@ function ToolbarToggle({
   return (
     <button
       type="button"
-      onClick={onClick}
-      onTouchEnd={(event) => {
-        if (!isTouchMode) {
+      onClick={() => {
+        if (isTouchMode) {
+          return;
+        }
+        onClick();
+      }}
+      onPointerUp={(event) => {
+        if (!isTouchMode || event.pointerType === "mouse") {
           return;
         }
 
         event.preventDefault();
         onClick();
       }}
-      className="touch-manipulation inline-flex h-8 items-center gap-1 rounded-full border border-[#eadcd2] bg-white px-2 text-[0.72rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
+      className="touch-manipulation select-none inline-flex h-8 items-center gap-1 rounded-full border border-[#eadcd2] bg-white px-2 text-[0.72rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
     >
       {icon}
       <span className="sm:hidden">
@@ -517,9 +522,14 @@ function renderTokenLine({
           onMouseEnter={() => token.interactive && onHoverWord(token)}
           onMouseLeave={() => token.interactive && onLeaveWord()}
           onFocus={() => token.interactive && onHoverWord(token)}
-          onClick={() => token.interactive && onSelectWord(token)}
-          onTouchEnd={(event) => {
-            if (!token.interactive || !isTouchMode) {
+          onClick={() => {
+            if (!token.interactive || isTouchMode) {
+              return;
+            }
+            onSelectWord(token);
+          }}
+          onPointerUp={(event) => {
+            if (!token.interactive || !isTouchMode || event.pointerType === "mouse") {
               return;
             }
 
@@ -528,7 +538,7 @@ function renderTokenLine({
           }}
           data-token-button="true"
           className={cn(
-            "touch-manipulation inline-flex flex-col items-start rounded-[10px] px-1 text-left transition-colors",
+            "touch-manipulation select-none inline-flex flex-col items-start rounded-[10px] px-1 text-left transition-colors",
             token.interactive && "hover:bg-[#f0f7ff]",
             isSelected && !isTouchMode && "bg-[#e5f3ff]",
             isSelected && isTouchMode && "bg-[#eef6ff]",
