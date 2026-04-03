@@ -14,6 +14,8 @@ export function SeriesCard({
 }) {
   const artwork = getStoryArtwork(series.slug || series.title);
   const hskMeta = hskLevelMeta[series.hskLevel];
+  const totalStories = series.stories.length;
+  const progress = totalStories ? Math.min(100, (readCount / totalStories) * 100) : 0;
 
   return (
     <Link
@@ -70,19 +72,34 @@ export function SeriesCard({
             </p>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#eadfd6] pt-2.5 text-[0.66rem] text-[#786b64]">
-            <span className="inline-flex items-center gap-1 font-medium text-[#5f534d]">
-              <span className="size-1.5 rounded-full bg-[#b6927c]" />
-              Collection
-            </span>
-            {readCount ? (
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2 py-0.5 text-[#4f8454]">
-                <CheckCircle2 className="size-3" />
-                {readCount}/{series.stories.length} read
+          <div className="mt-3 space-y-2 border-t border-[#eadfd6] pt-2.5 text-[0.66rem] text-[#786b64]">
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1 font-medium text-[#5f534d]">
+                <span className="size-1.5 rounded-full bg-[#b6927c]" />
+                Collection
               </span>
-            ) : (
-              <span className="text-[#8b7d75]">Start series</span>
-            )}
+              {readCount ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2 py-0.5 text-[#4f8454]">
+                  <CheckCircle2 className="size-3" />
+                  {readCount}/{totalStories} read
+                </span>
+              ) : (
+                <span className="text-[#8b7d75]">Start series</span>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[#efe5dd]">
+                <div
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#6bc6b6_0%,#4f8454_100%)] transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-[0.61rem] text-[#877a73]">
+                <span>{readCount ? "In progress" : "Not started"}</span>
+                <span>{Math.round(progress)}%</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
