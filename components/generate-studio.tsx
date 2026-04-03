@@ -382,6 +382,76 @@ export function GenerateStudio({
               ) : null}
             </div>
 
+            <div className="grid gap-4 sm:gap-5 xl:grid-cols-[1.25fr_0.95fr]">
+              <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-[#4f433d]">Lesson format</p>
+                  <p className="text-sm leading-5 text-[#6d615b] sm:leading-6">
+                    Pick the style that best matches the reading experience you want.
+                  </p>
+                </div>
+                <div className="grid gap-2.5 sm:grid-cols-3 sm:gap-3">
+                  {lessonTypes.map((option) => {
+                    const Icon = option.icon;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setType(option.value)}
+                        className={cn(
+                          "rounded-[18px] border px-3.5 py-3.5 text-left transition-all sm:rounded-[24px] sm:px-4 sm:py-4",
+                          type === option.value
+                            ? "border-[#f0cfc1] bg-[#fff7f3]"
+                            : "border-[#eadcd2] bg-white hover:bg-[#fffdfa]",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "mb-3 inline-flex size-10 items-center justify-center rounded-2xl",
+                            type === option.value
+                              ? "bg-[#ea4e47] text-white"
+                              : "bg-[#f8f2ec] text-[#6b5950]",
+                          )}
+                        >
+                          <Icon className="size-4.5" />
+                        </span>
+                        <p className="text-sm font-semibold text-[#241815] sm:text-base">
+                          {option.label}
+                        </p>
+                        <p className="mt-1 text-sm leading-5 text-[#6d615b] sm:leading-6">
+                          {option.description}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
+                <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+                  <SelectPills
+                    label="HSK level"
+                    value={hskLevel}
+                    onChange={setHskLevel}
+                    options={hskOptions}
+                  />
+                  <SelectPills
+                    label="Length"
+                    value={length}
+                    onChange={setLength}
+                    options={lengthOptions}
+                  />
+                  <SelectPills
+                    label="Visibility"
+                    value={visibility}
+                    onChange={setVisibility}
+                    options={visibilityOptions}
+                  />
+                </div>
+              </div>
+            </div>
+
             {shouldShowReviewCharacters ? (
               <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -481,76 +551,6 @@ export function GenerateStudio({
                 ) : null}
               </div>
             ) : null}
-
-            <div className="grid gap-4 sm:gap-5 xl:grid-cols-[1.25fr_0.95fr]">
-              <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-[#4f433d]">Lesson format</p>
-                  <p className="text-sm leading-5 text-[#6d615b] sm:leading-6">
-                    Pick the style that best matches the reading experience you want.
-                  </p>
-                </div>
-                <div className="grid gap-2.5 sm:grid-cols-3 sm:gap-3">
-                  {lessonTypes.map((option) => {
-                    const Icon = option.icon;
-
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setType(option.value)}
-                        className={cn(
-                          "rounded-[18px] border px-3.5 py-3.5 text-left transition-all sm:rounded-[24px] sm:px-4 sm:py-4",
-                          type === option.value
-                            ? "border-[#f0cfc1] bg-[#fff7f3]"
-                            : "border-[#eadcd2] bg-white hover:bg-[#fffdfa]",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "mb-3 inline-flex size-10 items-center justify-center rounded-2xl",
-                            type === option.value
-                              ? "bg-[#ea4e47] text-white"
-                              : "bg-[#f8f2ec] text-[#6b5950]",
-                          )}
-                        >
-                          <Icon className="size-4.5" />
-                        </span>
-                        <p className="text-sm font-semibold text-[#241815] sm:text-base">
-                          {option.label}
-                        </p>
-                        <p className="mt-1 text-sm leading-5 text-[#6d615b] sm:leading-6">
-                          {option.description}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
-                <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
-                  <SelectPills
-                    label="HSK level"
-                    value={hskLevel}
-                    onChange={setHskLevel}
-                    options={hskOptions}
-                  />
-                  <SelectPills
-                    label="Length"
-                    value={length}
-                    onChange={setLength}
-                    options={lengthOptions}
-                  />
-                  <SelectPills
-                    label="Visibility"
-                    value={visibility}
-                    onChange={setVisibility}
-                    options={visibilityOptions}
-                  />
-                </div>
-              </div>
-            </div>
 
             {error ? (
               <div className="rounded-[20px] border border-[#f2c2bc] bg-[#fff2f0] px-4 py-3 text-sm text-[#a03d34]">
