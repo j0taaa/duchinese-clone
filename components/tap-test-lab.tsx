@@ -45,14 +45,12 @@ function TokenLike({
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       className={[
-        "inline-flex flex-col items-start rounded-xl border px-2 py-1 text-left",
-        active
-          ? "border-[#8bd3cf] bg-[#eef6ff]"
-          : "border-[#eadcd2] bg-white",
+        "inline-flex flex-col items-start border px-2 py-1 text-left",
+        active ? "border-black bg-gray-100" : "border-black bg-white",
       ].join(" ")}
     >
-      <span className="text-sm text-[#696969]">{pinyin}</span>
-      <span className="font-reading text-4xl leading-none text-[#2d2d2d]">
+      <span className="text-sm text-black">{pinyin}</span>
+      <span className="font-reading text-4xl leading-none text-black">
         {hanzi}
       </span>
     </button>
@@ -71,15 +69,15 @@ function TestBlock({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4 rounded-[24px] border border-[#eadcd2] bg-white p-5 shadow-[0_18px_40px_-32px_rgba(80,45,24,0.28)]">
+    <section className="space-y-4 border border-black p-4">
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-[#241815]">{title}</h2>
-          <span className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-3 py-1 text-sm text-[#6c5f58]">
+          <h2 className="text-lg font-semibold text-black">{title}</h2>
+          <span className="border border-black px-3 py-1 text-sm text-black">
             {count} fires
           </span>
         </div>
-        <p className="text-sm leading-6 text-[#6c625d]">{description}</p>
+        <p className="text-sm leading-6 text-black">{description}</p>
       </div>
       {children}
     </section>
@@ -120,17 +118,17 @@ export function TapTestLab() {
   }, [log]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1480px] flex-col gap-6 px-4 py-5 sm:gap-8 sm:px-6 sm:py-8 xl:px-10">
-      <section className="space-y-3 rounded-[28px] border border-white/70 bg-white/92 p-5 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] sm:p-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-[#241815] sm:text-3xl">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-4">
+      <section className="space-y-3 border border-black p-4">
+        <h1 className="text-2xl font-semibold tracking-tight text-black">
           Mobile Tap Test Lab
         </h1>
-        <p className="max-w-3xl text-sm leading-7 text-[#625750] sm:text-base">
+        <p className="max-w-3xl text-sm leading-6 text-black">
           Test these on your phone and tell me which blocks work. I want to know
           which exact event strategy fires reliably on the real device.
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-3 py-1.5 text-sm text-[#6c5f58]">
+          <span className="border border-black px-3 py-1.5 text-sm text-black">
             {latestSummary}
           </span>
           <button
@@ -140,7 +138,7 @@ export function TapTestLab() {
               setSelected(null);
               setLog([]);
             }}
-            className="rounded-full border border-[#eadcd2] bg-white px-4 py-2 text-sm font-medium text-[#443934]"
+            className="border border-black px-4 py-2 text-sm font-medium text-black"
           >
             Reset results
           </button>
@@ -156,7 +154,7 @@ export function TapTestLab() {
           <button
             type="button"
             onClick={() => record("plain-button", "Plain Button", "click")}
-            className="rounded-full border border-[#eadcd2] bg-white px-5 py-3 text-base font-medium text-[#241815]"
+            className="border border-black px-5 py-3 text-base font-medium text-black"
           >
             Test plain button
           </button>
@@ -179,7 +177,7 @@ export function TapTestLab() {
                 "touchstart",
               )
             }
-            className="rounded-full border border-[#eadcd2] bg-white px-5 py-3 text-base font-medium text-[#241815]"
+            className="border border-black px-5 py-3 text-base font-medium text-black"
           >
             Test touchstart button
           </button>
@@ -198,7 +196,7 @@ export function TapTestLab() {
             onTouchEnd={() =>
               record("touch-end-button", "Button With Touch End", "touchend")
             }
-            className="rounded-full border border-[#eadcd2] bg-white px-5 py-3 text-base font-medium text-[#241815]"
+            className="border border-black px-5 py-3 text-base font-medium text-black"
           >
             Test touchend button
           </button>
@@ -221,7 +219,7 @@ export function TapTestLab() {
                 "pointerdown",
               )
             }
-            className="rounded-full border border-[#eadcd2] bg-white px-5 py-3 text-base font-medium text-[#241815]"
+            className="border border-black px-5 py-3 text-base font-medium text-black"
           >
             Test pointerdown button
           </button>
@@ -240,7 +238,7 @@ export function TapTestLab() {
             onPointerUp={() =>
               record("pointer-up-button", "Button With Pointer Up", "pointerup")
             }
-            className="rounded-full border border-[#eadcd2] bg-white px-5 py-3 text-base font-medium text-[#241815]"
+            className="border border-black px-5 py-3 text-base font-medium text-black"
           >
             Test pointerup button
           </button>
@@ -255,7 +253,7 @@ export function TapTestLab() {
             role="button"
             tabIndex={0}
             onClick={() => record("div-button", "Div Role Button", "click")}
-            className="inline-flex rounded-full border border-[#eadcd2] bg-white px-5 py-3 text-base font-medium text-[#241815]"
+            className="inline-flex border border-black px-5 py-3 text-base font-medium text-black"
           >
             Test div role button
           </div>
@@ -369,30 +367,30 @@ export function TapTestLab() {
               event.preventDefault();
               record("anchor-tap", "Anchor Tap", "click");
             }}
-            className="inline-flex rounded-full border border-[#eadcd2] bg-white px-5 py-3 text-base font-medium text-[#241815]"
+            className="inline-flex border border-black px-5 py-3 text-base font-medium text-black"
           >
             Test anchor tap
           </a>
         </TestBlock>
       </div>
 
-      <section className="rounded-[24px] border border-[#eadcd2] bg-white p-5 shadow-[0_18px_40px_-32px_rgba(80,45,24,0.28)]">
-        <h2 className="text-lg font-semibold text-[#241815]">Event Log</h2>
+      <section className="border border-black p-4">
+        <h2 className="text-lg font-semibold text-black">Event Log</h2>
         <div className="mt-4 space-y-2">
           {log.length ? (
             log.map((entry, index) => (
               <div
                 key={`${entry.id}-${index}-${entry.at}`}
-                className="rounded-2xl border border-[#efe3d9] bg-[#fcf8f4] px-4 py-3 text-sm text-[#4c403a]"
+                className="border border-black px-4 py-3 text-sm text-black"
               >
                 <span className="font-medium">{entry.label}</span>
-                <span className="text-[#7b6f68]"> fired via </span>
+                <span> fired via </span>
                 <span className="font-medium">{entry.event}</span>
-                <span className="text-[#7b6f68]"> at {entry.at}</span>
+                <span> at {entry.at}</span>
               </div>
             ))
           ) : (
-            <p className="text-sm text-[#6c625d]">
+            <p className="text-sm text-black">
               No events recorded yet.
             </p>
           )}
