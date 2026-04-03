@@ -42,6 +42,7 @@ export type AppStory = {
   englishTranslation: string;
   sections: StorySection[];
   type: StoryType;
+  hskLevel: HskLevel;
   level: StoryLevel;
   visibility: StoryVisibility;
   isSeeded: boolean;
@@ -87,12 +88,49 @@ export const storyLevelMeta: Record<
   },
 };
 
+export const hskLevelMeta: Record<
+  HskLevel,
+  { label: string; dotClass: string; chipClass: string }
+> = {
+  "1": {
+    label: "HSK 1",
+    dotClass: "bg-[#f08b7d]",
+    chipClass: "border-[#ffd4ce] bg-[#fff3f1] text-[#b4493e]",
+  },
+  "2": {
+    label: "HSK 2",
+    dotClass: "bg-[#f3b26e]",
+    chipClass: "border-[#ffe2bf] bg-[#fff8ef] text-[#ba7431]",
+  },
+  "3": {
+    label: "HSK 3",
+    dotClass: "bg-[#79c7b2]",
+    chipClass: "border-[#d7f3ea] bg-[#f3fcf8] text-[#2a8a73]",
+  },
+  "4": {
+    label: "HSK 4",
+    dotClass: "bg-[#6cb9d6]",
+    chipClass: "border-[#d8eef5] bg-[#f2fbfe] text-[#287796]",
+  },
+  "5": {
+    label: "HSK 5",
+    dotClass: "bg-[#699ed5]",
+    chipClass: "border-[#d7e7fb] bg-[#f4f8fe] text-[#4777a8]",
+  },
+  "6": {
+    label: "HSK 6",
+    dotClass: "bg-[#9387d9]",
+    chipClass: "border-[#e2defc] bg-[#f7f5ff] text-[#5f55a7]",
+  },
+};
+
 export const seedStories: SeedStory[] = [
   {
     slug: "morning-market",
     title: "早上的菜市场",
     titleTranslation: "Passing Through the Morning Market",
     type: "story",
+    hskLevel: "1",
     level: "beginner",
     summary:
       "Lin walks through a neighborhood market before breakfast and notices how the city wakes up around her.",
@@ -132,6 +170,7 @@ export const seedStories: SeedStory[] = [
     title: "咖啡店里的对话",
     titleTranslation: "Can I Walk With You After Coffee?",
     type: "dialogue",
+    hskLevel: "2",
     level: "elementary",
     summary:
       "Two friends meet after work and decide how to spend a free evening in the city.",
@@ -171,6 +210,7 @@ export const seedStories: SeedStory[] = [
     title: "下雨天的日记",
     titleTranslation: "A Rainy Afternoon Journal",
     type: "journal",
+    hskLevel: "3",
     level: "intermediate",
     summary:
       "A short reflective diary entry about rain, staying inside, and finding a slower rhythm for the day.",
@@ -210,6 +250,7 @@ export const seedStories: SeedStory[] = [
     title: "地铁上的小帮忙",
     titleTranslation: "A Small Favor on the Subway",
     type: "dialogue",
+    hskLevel: "1",
     level: "beginner",
     summary:
       "A short subway encounter about helping someone find the right stop.",
@@ -249,6 +290,7 @@ export const seedStories: SeedStory[] = [
     title: "公园里的午饭",
     titleTranslation: "Lunch in the Park",
     type: "story",
+    hskLevel: "2",
     level: "elementary",
     summary:
       "Coworkers bring lunch to the park and talk about why small breaks matter.",
@@ -288,6 +330,7 @@ export const seedStories: SeedStory[] = [
     title: "周末整理书架",
     titleTranslation: "Reorganizing the Bookshelf",
     type: "journal",
+    hskLevel: "3",
     level: "intermediate",
     summary:
       "A weekend reflection about cleaning, sorting old books, and remembering different stages of life.",
@@ -326,6 +369,10 @@ export const seedStories: SeedStory[] = [
 
 export function getLevelLabel(level: StoryLevel) {
   return storyLevelMeta[level].label;
+}
+
+export function getHskLabel(hskLevel: HskLevel) {
+  return hskLevelMeta[hskLevel].label;
 }
 
 export function compareStoryLevels(left: StoryLevel, right: StoryLevel) {

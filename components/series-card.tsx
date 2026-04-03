@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { CheckCircle2, Layers3 } from "lucide-react";
 
-import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppSeries } from "@/lib/series";
 import { getStoryArtwork } from "@/lib/story-art";
-import { getLevelLabel, storyLevelMeta } from "@/lib/stories";
+import { getHskLabel, hskLevelMeta } from "@/lib/stories";
 
 export function SeriesCard({
   series,
@@ -14,14 +13,7 @@ export function SeriesCard({
   readCount?: number;
 }) {
   const artwork = getStoryArtwork(series.slug || series.title);
-  const levelMeta = storyLevelMeta[series.level];
-  const highestHsk = series.stories.reduce(
-    (highest, story) => {
-      const current = Number.parseInt(getStoryHskLabel(story).replace("HSK", ""), 10);
-      return Number.isNaN(current) ? highest : Math.max(highest, current);
-    },
-    1,
-  );
+  const hskMeta = hskLevelMeta[series.hskLevel];
 
   return (
     <Link
@@ -37,11 +29,7 @@ export function SeriesCard({
         <div className="absolute -right-2 -bottom-5 font-reading text-[6rem] leading-none text-white/22">
           {series.coverHanzi}
         </div>
-        <div className="relative z-10 flex items-start justify-between gap-3">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-[0.72rem] font-medium tracking-[0.14em] text-white uppercase backdrop-blur-sm">
-            <span className={["size-2.5 rounded-full", levelMeta.dotClass].join(" ")} />
-            {getLevelLabel(series.level)}
-          </span>
+        <div className="relative z-10 flex items-start justify-end gap-3">
           <span className="inline-flex size-8 items-center justify-center rounded-full bg-white/18 text-white backdrop-blur-sm">
             <Layers3 className="size-4" />
           </span>
@@ -59,9 +47,9 @@ export function SeriesCard({
       <div className="mt-4 space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-[#786b64]">
           <span
-            className={`inline-flex items-center rounded-full border px-2.5 py-1 ${levelMeta.chipClass}`}
+            className={`inline-flex items-center rounded-full border px-2.5 py-1 ${hskMeta.chipClass}`}
           >
-            HSK{highestHsk}
+            {getHskLabel(series.hskLevel)}
           </span>
           <span>{series.stories.length} lessons</span>
           {readCount ? (

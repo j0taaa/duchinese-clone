@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { CheckCircle2, Globe2, LockKeyhole, Sparkles } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 import { getStoryArtwork } from "@/lib/story-art";
 import { getStoryHskLabel } from "@/lib/hsk";
-import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
+import { type AppStory, hskLevelMeta } from "@/lib/stories";
 
 export function StoryCard({
   story,
@@ -15,17 +15,9 @@ export function StoryCard({
   isRead?: boolean;
 }) {
   const artwork = getStoryArtwork(story.id || story.slug || story.title);
-  const level = storyLevelMeta[story.level];
+  const hskMeta = hskLevelMeta[story.hskLevel];
   const hskLabel = getStoryHskLabel(story);
   const createdAt = new Date(story.createdAt);
-  const visibilityIcon =
-    story.visibility === "private_user" ? (
-      <LockKeyhole className="size-3.5" />
-    ) : story.isSeeded ? (
-      <Sparkles className="size-3.5" />
-    ) : (
-      <Globe2 className="size-3.5" />
-    );
 
   return (
     <Link
@@ -38,18 +30,6 @@ export function StoryCard({
         style={{ backgroundImage: artwork.surface }}
       >
         <div className="absolute inset-0" style={{ backgroundImage: artwork.glow }} />
-        <div className="absolute -right-2 -bottom-5 font-reading text-[6rem] leading-none text-white/22">
-          {Array.from(story.title)[0] ?? "汉"}
-        </div>
-        <div className="relative z-10 flex items-start justify-between gap-3">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-[0.72rem] font-medium tracking-[0.14em] text-white uppercase backdrop-blur-sm">
-            <span className={["size-2.5 rounded-full", level.dotClass].join(" ")} />
-            {getLevelLabel(story.level)}
-          </span>
-          <span className="inline-flex size-8 items-center justify-center rounded-full bg-white/18 text-white backdrop-blur-sm">
-            {visibilityIcon}
-          </span>
-        </div>
         <div className="relative z-10 flex min-h-[136px] items-center justify-center px-6 text-center">
           <p className="text-[2.3rem] leading-none tracking-[0.18em] text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:text-[2.8rem]">
             {story.emojiTitle}
@@ -60,7 +40,7 @@ export function StoryCard({
       <div className="mt-4 space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-[#786b64]">
           <span
-            className={`inline-flex items-center rounded-full border px-2.5 py-1 ${level.chipClass}`}
+            className={`inline-flex items-center rounded-full border px-2.5 py-1 ${hskMeta.chipClass}`}
           >
             {hskLabel}
           </span>

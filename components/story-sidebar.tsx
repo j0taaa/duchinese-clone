@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, Layers3, Menu, PlayCircle } from "lucide-react";
 
 import { type AppSeries } from "@/lib/series";
-import { type AppStory, getLevelLabel, storyLevelMeta } from "@/lib/stories";
+import { type AppStory, getHskLabel, hskLevelMeta } from "@/lib/stories";
 
 import {
   Sheet,
@@ -91,10 +91,10 @@ function SidebarContent({
                 <span
                   className={[
                     "size-3 rounded-full",
-                    storyLevelMeta[story.level].dotClass,
+                    hskLevelMeta[story.hskLevel].dotClass,
                   ].join(" ")}
                 />
-                <span>{getLevelLabel(story.level)}</span>
+                <span>{getHskLabel(story.hskLevel)}</span>
               </div>
               <p className="text-lg font-medium leading-7 text-[#202020]">
                 {story.titleTranslation}
@@ -225,10 +225,10 @@ export function RecommendedLessons({
               <span
                 className={[
                   "size-3 rounded-full",
-                  storyLevelMeta[story.level].dotClass,
+                  hskLevelMeta[story.hskLevel].dotClass,
                 ].join(" ")}
               />
-              <span>{getLevelLabel(story.level)}</span>
+              <span>{getHskLabel(story.hskLevel)}</span>
               {readStoryIds.includes(story.id) ? (
                 <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2 py-0.5 text-xs text-[#4f8454]">
                   <CheckCircle2 className="size-3" />

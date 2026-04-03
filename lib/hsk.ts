@@ -1,7 +1,7 @@
 import Hanzi from "hanzi";
 
 import hskWords from "@/data/hsk/words.json";
-import type { AppStory, StoryLevel } from "@/lib/stories";
+import type { AppStory, HskLevel } from "@/lib/stories";
 
 type HskWordRecord = {
   level: number;
@@ -30,12 +30,6 @@ function getWordsBySimplified() {
   return wordsBySimplified;
 }
 
-function getFallbackLevel(level: StoryLevel) {
-  if (level === "intermediate") return 3;
-  if (level === "elementary") return 2;
-  return 1;
-}
-
 export function estimateHskLevelFromText(text: string) {
   ensureStarted();
 
@@ -53,10 +47,18 @@ export function estimateHskLevelFromText(text: string) {
   return maxLevel || null;
 }
 
-export function getStoryHskLevel(story: Pick<AppStory, "hanziText" | "level">) {
-  return estimateHskLevelFromText(story.hanziText) ?? getFallbackLevel(story.level);
+export function getStoryHskLevel(story: Pick<AppStory, "hanziText" | "hskLevel">) {
+  return Number.parseInt(story.hskLevel, 10) || estimateHskLevelFromText(story.hanziText) || 1;
 }
 
-export function getStoryHskLabel(story: Pick<AppStory, "hanziText" | "level">) {
+export function getStoryHskLabel(story: Pick<AppStory, "hanziText" | "hskLevel">) {
   return `HSK${getStoryHskLevel(story)}`;
+}
+
+export function getHighestHskLevel(levels: HskLevel[]) {
+  return levels.reduce<HskLevel>(
+    (highest, current) =>
+      Number.parseInt(current, 10) > Number.parseInt(highest, 10) ? current : highest,
+    "1",
+  );
 }

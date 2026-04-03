@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { DictionaryToken, ReaderStory } from "@/lib/dictionary";
 import { getStoryHskLabel } from "@/lib/hsk";
 import { type AppSeries } from "@/lib/series";
-import { getLevelLabel, storyLevelMeta, type AppStory } from "@/lib/stories";
+import { getHskLabel, hskLevelMeta, type AppStory } from "@/lib/stories";
 
 import {
   RecommendedLessons,
@@ -98,7 +98,7 @@ export function ReaderLayout({
   const [activeWord, setActiveWord] = useState<DictionaryToken | null>(null);
   const [sheetWord, setSheetWord] =
     useState<DictionaryToken | null>(firstInteractiveToken);
-  const levelMeta = storyLevelMeta[story.level];
+  const hskMeta = hskLevelMeta[story.hskLevel];
   const hskLabel = getStoryHskLabel(story);
 
   useEffect(() => {
@@ -170,8 +170,8 @@ export function ReaderLayout({
                     <ChevronLeft className="size-4" />
                     Library
                   </Link>
-                  <span className={["size-3 rounded-full", levelMeta.dotClass].join(" ")} />
-                  <span>{getLevelLabel(story.level)}</span>
+                  <span className={["size-3 rounded-full", hskMeta.dotClass].join(" ")} />
+                  <span>{getHskLabel(story.hskLevel)}</span>
                 </div>
 
                 <div className="space-y-2">
@@ -184,7 +184,7 @@ export function ReaderLayout({
 
               <Badge
                 variant="outline"
-                className={`rounded-full border px-4 py-2 text-sm font-medium ${levelMeta.chipClass}`}
+                className={`rounded-full border px-4 py-2 text-sm font-medium ${hskMeta.chipClass}`}
               >
                 {hskLabel}
               </Badge>
@@ -281,7 +281,7 @@ export function ReaderLayout({
                 <span className="font-medium text-[#2a1e1a]">
                   {story.titleTranslation}
                 </span>
-                <span>{getLevelLabel(story.level)}</span>
+                <span>{getHskLabel(story.hskLevel)}</span>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <ToolbarToggle

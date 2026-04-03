@@ -115,6 +115,7 @@ model Story {
   englishTranslation String
   sections           Json
   type               StoryType
+  hskLevel           String
   level              StoryLevel
   visibility         StoryVisibility @default(private_user)
   isSeeded           Boolean         @default(false)

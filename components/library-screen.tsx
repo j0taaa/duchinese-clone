@@ -6,9 +6,9 @@ import { useMemo, useState } from "react";
 import { SeriesCard } from "@/components/series-card";
 import { StoryCard } from "@/components/story-card";
 import { type AppSeries } from "@/lib/series";
-import { type AppStory, getLevelLabel, storyLevelValues } from "@/lib/stories";
+import { type AppStory, getHskLabel, hskLevelValues } from "@/lib/stories";
 
-const filterOptions = ["all", ...storyLevelValues] as const;
+const filterOptions = ["all", ...hskLevelValues] as const;
 
 export function LibraryScreen({
   publicStories,
@@ -30,7 +30,7 @@ export function LibraryScreen({
     const needle = query.trim().toLowerCase();
 
     return publicStories.filter((story) => {
-      const matchesLevel = filter === "all" ? true : story.level === filter;
+      const matchesLevel = filter === "all" ? true : story.hskLevel === filter;
       const matchesQuery = needle
         ? [story.title, story.titleTranslation, story.summary, story.excerpt]
             .join(" ")
@@ -46,7 +46,7 @@ export function LibraryScreen({
     const needle = query.trim().toLowerCase();
 
     return publicSeries.filter((series) => {
-      const matchesLevel = filter === "all" ? true : series.level === filter;
+      const matchesLevel = filter === "all" ? true : series.hskLevel === filter;
       const matchesQuery = needle
         ? [
             series.title,
@@ -97,7 +97,7 @@ export function LibraryScreen({
                   : "rounded-full border border-[#ead9cf] bg-white px-4 py-2 text-sm text-[#554842] hover:bg-[#faf4ef]"
               }
             >
-              {option === "all" ? "All levels" : getLevelLabel(option)}
+              {option === "all" ? "All levels" : getHskLabel(option)}
             </button>
           ))}
         </div>

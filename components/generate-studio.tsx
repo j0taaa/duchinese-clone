@@ -16,7 +16,7 @@ import { useMemo, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { type AppStory, getLevelLabel, type HskLevel } from "@/lib/stories";
+import { type AppStory, getHskLabel, type HskLevel } from "@/lib/stories";
 
 const promptSuggestions = [
   "Two classmates trying to find a quiet cafe to study in.",
@@ -444,7 +444,7 @@ export function GenerateStudio({
                   {story.title}
                 </p>
                 <p className="mt-3 text-xs text-[#7b6f69]">
-                  {getLevelLabel(story.level)} •{" "}
+                  {getHskLabel(story.hskLevel)} •{" "}
                   {story.visibility === "public_user" ? "Public" : "Private"}
                 </p>
               </Link>

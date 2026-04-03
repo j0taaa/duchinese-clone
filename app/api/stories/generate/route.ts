@@ -100,6 +100,7 @@ export async function POST(request: Request) {
       englishTranslation: generated.englishTranslation,
       sections: generated.sections,
       type: parsed.data.type,
+      hskLevel: parsed.data.hskLevel,
       level: storyLevel,
       visibility: parsed.data.visibility,
     });

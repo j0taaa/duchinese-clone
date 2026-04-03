@@ -1,4 +1,5 @@
-import { getHighestStoryLevel, type AppStory, type StoryLevel } from "@/lib/stories";
+import { getHighestHskLevel } from "@/lib/hsk";
+import { type AppStory, type HskLevel } from "@/lib/stories";
 
 export type AppSeries = {
   slug: string;
@@ -8,10 +9,10 @@ export type AppSeries = {
   coverHanzi: string;
   storySlugs: string[];
   stories: AppStory[];
-  level: StoryLevel;
+  hskLevel: HskLevel;
 };
 
-type SeedSeries = Omit<AppSeries, "stories" | "level">;
+type SeedSeries = Omit<AppSeries, "stories" | "hskLevel">;
 
 const seedSeries: SeedSeries[] = [
   {
@@ -50,7 +51,7 @@ export function hydrateSeries(stories: AppStory[]) {
       return {
         ...series,
         stories: seriesStories,
-        level: getHighestStoryLevel(seriesStories.map((story) => story.level)),
+        hskLevel: getHighestHskLevel(seriesStories.map((story) => story.hskLevel)),
       };
     })
     .filter((series): series is AppSeries => Boolean(series));

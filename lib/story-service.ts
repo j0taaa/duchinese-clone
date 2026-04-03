@@ -4,6 +4,8 @@ import { getStoryEmojiTitle } from "@/lib/story-labels";
 import { getSeriesBySlug, getSeriesForStory, hydrateSeries } from "@/lib/series";
 import {
   type AppStory,
+  type HskLevel,
+  hskLevelValues,
   type SeedStory,
   storySectionsSchema,
   type StoryLevel,
@@ -13,6 +15,10 @@ import {
 import { countTrackedVocabularyOccurrences } from "@/lib/vocabulary";
 
 const publicVisibilities = ["public_seeded", "public_user"] as const;
+
+function normalizeHskLevel(value: string): HskLevel {
+  return (hskLevelValues as readonly string[]).includes(value) ? (value as HskLevel) : "1";
+}
 
 function mapStory(record: {
   id: string;
@@ -26,6 +32,7 @@ function mapStory(record: {
   englishTranslation: string;
   sections: Prisma.JsonValue;
   type: StoryType;
+  hskLevel: string;
   level: StoryLevel;
   visibility: StoryVisibility;
   isSeeded: boolean;
@@ -55,6 +62,7 @@ function mapStory(record: {
     englishTranslation: record.englishTranslation,
     sections: storySectionsSchema.parse(record.sections),
     type: record.type,
+    hskLevel: normalizeHskLevel(record.hskLevel),
     level: record.level,
     visibility: record.visibility,
     isSeeded: record.isSeeded,
@@ -350,6 +358,7 @@ export async function createGeneratedStory(input: {
   englishTranslation: string;
   sections: AppStory["sections"];
   type: StoryType;
+  hskLevel: HskLevel;
   level: StoryLevel;
   visibility: StoryVisibility;
 }) {
@@ -365,6 +374,7 @@ export async function createGeneratedStory(input: {
       englishTranslation: input.englishTranslation,
       sections: input.sections,
       type: input.type,
+      hskLevel: input.hskLevel,
       level: input.level,
       visibility: input.visibility,
       isSeeded: false,
@@ -391,6 +401,7 @@ export async function seedStarterStories(stories: SeedStory[]) {
         englishTranslation: story.englishTranslation,
         sections: story.sections,
         type: story.type,
+        hskLevel: story.hskLevel,
         level: story.level,
         visibility: "public_seeded",
         isSeeded: true,
@@ -407,6 +418,7 @@ export async function seedStarterStories(stories: SeedStory[]) {
         englishTranslation: story.englishTranslation,
         sections: story.sections,
         type: story.type,
+        hskLevel: story.hskLevel,
         level: story.level,
         visibility: "public_seeded",
         isSeeded: true,
