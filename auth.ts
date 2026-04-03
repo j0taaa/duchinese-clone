@@ -60,6 +60,12 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   plugins: [nextCookies()],
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
