@@ -2,6 +2,12 @@ import { z } from "zod";
 
 import { type HskLevel, storySectionsSchema, type StoryType } from "@/lib/stories";
 
+type FocusCharacter = {
+  hanzi: string;
+  pinyin: string | null;
+  definition: string | null;
+};
+
 const generatedStorySchema = z.object({
   title: z.string().min(1),
   titleTranslation: z.string().min(1),
@@ -64,6 +70,16 @@ function extractJson(text: string) {
   return text;
 }
 
+function formatFocusCharacters(characters: FocusCharacter[]) {
+  return characters
+    .map((entry) => {
+      const details = [entry.pinyin, entry.definition].filter(Boolean).join(" - ");
+
+      return details ? `${entry.hanzi} (${details})` : entry.hanzi;
+    })
+    .join(", ");
+}
+
 export async function generateStoryWithModel(input: {
   apiKey: string;
   baseUrl: string;
@@ -72,7 +88,15 @@ export async function generateStoryWithModel(input: {
   hskLevel: HskLevel;
   type: StoryType;
   length: "short" | "medium" | "long";
+  focusCharacters?: FocusCharacter[];
 }) {
+  const focusCharactersBrief =
+    input.focusCharacters && input.focusCharacters.length
+      ? `- Naturally include each of these focus characters at least once: ${formatFocusCharacters(input.focusCharacters)}
+- Prefer common, learner-friendly words built around those characters.
+- Keep the use of those characters natural rather than forced.`
+      : "";
+
   const response = await fetch(input.baseUrl, {
     method: "POST",
     headers: {
@@ -96,6 +120,7 @@ Requirements:
 - ${getTypeBrief(input.type)}
 - ${getHskBrief(input.hskLevel)}
 - Length: ${getLengthBrief(input.length)}
+${focusCharactersBrief}
 - Return JSON with this exact shape:
 {
   "title": "Chinese title",

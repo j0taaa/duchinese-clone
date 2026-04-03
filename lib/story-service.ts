@@ -13,7 +13,11 @@ import {
   type StoryType,
   type StoryVisibility,
 } from "@/lib/stories";
-import { countTrackedVocabularyOccurrences } from "@/lib/vocabulary";
+import {
+  countTrackedVocabularyOccurrences,
+  getVocabularyCharactersUpToLevel,
+  type VocabularyCharacterEntry,
+} from "@/lib/vocabulary";
 
 const publicVisibilities = ["public_seeded", "public_user"] as const;
 const fallbackSeedTimestamp = new Date("2026-04-02T00:00:00.000Z");
@@ -63,6 +67,68 @@ function isDatabaseUnavailable(error: unknown) {
 
 function normalizeHskLevel(value: string): HskLevel {
   return (hskLevelValues as readonly string[]).includes(value) ? (value as HskLevel) : "1";
+}
+
+function shuffleArray<T>(items: T[]) {
+  const shuffled = [...items];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
+function rankVocabularyByStaleness(
+  characters: VocabularyCharacterEntry[],
+  stats: Map<string, { readCount: number; lastReadAt: Date | string | null }>,
+) {
+  return characters
+    .map((entry) => {
+      const stat = stats.get(entry.hanzi);
+
+      return {
+        ...entry,
+        readCount: stat?.readCount ?? 0,
+        lastReadAt: stat?.lastReadAt ? new Date(stat.lastReadAt) : null,
+      };
+    })
+    .sort((left, right) => {
+      if (left.lastReadAt === null && right.lastReadAt !== null) {
+        return -1;
+      }
+
+      if (left.lastReadAt !== null && right.lastReadAt === null) {
+        return 1;
+      }
+
+      if (left.lastReadAt && right.lastReadAt) {
+        const timeDiff = left.lastReadAt.getTime() - right.lastReadAt.getTime();
+
+        if (timeDiff !== 0) {
+          return timeDiff;
+        }
+      }
+
+      if (left.readCount !== right.readCount) {
+        return left.readCount - right.readCount;
+      }
+
+      if (left.hskLevel !== right.hskLevel) {
+        return Number(left.hskLevel) - Number(right.hskLevel);
+      }
+
+      return left.hanzi.localeCompare(right.hanzi, "zh-Hans-CN");
+    });
+}
+
+function getReviewCharacterTargetCount(count: number) {
+  if (count >= 4) {
+    return 3 + Math.floor(Math.random() * 2);
+  }
+
+  return Math.max(0, count);
 }
 
 function mapStory(record: {
@@ -339,6 +405,85 @@ export async function getVocabularyReadStatsForUser(userId: string) {
       },
     ]),
   );
+}
+
+export type SuggestedReviewCharacter = {
+  hanzi: string;
+  pinyin: string | null;
+  definition: string | null;
+  hskLevel: HskLevel;
+  readCount: number;
+  lastReadAt: Date | null;
+};
+
+export async function listReviewCharacterCandidatesForUser(
+  userId: string,
+  hskLevel: HskLevel,
+) {
+  const stats = await getVocabularyReadStatsForUser(userId);
+  const ranked = rankVocabularyByStaleness(
+    getVocabularyCharactersUpToLevel(hskLevel),
+    stats,
+  );
+
+  return ranked.slice(0, 20);
+}
+
+export async function getSuggestedReviewCharactersForUser(
+  userId: string,
+  hskLevel: HskLevel,
+) {
+  const candidates = await listReviewCharacterCandidatesForUser(userId, hskLevel);
+  const targetCount = getReviewCharacterTargetCount(candidates.length);
+
+  if (!targetCount) {
+    return [];
+  }
+
+  const chosen = new Set(
+    shuffleArray(candidates)
+      .slice(0, targetCount)
+      .map((entry) => entry.hanzi),
+  );
+
+  return candidates.filter((entry) => chosen.has(entry.hanzi));
+}
+
+export async function validateSuggestedReviewCharactersForUser(input: {
+  userId: string;
+  hskLevel: HskLevel;
+  selectedCharacters: string[];
+}) {
+  const candidates = await listReviewCharacterCandidatesForUser(
+    input.userId,
+    input.hskLevel,
+  );
+  const candidateMap = new Map(candidates.map((entry) => [entry.hanzi, entry]));
+  const uniqueSelection = Array.from(new Set(input.selectedCharacters))
+    .map((hanzi) => candidateMap.get(hanzi))
+    .filter((entry): entry is SuggestedReviewCharacter => Boolean(entry));
+
+  const targetCount = getReviewCharacterTargetCount(candidates.length);
+
+  if (!targetCount) {
+    return [];
+  }
+
+  const remaining = shuffleArray(
+    candidates.filter(
+      (entry) => !uniqueSelection.some((selected) => selected.hanzi === entry.hanzi),
+    ),
+  );
+
+  while (uniqueSelection.length < targetCount && remaining.length) {
+    const next = remaining.shift();
+
+    if (next) {
+      uniqueSelection.push(next);
+    }
+  }
+
+  return uniqueSelection.slice(0, targetCount);
 }
 
 export async function listPublicSeries(userId?: string | null) {

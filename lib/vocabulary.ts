@@ -2,26 +2,31 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 import { lookupWord } from "@/lib/dictionary";
+import { type HskLevel } from "@/lib/stories";
+
+export type VocabularyCharacterEntry = {
+  hanzi: string;
+  pinyin: string | null;
+  definition: string | null;
+  readCount: number;
+  lastReadAt: Date | string | null;
+  hskLevel: HskLevel;
+};
 
 export type VocabularyLevelGroup = {
   key: string;
   title: string;
-  characters: Array<{
-    hanzi: string;
-    pinyin: string | null;
-    definition: string | null;
-    readCount: number;
-    lastReadAt: Date | string | null;
-  }>;
+  hskLevel: HskLevel;
+  characters: VocabularyCharacterEntry[];
 };
 
 const hskFiles = [
-  { key: "hsk1", title: "HSK 1" },
-  { key: "hsk2", title: "HSK 2" },
-  { key: "hsk3", title: "HSK 3" },
-  { key: "hsk4", title: "HSK 4" },
-  { key: "hsk5", title: "HSK 5" },
-  { key: "hsk6", title: "HSK 6" },
+  { key: "hsk1", title: "HSK 1", hskLevel: "1" },
+  { key: "hsk2", title: "HSK 2", hskLevel: "2" },
+  { key: "hsk3", title: "HSK 3", hskLevel: "3" },
+  { key: "hsk4", title: "HSK 4", hskLevel: "4" },
+  { key: "hsk5", title: "HSK 5", hskLevel: "5" },
+  { key: "hsk6", title: "HSK 6", hskLevel: "6" },
 ] as const;
 
 let cachedVocabulary: VocabularyLevelGroup[] | null = null;
@@ -47,12 +52,14 @@ export function getVocabularyLevelGroups() {
         definition: result.definition,
         readCount: 0,
         lastReadAt: null,
+        hskLevel: level.hskLevel,
       };
     });
 
     return {
       key: level.key,
       title: level.title,
+      hskLevel: level.hskLevel,
       characters,
     };
   });
@@ -73,6 +80,14 @@ export function getTrackedVocabularyCharacters() {
 
   cachedVocabularyCharacters = characters;
   return characters;
+}
+
+export function getVocabularyCharactersUpToLevel(maxHskLevel: HskLevel) {
+  const maxLevel = Number(maxHskLevel);
+
+  return getVocabularyLevelGroups().flatMap((level) =>
+    Number(level.hskLevel) <= maxLevel ? level.characters : [],
+  );
 }
 
 export function countTrackedVocabularyOccurrences(text: string) {

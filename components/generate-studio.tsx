@@ -7,12 +7,13 @@ import {
   Loader2,
   MessageCircleMore,
   NotebookPen,
+  RefreshCw,
   ScanSearch,
   Sparkles,
   TextCursorInput,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -92,6 +93,15 @@ const visibilityOptions = [
   label: string;
 }>;
 
+type ReviewCharacter = {
+  hanzi: string;
+  pinyin: string | null;
+  definition: string | null;
+  hskLevel: HskLevel;
+  readCount: number;
+  lastReadAt: string | null;
+};
+
 export function GenerateStudio({
   settingsSummary,
   recentStories,
@@ -117,6 +127,11 @@ export function GenerateStudio({
     useState<AppStory["visibility"]>("private_user");
   const [creationMode, setCreationMode] =
     useState<(typeof creationModes)[number]["value"]>("story");
+  const [useVocabularyTargets, setUseVocabularyTargets] = useState(false);
+  const [reviewCharacters, setReviewCharacters] = useState<ReviewCharacter[]>([]);
+  const [reviewCharactersError, setReviewCharactersError] = useState<string | null>(null);
+  const [isLoadingReviewCharacters, setIsLoadingReviewCharacters] = useState(false);
+  const [reviewCharactersNonce, setReviewCharactersNonce] = useState(0);
 
   const helperCopy = useMemo(() => {
     if (creationMode === "series") {
@@ -125,6 +140,71 @@ export function GenerateStudio({
 
     return "Set the lesson style, length, and difficulty. If you leave the topic empty, HanziLane will pick a random idea.";
   }, [creationMode]);
+
+  const shouldShowReviewCharacters = creationMode === "story" && !useCustomTopic;
+
+  useEffect(() => {
+    if (!shouldShowReviewCharacters || !useVocabularyTargets) {
+      setReviewCharacters([]);
+      setReviewCharactersError(null);
+      setIsLoadingReviewCharacters(false);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function loadReviewCharacters() {
+      setIsLoadingReviewCharacters(true);
+      setReviewCharactersError(null);
+
+      try {
+        const response = await fetch(
+          `/api/stories/review-characters?hskLevel=${hskLevel}`,
+          {
+            method: "GET",
+            signal: controller.signal,
+            cache: "no-store",
+          },
+        );
+
+        const data = (await response.json()) as {
+          error?: string;
+          characters?: ReviewCharacter[];
+        };
+
+        if (!response.ok) {
+          setReviewCharacters([]);
+          setReviewCharactersError(
+            data.error ?? "Could not load overdue vocabulary suggestions.",
+          );
+          return;
+        }
+
+        setReviewCharacters(data.characters ?? []);
+      } catch (fetchError) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setReviewCharacters([]);
+        setReviewCharactersError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : "Could not load overdue vocabulary suggestions.",
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingReviewCharacters(false);
+        }
+      }
+    }
+
+    void loadReviewCharacters();
+
+    return () => {
+      controller.abort();
+    };
+  }, [hskLevel, reviewCharactersNonce, shouldShowReviewCharacters, useVocabularyTargets]);
 
   function submitGeneration() {
     setError(null);
@@ -147,6 +227,8 @@ export function GenerateStudio({
           type,
           length,
           visibility,
+          useVocabularyTargets: shouldShowReviewCharacters && useVocabularyTargets,
+          reviewCharacters: reviewCharacters.map((entry) => entry.hanzi),
         }),
       });
 
@@ -300,6 +382,106 @@ export function GenerateStudio({
               ) : null}
             </div>
 
+            {shouldShowReviewCharacters ? (
+              <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-1">
+                    <p className="flex items-center gap-2 text-sm font-medium text-[#4f433d]">
+                      <Sparkles className="size-4" />
+                      Use overdue vocabulary
+                    </p>
+                    <p className="text-sm leading-5 text-[#6d615b] sm:leading-6">
+                      For random topics, HanziLane can weave in a few characters you have not seen for the longest time from HSK {hskLevel} or below.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setUseVocabularyTargets((current) => !current)}
+                    className={cn(
+                      "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                      useVocabularyTargets
+                        ? "border-[#dceadb] bg-[#f4fbf3] text-[#357253]"
+                        : "border-[#e5d8cf] bg-white text-[#5f534d] hover:bg-[#faf4ef]",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "size-2.5 rounded-full",
+                        useVocabularyTargets ? "bg-[#4c9a69]" : "bg-[#d4c5bc]",
+                      )}
+                    />
+                    {useVocabularyTargets ? "Review boost on" : "Review boost off"}
+                  </button>
+                </div>
+
+                {useVocabularyTargets ? (
+                  <div className="space-y-3 rounded-[18px] border border-[#e7ddd6] bg-white p-4 sm:rounded-[24px] sm:p-5">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-[#332722]">Chosen characters</p>
+                        <p className="text-sm leading-5 text-[#71645d] sm:leading-6">
+                          We randomly pick 3 or 4 from your top 20 stalest characters.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setReviewCharactersNonce((current) => current + 1)}
+                        disabled={isLoadingReviewCharacters}
+                        className="inline-flex items-center gap-2 self-start rounded-full border border-[#e5d8cf] bg-[#fcfaf7] px-3 py-2 text-sm font-medium text-[#5f534d] transition-colors hover:bg-[#faf4ef] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <RefreshCw className={cn("size-3.5", isLoadingReviewCharacters && "animate-spin")} />
+                        Pick another set
+                      </button>
+                    </div>
+
+                    {reviewCharactersError ? (
+                      <div className="rounded-2xl border border-[#f2c2bc] bg-[#fff2f0] px-4 py-3 text-sm text-[#a03d34]">
+                        {reviewCharactersError}
+                      </div>
+                    ) : null}
+
+                    {isLoadingReviewCharacters ? (
+                      <div className="rounded-2xl border border-dashed border-[#e4d8cf] bg-[#fcfaf7] px-4 py-8 text-sm text-[#72655e]">
+                        Loading vocabulary picks...
+                      </div>
+                    ) : reviewCharacters.length ? (
+                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        {reviewCharacters.map((entry) => (
+                          <div
+                            key={entry.hanzi}
+                            className="rounded-[18px] border border-[#e8ddd5] bg-[#fffaf6] px-4 py-4"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="font-reading text-[2rem] leading-none text-[#2b1d19]">
+                                  {entry.hanzi}
+                                </p>
+                                <p className="mt-2 text-sm font-medium text-[#d65a4a]">
+                                  {entry.pinyin ?? "No pinyin"}
+                                </p>
+                              </div>
+                              <span className="rounded-full border border-[#e0efe8] bg-[#f3fbf7] px-2.5 py-1 text-xs font-medium text-[#2f7a65]">
+                                HSK {entry.hskLevel}
+                              </span>
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-[#5f534d]">
+                              {entry.definition ?? "No definition available."}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-[#e4d8cf] bg-[#fcfaf7] px-4 py-8 text-sm text-[#72655e]">
+                        No overdue characters are available yet for this HSK range.
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
             <div className="grid gap-4 sm:gap-5 xl:grid-cols-[1.25fr_0.95fr]">
               <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
                 <div className="space-y-1">
@@ -407,6 +589,10 @@ export function GenerateStudio({
                 onClick={() => {
                   setTopic("");
                   setUseCustomTopic(false);
+                  setUseVocabularyTargets(false);
+                  setReviewCharacters([]);
+                  setReviewCharactersError(null);
+                  setReviewCharactersNonce(0);
                   setError(null);
                   setSuccess(null);
                 }}

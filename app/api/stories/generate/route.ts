@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/session";
 import {
   createGeneratedStory,
   getAiSettingsForGeneration,
+  validateSuggestedReviewCharactersForUser,
 } from "@/lib/story-service";
 import {
   hskLevelValues,
@@ -19,6 +20,8 @@ const generateSchema = z.object({
   hskLevel: z.enum(hskLevelValues),
   type: z.enum(storyTypeValues),
   length: z.enum(["short", "medium", "long"]),
+  useVocabularyTargets: z.boolean().optional().default(false),
+  reviewCharacters: z.array(z.string().trim().min(1)).max(4).optional().default([]),
   visibility: z.enum(storyVisibilityValues).refine(
     (value) => value !== "public_seeded",
     "Seed visibility is reserved for starter stories.",
@@ -72,6 +75,14 @@ export async function POST(request: Request) {
   try {
     const topic = parsed.data.topic || randomTopics[Math.floor(Math.random() * randomTopics.length)];
     const storyLevel = mapHskLevelToStoryLevel(parsed.data.hskLevel);
+    const focusCharacters =
+      !parsed.data.topic && parsed.data.useVocabularyTargets
+        ? await validateSuggestedReviewCharactersForUser({
+            userId: session.user.id,
+            hskLevel: parsed.data.hskLevel,
+            selectedCharacters: parsed.data.reviewCharacters,
+          })
+        : [];
 
     const generated = await generateStoryWithModel({
       apiKey: settings.apiKey,
@@ -81,6 +92,7 @@ export async function POST(request: Request) {
       hskLevel: parsed.data.hskLevel,
       type: parsed.data.type,
       length: parsed.data.length,
+      focusCharacters,
     });
 
     const baseSlug =
