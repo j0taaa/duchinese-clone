@@ -23,22 +23,22 @@ export function StoryCard({
     <Link
       href={`/stories/${story.slug}`}
       prefetch={false}
-      className="group flex min-w-0 flex-col rounded-[28px] border border-[#ebddd2] bg-white/92 p-4 shadow-[0_18px_50px_-42px_rgba(80,45,24,0.34)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_30px_70px_-48px_rgba(80,45,24,0.44)]"
+      className="group flex min-w-0 flex-col rounded-[24px] border border-[#ebddd2] bg-white/92 p-3.5 shadow-[0_18px_50px_-42px_rgba(80,45,24,0.34)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_30px_70px_-48px_rgba(80,45,24,0.44)] sm:rounded-[28px] sm:p-4"
     >
       <div
-        className="relative overflow-hidden rounded-[24px] p-4"
+        className="relative overflow-hidden rounded-[20px] p-3.5 sm:rounded-[24px] sm:p-4"
         style={{ backgroundImage: artwork.surface }}
       >
         <div className="absolute inset-0" style={{ backgroundImage: artwork.glow }} />
-        <div className="relative z-10 flex min-h-[136px] items-center justify-center px-6 text-center">
-          <p className="text-[2.3rem] leading-none tracking-[0.18em] text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:text-[2.8rem]">
+        <div className="relative z-10 flex min-h-[112px] items-center justify-center px-3 text-center sm:min-h-[136px] sm:px-6">
+          <p className="text-[1.8rem] leading-none tracking-[0.14em] text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:text-[2.8rem] sm:tracking-[0.18em]">
             {story.emojiTitle}
           </p>
         </div>
       </div>
 
-      <div className="mt-4 space-y-3">
-        <div className="flex flex-wrap items-center gap-2 text-xs text-[#786b64]">
+      <div className="mt-3 space-y-2.5 sm:mt-4 sm:space-y-3">
+        <div className="flex flex-wrap items-center gap-1.5 text-[0.72rem] text-[#786b64] sm:gap-2 sm:text-xs">
           <span
             className={`inline-flex items-center rounded-full border px-2.5 py-1 ${hskMeta.chipClass}`}
           >
@@ -59,11 +59,11 @@ export function StoryCard({
           </span>
           {showAuthor && story.authorName ? <span>by {story.authorName}</span> : null}
         </div>
-        <p className="line-clamp-2 text-lg font-semibold leading-7 tracking-tight text-[#211814]">
+        <p className="line-clamp-2 text-base font-semibold leading-6 tracking-tight text-[#211814] sm:text-lg sm:leading-7">
           {story.title}
         </p>
         <p className="text-sm font-medium text-[#6f625c]">{story.titleTranslation}</p>
-        <p className="line-clamp-3 text-sm leading-6 text-[#6f625c]">{story.summary}</p>
+        <p className="line-clamp-3 text-sm leading-5 text-[#6f625c] sm:leading-6">{story.summary}</p>
       </div>
     </Link>
   );

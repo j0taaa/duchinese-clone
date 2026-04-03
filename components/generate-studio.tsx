@@ -167,9 +167,9 @@ export function GenerateStudio({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {!settingsSummary ? (
-        <section className="rounded-[32px] border border-[#f0d6ce] bg-[#fff6f3] p-6 text-sm leading-7 text-[#7b5951] shadow-[0_24px_80px_-56px_rgba(92,46,24,0.34)] sm:p-7">
+        <section className="rounded-[24px] border border-[#f0d6ce] bg-[#fff6f3] p-5 text-sm leading-7 text-[#7b5951] shadow-[0_24px_80px_-56px_rgba(92,46,24,0.34)] sm:rounded-[32px] sm:p-7">
           <p className="font-semibold text-[#9f4339]">Model settings missing</p>
           <p className="mt-2">
             Save your `Model URL`, `API key`, and `Model` in your profile before generating.
@@ -183,28 +183,28 @@ export function GenerateStudio({
           </Link>
         </section>
       ) : (
-        <section className="rounded-[34px] border border-white/70 bg-white/92 p-6 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] sm:p-7 xl:p-8">
-          <div className="space-y-8">
+        <section className="rounded-[24px] border border-white/70 bg-white/92 p-4 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] sm:rounded-[34px] sm:p-7 xl:p-8">
+          <div className="space-y-6 sm:space-y-8">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div className="space-y-2">
                 <p className="inline-flex items-center gap-2 rounded-full border border-[#edd8cf] bg-[#fff7f3] px-3 py-1 text-xs font-semibold tracking-[0.16em] text-[#c66052] uppercase">
                   <Sparkles className="size-3.5" />
                   AI lesson builder
                 </p>
-                <h1 className="text-3xl font-semibold tracking-tight text-[#241815] sm:text-4xl">
+                <h1 className="text-2xl font-semibold tracking-tight text-[#241815] sm:text-4xl">
                   Generate something new to read
                 </h1>
-                <p className="max-w-3xl text-sm leading-7 text-[#6d615b]">
+                <p className="max-w-3xl text-sm leading-6 text-[#6d615b] sm:leading-7">
                   {helperCopy}
                 </p>
               </div>
 
-              <div className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-4 py-2 text-sm text-[#6c5f58]">
+              <div className="self-start rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-4 py-2 text-sm text-[#6c5f58]">
                 {recentStories.length} saved {recentStories.length === 1 ? "lesson" : "lessons"}
               </div>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-2">
+            <div className="grid gap-3 sm:gap-4 xl:grid-cols-2">
               {creationModes.map((option) => {
                 const Icon = option.icon;
 
@@ -214,7 +214,7 @@ export function GenerateStudio({
                     type="button"
                     onClick={() => setCreationMode(option.value)}
                     className={cn(
-                      "flex items-start gap-4 rounded-[28px] border px-5 py-5 text-left transition-all",
+                      "flex items-start gap-3 rounded-[22px] border px-4 py-4 text-left transition-all sm:gap-4 sm:rounded-[28px] sm:px-5 sm:py-5",
                       creationMode === option.value
                         ? "border-[#f0cfc1] bg-[#fff7f3] shadow-[0_16px_40px_-28px_rgba(92,46,24,0.28)]"
                         : "border-[#ecdfd5] bg-[#fcfaf7] hover:border-[#e3d2c7] hover:bg-white",
@@ -222,7 +222,7 @@ export function GenerateStudio({
                   >
                     <span
                       className={cn(
-                        "mt-0.5 inline-flex size-11 shrink-0 items-center justify-center rounded-2xl",
+                        "mt-0.5 inline-flex size-10 shrink-0 items-center justify-center rounded-2xl sm:size-11",
                         creationMode === option.value
                           ? "bg-[#ea4e47] text-white"
                           : "bg-white text-[#715f57]",
@@ -231,10 +231,10 @@ export function GenerateStudio({
                       <Icon className="size-5" />
                     </span>
                     <span className="space-y-1">
-                      <span className="block text-lg font-semibold text-[#241815]">
+                      <span className="block text-base font-semibold text-[#241815] sm:text-lg">
                         {option.label}
                       </span>
-                      <span className="block text-sm leading-6 text-[#6d615b]">
+                      <span className="block text-sm leading-5 text-[#6d615b] sm:leading-6">
                         {option.description}
                       </span>
                     </span>
@@ -243,14 +243,14 @@ export function GenerateStudio({
               })}
             </div>
 
-            <div className="space-y-4 rounded-[30px] border border-[#ece0d7] bg-[#fcfaf7] p-5">
+            <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
                   <p className="flex items-center gap-2 text-sm font-medium text-[#4f433d]">
                     <ScanSearch className="size-4" />
                     Topic or direction
                   </p>
-                  <p className="text-sm leading-6 text-[#6d615b]">
+                  <p className="text-sm leading-5 text-[#6d615b] sm:leading-6">
                     Leave this off for a random idea, or turn it on to guide the generation.
                   </p>
                 </div>
@@ -281,10 +281,10 @@ export function GenerateStudio({
                     value={topic}
                     onChange={(event) => setTopic(event.target.value)}
                     placeholder="Describe the scene, setting, or subject you want."
-                    className="min-h-44 w-full rounded-[28px] border border-[#e4d8cf] bg-white px-5 py-4 text-sm leading-7 text-[#241815] outline-none transition-colors placeholder:text-[#a2958e] focus:border-[#d8b1a6]"
+                    className="min-h-36 w-full rounded-[20px] border border-[#e4d8cf] bg-white px-4 py-4 text-sm leading-6 text-[#241815] outline-none transition-colors placeholder:text-[#a2958e] focus:border-[#d8b1a6] sm:min-h-44 sm:rounded-[28px] sm:px-5 sm:leading-7"
                   />
 
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {promptSuggestions.map((item) => (
                       <button
                         key={item}
@@ -300,15 +300,15 @@ export function GenerateStudio({
               ) : null}
             </div>
 
-            <div className="grid gap-5 xl:grid-cols-[1.25fr_0.95fr]">
-              <div className="space-y-4 rounded-[30px] border border-[#ece0d7] bg-[#fcfaf7] p-5">
+            <div className="grid gap-4 sm:gap-5 xl:grid-cols-[1.25fr_0.95fr]">
+              <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-[#4f433d]">Lesson format</p>
-                  <p className="text-sm leading-6 text-[#6d615b]">
+                  <p className="text-sm leading-5 text-[#6d615b] sm:leading-6">
                     Pick the style that best matches the reading experience you want.
                   </p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-2.5 sm:grid-cols-3 sm:gap-3">
                   {lessonTypes.map((option) => {
                     const Icon = option.icon;
 
@@ -318,7 +318,7 @@ export function GenerateStudio({
                         type="button"
                         onClick={() => setType(option.value)}
                         className={cn(
-                          "rounded-[24px] border px-4 py-4 text-left transition-all",
+                          "rounded-[18px] border px-3.5 py-3.5 text-left transition-all sm:rounded-[24px] sm:px-4 sm:py-4",
                           type === option.value
                             ? "border-[#f0cfc1] bg-[#fff7f3]"
                             : "border-[#eadcd2] bg-white hover:bg-[#fffdfa]",
@@ -334,10 +334,10 @@ export function GenerateStudio({
                         >
                           <Icon className="size-4.5" />
                         </span>
-                        <p className="text-base font-semibold text-[#241815]">
+                        <p className="text-sm font-semibold text-[#241815] sm:text-base">
                           {option.label}
                         </p>
-                        <p className="mt-1 text-sm leading-6 text-[#6d615b]">
+                        <p className="mt-1 text-sm leading-5 text-[#6d615b] sm:leading-6">
                           {option.description}
                         </p>
                       </button>
@@ -346,7 +346,7 @@ export function GenerateStudio({
                 </div>
               </div>
 
-              <div className="space-y-4 rounded-[30px] border border-[#ece0d7] bg-[#fcfaf7] p-5">
+              <div className="space-y-4 rounded-[22px] border border-[#ece0d7] bg-[#fcfaf7] p-4 sm:rounded-[30px] sm:p-5">
                 <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
                   <SelectPills
                     label="HSK level"
@@ -382,11 +382,11 @@ export function GenerateStudio({
               </div>
             ) : null}
 
-            <div className="flex flex-wrap gap-3 pt-1">
+            <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 size="lg"
-                className="h-13 rounded-2xl bg-[#ea4e47] px-7 text-white hover:bg-[#dd433d]"
+                className="h-12 rounded-2xl bg-[#ea4e47] px-6 text-white hover:bg-[#dd433d] sm:h-13 sm:px-7"
                 onClick={submitGeneration}
                 disabled={isPending}
               >
@@ -403,7 +403,7 @@ export function GenerateStudio({
                 type="button"
                 variant="outline"
                 size="lg"
-                className="h-13 rounded-2xl border-[#e4d8cf] bg-white px-6 text-[#473b35] hover:bg-[#faf4ef]"
+                className="h-12 rounded-2xl border-[#e4d8cf] bg-white px-5 text-[#473b35] hover:bg-[#faf4ef] sm:h-13 sm:px-6"
                 onClick={() => {
                   setTopic("");
                   setUseCustomTopic(false);
@@ -418,9 +418,9 @@ export function GenerateStudio({
         </section>
       )}
 
-      <section className="rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.32)] sm:p-7">
+      <section className="rounded-[24px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.32)] sm:rounded-[32px] sm:p-7">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight text-[#241815]">
+          <h2 className="text-xl font-semibold tracking-tight text-[#241815] sm:text-2xl">
             Recent generated stories
           </h2>
           <p className="text-sm leading-6 text-[#6f625c]">
@@ -428,14 +428,14 @@ export function GenerateStudio({
           </p>
         </div>
 
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
           {recentStories.length ? (
             recentStories.map((story) => (
               <Link
                 key={story.id}
                 href={`/stories/${story.slug}`}
                 prefetch={false}
-                className="block rounded-[24px] border border-[#eadcd2] bg-[#fcf8f4] px-5 py-5 transition-colors hover:bg-white"
+                className="block rounded-[20px] border border-[#eadcd2] bg-[#fcf8f4] px-4 py-4 transition-colors hover:bg-white sm:rounded-[24px] sm:px-5 sm:py-5"
               >
                 <p className="text-sm font-semibold text-[#241815]">
                   {story.titleTranslation}
@@ -450,7 +450,7 @@ export function GenerateStudio({
               </Link>
             ))
           ) : (
-            <div className="rounded-[24px] border border-dashed border-[#e0d3ca] bg-[#fcf8f4] px-5 py-10 text-sm text-[#72655e]">
+            <div className="rounded-[20px] border border-dashed border-[#e0d3ca] bg-[#fcf8f4] px-4 py-8 text-sm text-[#72655e] sm:rounded-[24px] sm:px-5 sm:py-10">
               No generated stories yet.
             </div>
           )}

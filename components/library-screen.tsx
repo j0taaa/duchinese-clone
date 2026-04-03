@@ -71,8 +71,8 @@ export function LibraryScreen({
   const communityStories = filteredStories.filter((story) => !story.isSeeded);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1580px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-10">
-      <section className="space-y-4 rounded-[30px] border border-white/70 bg-white/86 p-5 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.38)] backdrop-blur sm:p-6">
+    <div className="mx-auto flex w-full max-w-[1580px] flex-col gap-6 px-4 py-5 sm:gap-8 sm:px-6 sm:py-8 lg:px-10">
+      <section className="space-y-4 rounded-[24px] border border-white/70 bg-white/86 p-4 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.38)] backdrop-blur sm:rounded-[30px] sm:p-6">
         <div className="max-w-xl">
           <label className="relative block">
             <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#9e918a]" />
@@ -85,7 +85,7 @@ export function LibraryScreen({
           </label>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
           {filterOptions.map((option) => (
             <button
               key={option}
@@ -93,8 +93,8 @@ export function LibraryScreen({
               onClick={() => setFilter(option)}
               className={
                 filter === option
-                  ? "rounded-full bg-[#ea4e47] px-4 py-2 text-sm font-medium text-white shadow-[0_14px_28px_-20px_rgba(234,78,71,0.8)]"
-                  : "rounded-full border border-[#ead9cf] bg-white px-4 py-2 text-sm text-[#554842] hover:bg-[#faf4ef]"
+                  ? "shrink-0 rounded-full bg-[#ea4e47] px-4 py-2 text-sm font-medium text-white shadow-[0_14px_28px_-20px_rgba(234,78,71,0.8)]"
+                  : "shrink-0 rounded-full border border-[#ead9cf] bg-white px-4 py-2 text-sm text-[#554842] hover:bg-[#faf4ef]"
               }
             >
               {option === "all" ? "All levels" : getHskLabel(option)}
@@ -154,12 +154,12 @@ function SeriesSection({
   return (
     <section className="space-y-4">
       <div className="space-y-1">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#271d18]">
+        <h2 className="text-xl font-semibold tracking-tight text-[#271d18] sm:text-2xl">
           {title}
         </h2>
         <p className="text-sm leading-6 text-[#6d615b]">{description}</p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {series.map((entry) => (
           <SeriesCard
             key={entry.slug}
@@ -186,13 +186,13 @@ function LibrarySection({
   return (
     <section className="space-y-4">
       <div className="space-y-1">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#271d18]">
+        <h2 className="text-xl font-semibold tracking-tight text-[#271d18] sm:text-2xl">
           {title}
         </h2>
         <p className="text-sm leading-6 text-[#6d615b]">{description}</p>
       </div>
       {stories.length ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {stories.map((story) => (
             <StoryCard
               key={story.id}
@@ -202,7 +202,7 @@ function LibrarySection({
           ))}
         </div>
       ) : (
-        <div className="rounded-[28px] border border-dashed border-[#e0d3ca] bg-white/70 px-6 py-10 text-sm text-[#72655e]">
+        <div className="rounded-[24px] border border-dashed border-[#e0d3ca] bg-white/70 px-5 py-8 text-sm text-[#72655e] sm:rounded-[28px] sm:px-6 sm:py-10">
           No stories match this filter yet.
         </div>
       )}
