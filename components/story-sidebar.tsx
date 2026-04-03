@@ -24,7 +24,7 @@ export function StorySidebar({
 }: StorySidebarProps) {
   return (
     <>
-      <div className="fixed right-4 top-24 z-30 xl:hidden">
+      <div className="fixed right-4 top-4 z-30 xl:hidden md:top-24">
         <Sheet>
           <SheetTrigger className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#eadcd2] bg-white px-4 text-sm font-medium text-[#2a2a2a] shadow-sm transition-colors hover:bg-[#f9f4ef]">
             <Menu className="size-4" />

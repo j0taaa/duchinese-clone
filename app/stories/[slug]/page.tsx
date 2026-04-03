@@ -57,7 +57,9 @@ export default async function StoryPage({ params }: StoryPageProps) {
 
   return (
     <div className="min-h-screen">
-      <AppHeader active="library" />
+      <div className="hidden md:block">
+        <AppHeader active="library" />
+      </div>
       <ReaderLayout
         stories={stories}
         story={buildReaderStory(story)}

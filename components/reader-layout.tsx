@@ -224,7 +224,7 @@ export function ReaderLayout({
             </div>
           </div>
 
-          <div className="sticky top-[112px] z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm sm:top-[92px] sm:rounded-[28px]">
+          <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm md:top-[92px] md:rounded-[28px]">
             <div className="px-4 py-3 sm:px-6 sm:py-4">
               <div className="min-h-[88px] min-w-0 sm:min-h-[104px]">
                 <p className="text-sm text-[#9b8e87]">Word meaning</p>
