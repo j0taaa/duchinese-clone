@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   BookOpenText,
   ChevronLeft,
+  ChevronRight,
   Languages,
   List,
   NotebookPen,
@@ -100,6 +101,15 @@ export function ReaderLayout({
     useState<DictionaryToken | null>(firstInteractiveToken);
   const hskMeta = hskLevelMeta[story.hskLevel];
   const hskLabel = getStoryHskLabel(story);
+  const currentSeriesIndex = series
+    ? series.stories.findIndex((seriesStory) => seriesStory.slug === story.slug)
+    : -1;
+  const previousSeriesStory =
+    series && currentSeriesIndex > 0 ? series.stories[currentSeriesIndex - 1] : null;
+  const nextSeriesStory =
+    series && currentSeriesIndex >= 0 && currentSeriesIndex < series.stories.length - 1
+      ? series.stories[currentSeriesIndex + 1]
+      : null;
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -151,6 +161,14 @@ export function ReaderLayout({
           hideDesktop
         />
 
+        {series ? (
+          <SeriesEpisodesSidebar
+            series={series}
+            activeSlug={story.slug}
+            readStoryIds={readStoryIds}
+          />
+        ) : null}
+
         <div className="flex min-w-0 flex-1 flex-col gap-5 pb-24">
           <div className="rounded-[28px] border border-white/70 bg-white/92 p-5 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] sm:p-6">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -182,12 +200,27 @@ export function ReaderLayout({
                 </div>
               </div>
 
-              <Badge
-                variant="outline"
-                className={`rounded-full border px-4 py-2 text-sm font-medium ${hskMeta.chipClass}`}
-              >
-                {hskLabel}
-              </Badge>
+              <div className="flex flex-wrap items-center gap-3">
+                {series ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SeriesStepButton
+                      direction="previous"
+                      story={previousSeriesStory}
+                    />
+                    <SeriesStepButton
+                      direction="next"
+                      story={nextSeriesStory}
+                    />
+                  </div>
+                ) : null}
+
+                <Badge
+                  variant="outline"
+                  className={`rounded-full border px-4 py-2 text-sm font-medium ${hskMeta.chipClass}`}
+                >
+                  {hskLabel}
+                </Badge>
+              </div>
             </div>
           </div>
 
@@ -311,13 +344,6 @@ export function ReaderLayout({
           </footer>
         </div>
 
-        {series ? (
-          <SeriesEpisodesSidebar
-            series={series}
-            activeSlug={story.slug}
-            readStoryIds={readStoryIds}
-          />
-        ) : null}
       </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -395,6 +421,37 @@ function ToolbarToggle({
         {active ? "On" : "Off"}
       </span>
     </button>
+  );
+}
+
+function SeriesStepButton({
+  direction,
+  story,
+}: {
+  direction: "previous" | "next";
+  story: AppStory | null;
+}) {
+  const Icon = direction === "previous" ? ChevronLeft : ChevronRight;
+  const label = direction === "previous" ? "Previous" : "Next";
+
+  if (!story) {
+    return (
+      <span className="inline-flex h-10 items-center gap-2 rounded-full border border-[#eadcd2] bg-[#f7f1eb] px-4 text-sm font-medium text-[#b7aba4]">
+        <Icon className="size-4" />
+        {label}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={`/stories/${story.slug}`}
+      prefetch={false}
+      className="inline-flex h-10 items-center gap-2 rounded-full border border-[#eadcd2] bg-white px-4 text-sm font-medium text-[#4b4039] hover:bg-[#faf4ef]"
+    >
+      <Icon className="size-4" />
+      {label}
+    </Link>
   );
 }
 
