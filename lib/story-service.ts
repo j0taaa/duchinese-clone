@@ -7,6 +7,7 @@ import {
   type HskLevel,
   hskLevelValues,
   type SeedStory,
+  seedStories,
   storySectionsSchema,
   type StoryLevel,
   type StoryType,
@@ -15,6 +16,50 @@ import {
 import { countTrackedVocabularyOccurrences } from "@/lib/vocabulary";
 
 const publicVisibilities = ["public_seeded", "public_user"] as const;
+const fallbackSeedTimestamp = new Date("2026-04-02T00:00:00.000Z");
+
+function mapSeedStory(story: SeedStory): AppStory {
+  return {
+    id: `seed-${story.slug}`,
+    slug: story.slug,
+    title: story.title,
+    titleTranslation: story.titleTranslation,
+    emojiTitle: getStoryEmojiTitle({
+      id: `seed-${story.slug}`,
+      slug: story.slug,
+      titleTranslation: story.titleTranslation,
+      summary: story.summary,
+      type: story.type,
+    }),
+    summary: story.summary,
+    excerpt: story.excerpt,
+    hanziText: story.hanziText,
+    pinyinText: story.pinyinText,
+    englishTranslation: story.englishTranslation,
+    sections: story.sections,
+    type: story.type,
+    hskLevel: story.hskLevel,
+    level: story.level,
+    visibility: "public_seeded",
+    isSeeded: true,
+    authorUserId: null,
+    authorName: null,
+    createdAt: fallbackSeedTimestamp,
+    updatedAt: fallbackSeedTimestamp,
+  };
+}
+
+function getFallbackSeedStories() {
+  return seedStories.map(mapSeedStory);
+}
+
+function isDatabaseUnavailable(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return error.message.includes("Failed to identify your database");
+}
 
 function normalizeHskLevel(value: string): HskLevel {
   return (hskLevelValues as readonly string[]).includes(value) ? (value as HskLevel) : "1";
@@ -74,36 +119,53 @@ function mapStory(record: {
 }
 
 export async function listPublicStories() {
-  const stories = await prisma.story.findMany({
-    where: {
-      visibility: {
-        in: [...publicVisibilities],
-      },
-    },
-    orderBy: [{ isSeeded: "desc" }, { createdAt: "desc" }],
-    include: {
-      author: {
-        select: {
-          name: true,
+  try {
+    const stories = await prisma.story.findMany({
+      where: {
+        visibility: {
+          in: [...publicVisibilities],
         },
       },
-    },
-  });
+      orderBy: [{ isSeeded: "desc" }, { createdAt: "desc" }],
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
 
-  return stories.map(mapStory);
+    return stories.map(mapStory);
+  } catch (error) {
+    if (isDatabaseUnavailable(error)) {
+      console.warn("Falling back to bundled seed stories because the database is unavailable.");
+      return getFallbackSeedStories();
+    }
+
+    throw error;
+  }
 }
 
 export async function listSeededStories() {
-  const stories = await prisma.story.findMany({
-    where: {
-      visibility: "public_seeded",
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
+  try {
+    const stories = await prisma.story.findMany({
+      where: {
+        visibility: "public_seeded",
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
 
-  return stories.map(mapStory);
+    return stories.map(mapStory);
+  } catch (error) {
+    if (isDatabaseUnavailable(error)) {
+      return getFallbackSeedStories();
+    }
+
+    throw error;
+  }
 }
 
 export async function listStoriesForUser(userId: string) {
@@ -142,26 +204,34 @@ export async function listGeneratedStoriesForUser(userId: string) {
 }
 
 export async function getAccessibleStoryBySlug(slug: string, userId?: string | null) {
-  const story = await prisma.story.findFirst({
-    where: {
-      slug,
-      OR: userId
-        ? [
-            { visibility: { in: [...publicVisibilities] } },
-            { authorUserId: userId },
-          ]
-        : [{ visibility: { in: [...publicVisibilities] } }],
-    },
-    include: {
-      author: {
-        select: {
-          name: true,
+  try {
+    const story = await prisma.story.findFirst({
+      where: {
+        slug,
+        OR: userId
+          ? [
+              { visibility: { in: [...publicVisibilities] } },
+              { authorUserId: userId },
+            ]
+          : [{ visibility: { in: [...publicVisibilities] } }],
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  return story ? mapStory(story) : null;
+    return story ? mapStory(story) : null;
+  } catch (error) {
+    if (isDatabaseUnavailable(error) && !userId) {
+      return getFallbackSeedStories().find((story) => story.slug === slug) ?? null;
+    }
+
+    throw error;
+  }
 }
 
 export async function getStoryListForReader(userId?: string | null) {
