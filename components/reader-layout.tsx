@@ -147,7 +147,10 @@ export function ReaderLayout({
 
         const target = event.target as HTMLElement | null;
 
-        if (target?.closest("[data-token-button='true']")) {
+        if (
+          target?.closest("[data-token-button='true']") ||
+          target?.closest("[data-reader-control='true']")
+        ) {
           return;
         }
 
@@ -248,7 +251,7 @@ export function ReaderLayout({
           ) : null}
 
           <Card className="border-0 bg-transparent py-0 shadow-none md:border md:border-white/70 md:bg-white/92 md:shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
-            <CardContent className="px-0 py-2 sm:px-8 sm:py-8 md:px-8 xl:px-12">
+            <CardContent className="px-0 py-0 sm:px-8 sm:py-8 md:px-8 xl:px-12">
               <div className="space-y-8 sm:space-y-10">
                 {story.tokenizedSections.map((section, index) => (
                   <section
@@ -409,13 +412,14 @@ function ToolbarToggle({
   return (
     <button
       type="button"
+      data-reader-control="true"
       onClick={() => {
         if (isTouchMode) {
           return;
         }
         onClick();
       }}
-      onPointerUp={(event) => {
+      onPointerDown={(event) => {
         if (!isTouchMode || event.pointerType === "mouse") {
           return;
         }
@@ -522,7 +526,7 @@ function renderTokenLine({
             }
             onSelectWord(token);
           }}
-          onPointerUp={(event) => {
+          onPointerDown={(event) => {
             if (!token.interactive || !isTouchMode || event.pointerType === "mouse") {
               return;
             }
@@ -531,6 +535,7 @@ function renderTokenLine({
             onSelectWord(token);
           }}
           data-token-button="true"
+          data-reader-control="true"
           className={cn(
             "touch-manipulation select-none inline-flex flex-col items-start rounded-[10px] px-1 text-left transition-colors",
             token.interactive && "hover:bg-[#f0f7ff]",
