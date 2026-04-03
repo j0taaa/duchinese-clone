@@ -436,7 +436,7 @@ function SeriesStepButton({
 
   if (!story) {
     return (
-      <span className="inline-flex h-10 items-center gap-2 rounded-full border border-[#eadcd2] bg-[#f7f1eb] px-4 text-sm font-medium text-[#b7aba4]">
+      <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-[#f7f1eb] px-3 text-[0.82rem] font-medium text-[#b7aba4] sm:h-10 sm:gap-2 sm:px-4 sm:text-sm">
         <Icon className="size-4" />
         {label}
       </span>
@@ -447,7 +447,7 @@ function SeriesStepButton({
     <Link
       href={`/stories/${story.slug}`}
       prefetch={false}
-      className="inline-flex h-10 items-center gap-2 rounded-full border border-[#eadcd2] bg-white px-4 text-sm font-medium text-[#4b4039] hover:bg-[#faf4ef]"
+      className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-3 text-[0.82rem] font-medium text-[#4b4039] hover:bg-[#faf4ef] sm:h-10 sm:gap-2 sm:px-4 sm:text-sm"
     >
       <Icon className="size-4" />
       {label}
@@ -482,7 +482,7 @@ function renderTokenLine({
       return (
         <span
           key={`${token.text}-${index}`}
-          className="inline-block align-bottom font-reading text-[2.05rem] leading-[1.8] text-[#2d2d2d] sm:text-[2.4rem]"
+          className="inline-block align-bottom font-reading text-[1.75rem] leading-[1.8] text-[#2d2d2d] sm:text-[2.4rem]"
         >
           {showCharacters ? token.text : ""}
         </span>
@@ -505,12 +505,12 @@ function renderTokenLine({
             isSelected && isTouchMode && "bg-[#eef6ff]",
           )}
         >
-          <span className="min-h-7 text-[1.02rem] leading-7 text-[#696969] sm:text-[1.12rem]">
+          <span className="min-h-6 text-[0.88rem] leading-6 text-[#696969] sm:min-h-7 sm:text-[1.12rem] sm:leading-7">
             {showPinyin ? token.pinyin ?? "" : ""}
           </span>
           <span
             className={cn(
-              "font-reading text-[2.05rem] leading-none text-[#2d2d2d] sm:text-[2.4rem]",
+              "font-reading text-[1.75rem] leading-none text-[#2d2d2d] sm:text-[2.4rem]",
               token.interactive && "border-b-2 border-[#f1a39e]",
               isSelected && "border-[#8bd3cf]",
             )}

@@ -50,11 +50,11 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f5,_#f7f0e8_52%,_#f3ede4_100%)] text-[#202020]">
       <AppHeader active="library" />
 
-      <div className="mx-auto flex w-full max-w-[1580px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-10">
-        <section className="rounded-[30px] border border-white/70 bg-white/90 p-6 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.38)] backdrop-blur sm:p-7">
+      <div className="mx-auto flex w-full max-w-[1580px] flex-col gap-6 px-4 py-5 sm:gap-8 sm:px-6 sm:py-8 lg:px-10">
+        <section className="rounded-[24px] border border-white/70 bg-white/90 p-4 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.38)] backdrop-blur sm:rounded-[30px] sm:p-7">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-sm text-[#6e625c]">
+              <div className="flex flex-wrap items-center gap-2 text-[0.82rem] text-[#6e625c] sm:gap-3 sm:text-sm">
                 <Link
                   href="/"
                   prefetch={false}
@@ -70,11 +70,11 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
               </div>
 
               <div className="space-y-2">
-                <h1 className="font-reading text-4xl text-[#241815]">
+                <h1 className="font-reading text-[2rem] text-[#241815] sm:text-4xl">
                   {series.title}
                 </h1>
-                <p className="text-lg text-[#5f534d]">{series.titleTranslation}</p>
-                <p className="max-w-3xl text-base leading-7 text-[#6b5e58]">
+                <p className="text-base text-[#5f534d] sm:text-lg">{series.titleTranslation}</p>
+                <p className="max-w-3xl text-sm leading-6 text-[#6b5e58] sm:text-base sm:leading-7">
                   {series.summary}
                 </p>
               </div>
@@ -91,7 +91,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
 
         <section className="space-y-4">
           <div className="space-y-1">
-            <h2 className="text-2xl font-semibold tracking-tight text-[#271d18]">
+            <h2 className="text-xl font-semibold tracking-tight text-[#271d18] sm:text-2xl">
               Stories in this series
             </h2>
             <p className="text-sm leading-6 text-[#6d615b]">
@@ -99,7 +99,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
             {series.stories.map((story) => (
               <StoryCard
                 key={story.id}

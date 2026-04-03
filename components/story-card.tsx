@@ -31,7 +31,7 @@ export function StoryCard({
       >
         <div className="absolute inset-0" style={{ backgroundImage: artwork.glow }} />
         <div className="relative z-10 flex min-h-[112px] items-center justify-center px-3 text-center sm:min-h-[136px] sm:px-6">
-          <p className="text-[1.8rem] leading-none tracking-[0.14em] text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:text-[2.8rem] sm:tracking-[0.18em]">
+          <p className="text-[1.55rem] leading-none tracking-[0.08em] text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.18)] sm:text-[2.8rem] sm:tracking-[0.18em]">
             {story.emojiTitle}
           </p>
         </div>
@@ -59,10 +59,10 @@ export function StoryCard({
           </span>
           {showAuthor && story.authorName ? <span>by {story.authorName}</span> : null}
         </div>
-        <p className="line-clamp-2 text-base font-semibold leading-6 tracking-tight text-[#211814] sm:text-lg sm:leading-7">
+        <p className="line-clamp-2 text-[0.95rem] font-semibold leading-5 tracking-tight text-[#211814] sm:text-lg sm:leading-7">
           {story.title}
         </p>
-        <p className="text-sm font-medium text-[#6f625c]">{story.titleTranslation}</p>
+        <p className="text-[0.82rem] font-medium text-[#6f625c] sm:text-sm">{story.titleTranslation}</p>
         <p className="line-clamp-3 text-sm leading-5 text-[#6f625c] sm:leading-6">{story.summary}</p>
       </div>
     </Link>

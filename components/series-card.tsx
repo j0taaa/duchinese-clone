@@ -26,7 +26,7 @@ export function SeriesCard({
         style={{ backgroundImage: artwork.surface }}
       >
         <div className="absolute inset-0" style={{ backgroundImage: artwork.glow }} />
-        <div className="absolute -right-2 -bottom-5 font-reading text-[6rem] leading-none text-white/22">
+        <div className="absolute -right-2 -bottom-5 font-reading text-[4.5rem] leading-none text-white/22 sm:text-[6rem]">
           {series.coverHanzi}
         </div>
         <div className="relative z-10 flex items-start justify-end gap-3">
@@ -34,11 +34,11 @@ export function SeriesCard({
             <Layers3 className="size-4" />
           </span>
         </div>
-        <div className="relative z-10 mt-8 space-y-2 sm:mt-12">
-          <p className="font-reading text-[2rem] leading-none text-white sm:text-[2.15rem]">
+        <div className="relative z-10 mt-7 space-y-2 sm:mt-12">
+          <p className="font-reading text-[1.55rem] leading-none text-white sm:text-[2.15rem]">
             {series.title}
           </p>
-          <p className="max-w-[14rem] text-sm text-white/85">
+          <p className="max-w-[14rem] text-[0.82rem] text-white/85 sm:text-sm">
             {series.titleTranslation}
           </p>
         </div>
@@ -59,7 +59,7 @@ export function SeriesCard({
             </span>
           ) : null}
         </div>
-        <p className="line-clamp-2 text-base font-semibold leading-6 tracking-tight text-[#211814] sm:text-lg sm:leading-7">
+        <p className="line-clamp-2 text-[0.95rem] font-semibold leading-5 tracking-tight text-[#211814] sm:text-lg sm:leading-7">
           {series.titleTranslation}
         </p>
         <p className="line-clamp-3 text-sm leading-5 text-[#6f625c] sm:leading-6">{series.summary}</p>

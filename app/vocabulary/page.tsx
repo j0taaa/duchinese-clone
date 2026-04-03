@@ -35,14 +35,14 @@ export default async function VocabularyPage({ searchParams }: VocabularyPagePro
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f4,_#f7f1e9_52%,_#f2ece4_100%)]">
       <AppHeader active="vocabulary" />
 
-      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-8 px-4 py-8 sm:px-6 xl:px-10">
-        <div className="flex flex-wrap gap-3">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-5 sm:gap-8 sm:px-6 sm:py-8 xl:px-10">
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
           {filters.map((level) => (
             <a
               key={level.key}
               href={level.key === "all" ? "/vocabulary" : `/vocabulary?level=${level.key}`}
               className={[
-                "rounded-full border px-4 py-2 text-sm transition-colors",
+                "shrink-0 rounded-full border px-4 py-2 text-sm transition-colors",
                 selectedLevel === level.key
                   ? "border-[#ea4e47] bg-[#ea4e47] text-white shadow-[0_14px_28px_-18px_rgba(234,78,71,0.8)]"
                   : "border-[#ead9cf] bg-white text-[#554842] hover:bg-[#faf4ef]",
@@ -58,10 +58,10 @@ export default async function VocabularyPage({ searchParams }: VocabularyPagePro
             <section
               key={level.key}
               id={level.key}
-              className="space-y-4 rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_70px_-52px_rgba(92,46,24,0.34)] sm:p-6"
+              className="space-y-4 rounded-[24px] border border-white/70 bg-white/90 p-4 shadow-[0_24px_70px_-52px_rgba(92,46,24,0.34)] sm:rounded-[32px] sm:p-6"
             >
               <div className="flex items-center justify-between gap-4">
-                <h1 className="text-2xl font-semibold tracking-tight text-[#241815] sm:text-3xl">
+                <h1 className="text-xl font-semibold tracking-tight text-[#241815] sm:text-3xl">
                   {level.title}
                 </h1>
                 <span className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-3 py-1 text-sm text-[#6c5f58]">
@@ -73,12 +73,12 @@ export default async function VocabularyPage({ searchParams }: VocabularyPagePro
                 {level.characters.map((entry) => (
                   <article
                     key={`${level.key}-${entry.hanzi}`}
-                    className="rounded-[24px] border border-[#ebddd2] bg-[#fffdfa] px-5 py-4 shadow-[0_12px_36px_-34px_rgba(80,45,24,0.3)]"
+                    className="rounded-[20px] border border-[#ebddd2] bg-[#fffdfa] px-4 py-4 shadow-[0_12px_36px_-34px_rgba(80,45,24,0.3)] sm:rounded-[24px] sm:px-5"
                   >
-                    <p className="font-reading text-4xl leading-none text-[#241815]">
+                    <p className="font-reading text-[2rem] leading-none text-[#241815] sm:text-4xl">
                       {entry.hanzi}
                     </p>
-                    <p className="mt-3 text-base text-[#ef625a]">
+                    <p className="mt-2 text-sm text-[#ef625a] sm:mt-3 sm:text-base">
                       {entry.pinyin ?? "No pinyin"}
                     </p>
                     <p className="mt-3 text-sm leading-6 text-[#645852]">

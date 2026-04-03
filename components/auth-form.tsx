@@ -49,9 +49,9 @@ export function AuthForm({
   }
 
   return (
-    <section className="rounded-[32px] border border-[#ecdcd2] bg-white p-6 shadow-[0_24px_70px_-52px_rgba(92,46,24,0.34)] sm:p-8">
+    <section className="rounded-[24px] border border-[#ecdcd2] bg-white p-5 shadow-[0_24px_70px_-52px_rgba(92,46,24,0.34)] sm:rounded-[32px] sm:p-8">
       <div className="space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight text-[#241815]">
+        <h2 className="text-xl font-semibold tracking-tight text-[#241815] sm:text-2xl">
           {mode === "sign-up" ? "Create your account" : "Welcome back"}
         </h2>
         <p className="text-sm leading-6 text-[#6d615b]">
