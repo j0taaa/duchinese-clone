@@ -7,14 +7,13 @@ import { PGlite } from "@electric-sql/pglite";
 
 import { seedStories } from "../lib/stories";
 
-async function main() {
-  if (process.env.USE_LOCAL_PGLITE === "0") {
-    return;
-  }
-
-  const cwd = process.cwd();
-  const dataDir = process.env.DATABASE_DIR || path.join(cwd, ".local-pgdata");
+async function resetDataDir(dataDir: string) {
+  await fs.rm(dataDir, { recursive: true, force: true });
   await fs.mkdir(dataDir, { recursive: true });
+}
+
+async function prepareDatabase(dataDir: string) {
+  const cwd = process.cwd();
 
   const lockFile = path.join(dataDir, "postmaster.pid");
   await fs.rm(lockFile, { force: true });
@@ -109,6 +108,24 @@ async function main() {
     }
   } finally {
     await db.close();
+  }
+}
+
+async function main() {
+  if (process.env.USE_LOCAL_PGLITE === "0") {
+    return;
+  }
+
+  const cwd = process.cwd();
+  const dataDir = process.env.DATABASE_DIR || path.join(cwd, ".local-pgdata");
+  await fs.mkdir(dataDir, { recursive: true });
+
+  try {
+    await prepareDatabase(dataDir);
+  } catch {
+    console.warn("Local embedded DB bootstrap failed, recreating it from scratch.");
+    await resetDataDir(dataDir);
+    await prepareDatabase(dataDir);
   }
 }
 
