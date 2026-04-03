@@ -226,11 +226,11 @@ export function ReaderLayout({
             </div>
           </div>
 
-          <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm md:top-[92px] md:rounded-[28px]">
-            <div className="px-4 py-3 sm:px-6 sm:py-4">
-              <div className="min-h-[88px] min-w-0 sm:min-h-[104px]">
-                <p className="text-sm text-[#9b8e87]">Word meaning</p>
-                {activeWord ? (
+          {activeWord ? (
+            <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm md:top-[92px] md:rounded-[28px]">
+              <div className="px-4 py-3 sm:px-6 sm:py-4">
+                <div className="min-w-0">
+                  <p className="text-sm text-[#9b8e87]">Word meaning</p>
                   <div className="flex flex-wrap items-end gap-x-3 gap-y-2 pt-2">
                     <span className="font-reading text-[1.8rem] leading-none text-[#3a86ea] sm:text-[2.15rem]">
                       {activeWord.text}
@@ -242,16 +242,10 @@ export function ReaderLayout({
                       {activeWord.definition ?? ""}
                     </span>
                   </div>
-                ) : (
-                  <p className="pt-2 text-sm text-[#6f625c]">
-                    {isTouchMode
-                      ? "Tap a word to inspect it. Tap outside the text to clear it."
-                      : "Hover a word to inspect it. Click a word to open the study sheet."}
-                  </p>
-                )}
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
 
           <Card className="border-0 bg-transparent py-0 shadow-none md:border md:border-white/70 md:bg-white/92 md:shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
             <CardContent className="px-0 py-2 sm:px-8 sm:py-8 md:px-8 xl:px-12">
