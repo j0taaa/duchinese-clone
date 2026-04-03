@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Noto_Serif_SC, Outfit } from "next/font/google";
+import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -22,6 +23,16 @@ export const metadata: Metadata = {
   title: "HanziLane",
   description:
     "A DuChinese-like Chinese reading app with public starter stories, private AI generation, Better Auth, Prisma, and Postgres.",
+  manifest: "/manifest.webmanifest",
+  applicationName: "HanziLane",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "HanziLane",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
@@ -35,7 +46,10 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${outfit.variable} ${notoSerifSc.variable} ${jetbrainsMono.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full flex flex-col text-[#241815]">{children}</body>
+      <body className="min-h-full flex flex-col text-[#241815]">
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }
