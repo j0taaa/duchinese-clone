@@ -250,7 +250,7 @@ export function ReaderLayout({
             </div>
           ) : null}
 
-          <Card className="border-0 bg-transparent py-0 shadow-none md:border md:border-white/70 md:bg-white/92 md:shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
+          <Card className="border-0 bg-transparent py-0 shadow-none ring-0 md:border md:border-white/70 md:bg-white/92 md:ring-1 md:ring-foreground/10 md:shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
             <CardContent className="px-0 py-0 sm:px-8 sm:py-8 md:px-8 xl:px-12">
               <div className="space-y-8 sm:space-y-10">
                 {story.tokenizedSections.map((section, index) => (
@@ -425,6 +425,16 @@ function ToolbarToggle({
         }
 
         event.preventDefault();
+        event.stopPropagation();
+        onClick();
+      }}
+      onTouchStart={(event) => {
+        if (!isTouchMode) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
         onClick();
       }}
       className="touch-manipulation select-none inline-flex h-8 items-center gap-1 rounded-full border border-[#eadcd2] bg-white px-2 text-[0.72rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
@@ -532,6 +542,16 @@ function renderTokenLine({
             }
 
             event.preventDefault();
+            event.stopPropagation();
+            onSelectWord(token);
+          }}
+          onTouchStart={(event) => {
+            if (!token.interactive || !isTouchMode) {
+              return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
             onSelectWord(token);
           }}
           data-token-button="true"
