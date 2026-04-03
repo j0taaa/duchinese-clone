@@ -137,25 +137,7 @@ export function ReaderLayout({
   }, []);
 
   return (
-    <main
-      className="min-h-screen bg-[radial-gradient(circle_at_top,_#fbf7f1,_#f3eee7_55%,_#f1ece5_100%)] text-[#202020]"
-      onClick={(event) => {
-        if (!isTouchMode) {
-          return;
-        }
-
-        const target = event.target as HTMLElement | null;
-
-        if (
-          target?.closest("[data-token-button='true']") ||
-          target?.closest("[data-reader-control='true']")
-        ) {
-          return;
-        }
-
-        setActiveWord(null);
-      }}
-    >
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fbf7f1,_#f3eee7_55%,_#f1ece5_100%)] text-[#202020]">
       <div className="mx-auto flex min-h-screen max-w-[1600px] gap-5 px-4 py-4 sm:gap-8 sm:px-6 sm:py-6 xl:px-10">
         <div className="hidden md:block">
           <StorySidebar
@@ -229,7 +211,7 @@ export function ReaderLayout({
           </div>
 
           {activeWord ? (
-            <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] md:top-[92px] md:rounded-[28px] md:bg-white/95 md:backdrop-blur-sm">
+            <div className="rounded-[24px] border border-white/70 bg-white shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] md:sticky md:top-[92px] md:z-20 md:rounded-[28px] md:bg-white/95 md:backdrop-blur-sm">
               <div className="px-4 py-3 sm:px-6 sm:py-4">
                 <div className="min-w-0">
                   <p className="text-sm text-[#9b8e87]">Word meaning</p>
@@ -310,7 +292,7 @@ export function ReaderLayout({
             />
           </div>
 
-          <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white md:bg-white/90 md:backdrop-blur-xl">
+          <footer className="mt-4 border-t border-[#ebddd2] bg-white md:fixed md:inset-x-0 md:bottom-0 md:bg-white/90 md:backdrop-blur-xl">
             <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-3 py-2.5 sm:px-6 sm:py-4 lg:flex-row lg:items-center lg:justify-between xl:px-10">
               <div className="hidden items-center gap-2 text-[0.8rem] text-[#6b5f58] sm:gap-3 sm:text-sm md:flex">
                 <span className="truncate font-medium text-[#2a1e1a]">
