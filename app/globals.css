@@ -94,6 +94,17 @@
   }
   html {
     @apply font-sans;
+    font-size: 81.25%;
+  }
+  @media (min-width: 640px) {
+    html {
+      font-size: 87.5%;
+    }
+  }
+  @media (min-width: 1280px) {
+    html {
+      font-size: 93.75%;
+    }
   }
   body {
     @apply bg-background text-foreground;
