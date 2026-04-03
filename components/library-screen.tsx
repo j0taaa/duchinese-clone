@@ -10,6 +10,27 @@ import { type AppStory, getHskLabel, hskLevelValues } from "@/lib/stories";
 
 const filterOptions = ["all", ...hskLevelValues] as const;
 
+export function filterStoriesByLibraryControls(input: {
+  stories: AppStory[];
+  filter: (typeof filterOptions)[number];
+  query: string;
+}) {
+  const needle = input.query.trim().toLowerCase();
+
+  return input.stories.filter((story) => {
+    const matchesLevel =
+      input.filter === "all" ? true : story.hskLevel === input.filter;
+    const matchesQuery = needle
+      ? [story.title, story.titleTranslation, story.summary, story.excerpt]
+          .join(" ")
+          .toLowerCase()
+          .includes(needle)
+      : true;
+
+    return matchesLevel && matchesQuery;
+  });
+}
+
 export function LibraryScreen({
   publicStories,
   publicSeries,
@@ -27,20 +48,20 @@ export function LibraryScreen({
   const [filter, setFilter] = useState<(typeof filterOptions)[number]>("all");
 
   const filteredStories = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-
-    return publicStories.filter((story) => {
-      const matchesLevel = filter === "all" ? true : story.hskLevel === filter;
-      const matchesQuery = needle
-        ? [story.title, story.titleTranslation, story.summary, story.excerpt]
-            .join(" ")
-            .toLowerCase()
-            .includes(needle)
-        : true;
-
-      return matchesLevel && matchesQuery;
+    return filterStoriesByLibraryControls({
+      stories: publicStories,
+      filter,
+      query,
     });
   }, [filter, publicStories, query]);
+
+  const filteredLatestUserStories = useMemo(() => {
+    return filterStoriesByLibraryControls({
+      stories: latestUserStories,
+      filter,
+      query,
+    });
+  }, [filter, latestUserStories, query]);
 
   const filteredSeries = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -119,11 +140,11 @@ export function LibraryScreen({
         </div>
       </section>
 
-      {signedIn && latestUserStories.length ? (
+      {signedIn && filteredLatestUserStories.length ? (
         <LibrarySection
           title="Your latest stories"
           description="Freshly generated lessons attached to your account."
-          stories={latestUserStories}
+          stories={filteredLatestUserStories}
           readStoryIds={readStoryIds}
         />
       ) : null}
