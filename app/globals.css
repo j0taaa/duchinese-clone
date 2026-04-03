@@ -94,16 +94,16 @@
   }
   html {
     @apply font-sans;
-    font-size: 81.25%;
+    font-size: 68.75%;
   }
   @media (min-width: 640px) {
     html {
-      font-size: 87.5%;
+      font-size: 75%;
     }
   }
   @media (min-width: 1280px) {
     html {
-      font-size: 93.75%;
+      font-size: 81.25%;
     }
   }
   body {
