@@ -85,7 +85,6 @@ export function ReaderLayout({
     const stored = getStoredReaderPreferences();
     return stored?.showCharacters ?? true;
   });
-  const [ignoreNextClickFromTouch, setIgnoreNextClickFromTouch] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isTouchMode, setIsTouchMode] = useState(false);
 
@@ -146,13 +145,6 @@ export function ReaderLayout({
       }
     };
   }, []);
-
-  const registerTouchInteraction = () => {
-    setIgnoreNextClickFromTouch(true);
-    window.setTimeout(() => {
-      setIgnoreNextClickFromTouch(false);
-    }, 750);
-  };
 
   return (
     <main
@@ -301,8 +293,6 @@ export function ReaderLayout({
                           setSheetWord(token);
                           setSheetOpen(true);
                         },
-                        registerTouchInteraction,
-                        ignoreNextClickFromTouch,
                       })}
                     </div>
                     {showEnglish ? (
@@ -341,27 +331,18 @@ export function ReaderLayout({
                   icon={<BookOpenText className="size-4" />}
                   label="Characters"
                   active={showCharacters}
-                  isTouchMode={isTouchMode}
-                  registerTouchInteraction={registerTouchInteraction}
-                  ignoreNextClickFromTouch={ignoreNextClickFromTouch}
                   onClick={() => setShowCharacters((value) => !value)}
                 />
                 <ToolbarToggle
                   icon={<Languages className="size-4" />}
                   label="Pinyin"
                   active={showPinyin}
-                  isTouchMode={isTouchMode}
-                  registerTouchInteraction={registerTouchInteraction}
-                  ignoreNextClickFromTouch={ignoreNextClickFromTouch}
                   onClick={() => setShowPinyin((value) => !value)}
                 />
                 <ToolbarToggle
                   icon={<NotebookPen className="size-4" />}
                   label="English"
                   active={showEnglish}
-                  isTouchMode={isTouchMode}
-                  registerTouchInteraction={registerTouchInteraction}
-                  ignoreNextClickFromTouch={ignoreNextClickFromTouch}
                   onClick={() => setShowEnglish((value) => !value)}
                 />
                 <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-3 text-[0.78rem] font-medium text-[#443934] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm">
@@ -425,38 +406,18 @@ function ToolbarToggle({
   icon,
   label,
   active,
-  isTouchMode,
-  registerTouchInteraction,
-  ignoreNextClickFromTouch,
   onClick,
 }: {
   icon: ReactNode;
   label: string;
   active: boolean;
-  isTouchMode: boolean;
-  registerTouchInteraction: () => void;
-  ignoreNextClickFromTouch: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       data-reader-control="true"
-      onClick={() => {
-        if (ignoreNextClickFromTouch) {
-          return;
-        }
-        onClick();
-      }}
-      onTouchStart={(event) => {
-        if (!isTouchMode) {
-          return;
-        }
-
-        event.stopPropagation();
-        registerTouchInteraction();
-        onClick();
-      }}
+      onClick={onClick}
       className="touch-manipulation select-none inline-flex h-8 items-center gap-1 rounded-full border border-[#eadcd2] bg-white px-2 text-[0.72rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
     >
       {icon}
@@ -518,8 +479,6 @@ function renderTokenLine({
   onHoverWord,
   onLeaveWord,
   onSelectWord,
-  registerTouchInteraction,
-  ignoreNextClickFromTouch,
 }: {
   tokens: DictionaryToken[];
   showPinyin: boolean;
@@ -529,8 +488,6 @@ function renderTokenLine({
   onHoverWord: (token: DictionaryToken) => void;
   onLeaveWord: () => void;
   onSelectWord: (token: DictionaryToken) => void;
-  registerTouchInteraction: () => void;
-  ignoreNextClickFromTouch: boolean;
 }) {
   return tokens.map((token, index) => {
     const isSelected = token.text === selectedWord && token.interactive;
@@ -555,18 +512,9 @@ function renderTokenLine({
           onMouseLeave={() => token.interactive && onLeaveWord()}
           onFocus={() => token.interactive && onHoverWord(token)}
           onClick={() => {
-            if (!token.interactive || ignoreNextClickFromTouch) {
+            if (!token.interactive) {
               return;
             }
-            onSelectWord(token);
-          }}
-          onTouchStart={(event) => {
-            if (!token.interactive || !isTouchMode) {
-              return;
-            }
-
-            event.stopPropagation();
-            registerTouchInteraction();
             onSelectWord(token);
           }}
           data-token-button="true"
