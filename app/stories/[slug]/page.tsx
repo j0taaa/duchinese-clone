@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
@@ -35,6 +36,7 @@ export async function generateMetadata({ params }: StoryPageProps) {
 }
 
 export default async function StoryPage({ params }: StoryPageProps) {
+  noStore();
   const { slug } = await params;
   const session = await getServerSession();
   const [story, stories] = await Promise.all([

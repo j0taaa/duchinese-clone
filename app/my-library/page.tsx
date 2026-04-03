@@ -1,9 +1,12 @@
+import { unstable_noStore as noStore } from "next/cache";
+
 import { AppHeader } from "@/components/app-header";
 import { StoryCard } from "@/components/story-card";
 import { requireServerSession } from "@/lib/session";
 import { listGeneratedStoriesForUser, listReadStoryIdsForUser } from "@/lib/story-service";
 
 export default async function MyLibraryPage() {
+  noStore();
   const session = await requireServerSession();
   const [userStories, readStoryIds] = await Promise.all([
     listGeneratedStoriesForUser(session.user.id),

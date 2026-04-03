@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft, Layers3 } from "lucide-react";
+import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 
 import { AppHeader } from "@/components/app-header";
@@ -31,6 +32,7 @@ export async function generateMetadata({ params }: SeriesPageProps) {
 }
 
 export default async function SeriesPage({ params }: SeriesPageProps) {
+  noStore();
   const { slug } = await params;
   const session = await getServerSession();
   const [series, readStoryIds] = await Promise.all([

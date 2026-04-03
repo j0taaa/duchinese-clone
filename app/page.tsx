@@ -1,3 +1,5 @@
+import { unstable_noStore as noStore } from "next/cache";
+
 import { AppHeader } from "@/components/app-header";
 import { LibraryScreen } from "@/components/library-screen";
 import { hydrateSeries } from "@/lib/series";
@@ -9,6 +11,7 @@ import {
 } from "@/lib/story-service";
 
 export default async function Home() {
+  noStore();
   const session = await getServerSession();
   const [publicStories, latestUserStories, readStoryIds] = await Promise.all([
     listPublicStories(),

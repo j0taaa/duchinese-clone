@@ -1,3 +1,5 @@
+import { unstable_noStore as noStore } from "next/cache";
+
 import { AppHeader } from "@/components/app-header";
 import { getServerSession } from "@/lib/session";
 import { getVocabularyReadStatsForUser } from "@/lib/story-service";
@@ -12,6 +14,7 @@ type VocabularyPageProps = {
 const validLevels = new Set(["all", "hsk1", "hsk2", "hsk3", "hsk4", "hsk5", "hsk6"]);
 
 export default async function VocabularyPage({ searchParams }: VocabularyPageProps) {
+  noStore();
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const selectedLevel = validLevels.has(resolvedSearchParams?.level ?? "")
     ? (resolvedSearchParams?.level as string)
