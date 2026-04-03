@@ -1,14 +1,9 @@
 "use client";
-
-import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   BookOpenText,
   ChevronLeft,
   ChevronRight,
-  Languages,
-  List,
-  NotebookPen,
   XIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -302,27 +297,22 @@ export function ReaderLayout({
               </div>
               <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 md:justify-start">
                 <ToolbarToggle
-                  icon={<BookOpenText className="size-4" />}
                   label="Characters"
                   active={showCharacters}
                   onClick={() => setShowCharacters((value) => !value)}
                 />
                 <ToolbarToggle
-                  icon={<Languages className="size-4" />}
                   label="Pinyin"
                   active={showPinyin}
                   onClick={() => setShowPinyin((value) => !value)}
                 />
                 <ToolbarToggle
-                  icon={<NotebookPen className="size-4" />}
                   label="English"
                   active={showEnglish}
                   onClick={() => setShowEnglish((value) => !value)}
                 />
-                <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-3 text-[0.78rem] font-medium text-[#443934] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm">
-                  <List className="size-4" />
-                  <span className="sm:hidden">Sheet</span>
-                  <span className="hidden sm:inline">Word sheet on tap</span>
+                <span className="inline-flex h-9 items-center rounded-full border border-[#eadcd2] bg-white px-3 text-[0.74rem] font-medium text-[#6a5e58] sm:h-11 sm:px-4 sm:text-sm">
+                  Tap words for meaning
                 </span>
               </div>
             </div>
@@ -377,12 +367,10 @@ export function ReaderLayout({
 }
 
 function ToolbarToggle({
-  icon,
   label,
   active,
   onClick,
 }: {
-  icon: ReactNode;
   label: string;
   active: boolean;
   onClick: () => void;
@@ -392,23 +380,14 @@ function ToolbarToggle({
       type="button"
       data-reader-control="true"
       onClick={onClick}
-      className="touch-manipulation select-none inline-flex h-8 items-center gap-1 rounded-full border border-[#eadcd2] bg-white px-2 text-[0.72rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
+      className={cn(
+        "inline-flex h-9 items-center rounded-full border px-3 text-[0.74rem] font-medium active:scale-[0.99] sm:h-11 sm:px-4 sm:text-sm",
+        active
+          ? "border-[#8aaed7] bg-[#eef5ff] text-[#345f95]"
+          : "border-[#eadcd2] bg-white text-[#443934]",
+      )}
     >
-      {icon}
-      <span className="sm:hidden">
-        {label === "Characters" ? "字" : label === "Pinyin" ? "拼" : "英"}
-      </span>
-      <span className="hidden sm:inline">{label}</span>
-      <span
-        className={cn(
-          "flex min-w-6 items-center justify-center rounded-full border px-1.5 py-0.5 text-[0.65rem] leading-none sm:size-9 sm:px-0 sm:py-0 sm:text-sm",
-          active
-            ? "border-[#8aaed7] bg-white text-[#507db3]"
-            : "border-[#cfcfcf] bg-white text-[#7a7a7a]",
-        )}
-      >
-        {active ? "On" : "Off"}
-      </span>
+      {label}: {active ? "On" : "Off"}
     </button>
   );
 }
