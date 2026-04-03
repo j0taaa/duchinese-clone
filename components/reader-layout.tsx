@@ -25,7 +25,6 @@ import {
 } from "@/components/story-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -85,7 +84,6 @@ export function ReaderLayout({
     const stored = getStoredReaderPreferences();
     return stored?.showCharacters ?? true;
   });
-  const [ignoreNextClickFromTouch, setIgnoreNextClickFromTouch] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isTouchMode, setIsTouchMode] = useState(false);
 
@@ -138,17 +136,10 @@ export function ReaderLayout({
     };
   }, []);
 
-  const registerTouchInteraction = () => {
-    setIgnoreNextClickFromTouch(true);
-    window.setTimeout(() => {
-      setIgnoreNextClickFromTouch(false);
-    }, 750);
-  };
-
   return (
     <main
       className="min-h-screen bg-[radial-gradient(circle_at_top,_#fbf7f1,_#f3eee7_55%,_#f1ece5_100%)] text-[#202020]"
-      onClickCapture={(event) => {
+      onClick={(event) => {
         if (!isTouchMode) {
           return;
         }
@@ -238,7 +229,7 @@ export function ReaderLayout({
           </div>
 
           {activeWord ? (
-            <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm md:top-[92px] md:rounded-[28px]">
+            <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] md:top-[92px] md:rounded-[28px] md:bg-white/95 md:backdrop-blur-sm">
               <div className="px-4 py-3 sm:px-6 sm:py-4">
                 <div className="min-w-0">
                   <p className="text-sm text-[#9b8e87]">Word meaning</p>
@@ -258,8 +249,8 @@ export function ReaderLayout({
             </div>
           ) : null}
 
-          <Card className="rounded-none border-0 bg-transparent py-0 shadow-none ring-0 md:rounded-xl md:border md:border-white/70 md:bg-white/92 md:ring-1 md:ring-foreground/10 md:shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
-            <CardContent className="px-0 py-0 sm:px-8 sm:py-8 md:px-8 xl:px-12">
+          <div className="rounded-none border-0 bg-transparent py-0 shadow-none ring-0 md:rounded-xl md:border md:border-white/70 md:bg-white/92 md:ring-1 md:ring-foreground/10 md:shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
+            <div className="px-0 py-0 sm:px-8 sm:py-8 md:px-8 xl:px-12">
               <div className="space-y-8 sm:space-y-10">
                 {story.tokenizedSections.map((section, index) => (
                   <section
@@ -285,15 +276,15 @@ export function ReaderLayout({
                         },
                         onSelectWord: (token) => {
                           if (isTouchMode) {
-                            setActiveWord(token);
+                            setActiveWord((current) =>
+                              current?.text === token.text ? null : token,
+                            );
                             return;
                           }
 
                           setSheetWord(token);
                           setSheetOpen(true);
                         },
-                        registerTouchInteraction,
-                        ignoreNextClickFromTouch,
                       })}
                     </div>
                     {showEnglish ? (
@@ -307,8 +298,8 @@ export function ReaderLayout({
                   </section>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           <div className="hidden md:block">
             <RecommendedLessons
@@ -319,7 +310,7 @@ export function ReaderLayout({
             />
           </div>
 
-          <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white/90 backdrop-blur-xl">
+          <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white md:bg-white/90 md:backdrop-blur-xl">
             <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-3 py-2.5 sm:px-6 sm:py-4 lg:flex-row lg:items-center lg:justify-between xl:px-10">
               <div className="hidden items-center gap-2 text-[0.8rem] text-[#6b5f58] sm:gap-3 sm:text-sm md:flex">
                 <span className="truncate font-medium text-[#2a1e1a]">
@@ -332,27 +323,18 @@ export function ReaderLayout({
                   icon={<BookOpenText className="size-4" />}
                   label="Characters"
                   active={showCharacters}
-                  isTouchMode={isTouchMode}
-                  registerTouchInteraction={registerTouchInteraction}
-                  ignoreNextClickFromTouch={ignoreNextClickFromTouch}
                   onClick={() => setShowCharacters((value) => !value)}
                 />
                 <ToolbarToggle
                   icon={<Languages className="size-4" />}
                   label="Pinyin"
                   active={showPinyin}
-                  isTouchMode={isTouchMode}
-                  registerTouchInteraction={registerTouchInteraction}
-                  ignoreNextClickFromTouch={ignoreNextClickFromTouch}
                   onClick={() => setShowPinyin((value) => !value)}
                 />
                 <ToolbarToggle
                   icon={<NotebookPen className="size-4" />}
                   label="English"
                   active={showEnglish}
-                  isTouchMode={isTouchMode}
-                  registerTouchInteraction={registerTouchInteraction}
-                  ignoreNextClickFromTouch={ignoreNextClickFromTouch}
                   onClick={() => setShowEnglish((value) => !value)}
                 />
                 <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-3 text-[0.78rem] font-medium text-[#443934] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm">
@@ -416,38 +398,18 @@ function ToolbarToggle({
   icon,
   label,
   active,
-  isTouchMode,
-  registerTouchInteraction,
-  ignoreNextClickFromTouch,
   onClick,
 }: {
   icon: ReactNode;
   label: string;
   active: boolean;
-  isTouchMode: boolean;
-  registerTouchInteraction: () => void;
-  ignoreNextClickFromTouch: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       data-reader-control="true"
-      onClick={() => {
-        if (ignoreNextClickFromTouch) {
-          return;
-        }
-        onClick();
-      }}
-      onTouchStart={(event) => {
-        if (!isTouchMode) {
-          return;
-        }
-
-        event.stopPropagation();
-        registerTouchInteraction();
-        onClick();
-      }}
+      onClick={onClick}
       className="touch-manipulation select-none inline-flex h-8 items-center gap-1 rounded-full border border-[#eadcd2] bg-white px-2 text-[0.72rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
     >
       {icon}
@@ -509,8 +471,6 @@ function renderTokenLine({
   onHoverWord,
   onLeaveWord,
   onSelectWord,
-  registerTouchInteraction,
-  ignoreNextClickFromTouch,
 }: {
   tokens: DictionaryToken[];
   showPinyin: boolean;
@@ -520,8 +480,6 @@ function renderTokenLine({
   onHoverWord: (token: DictionaryToken) => void;
   onLeaveWord: () => void;
   onSelectWord: (token: DictionaryToken) => void;
-  registerTouchInteraction: () => void;
-  ignoreNextClickFromTouch: boolean;
 }) {
   return tokens.map((token, index) => {
     const isSelected = token.text === selectedWord && token.interactive;
@@ -546,18 +504,9 @@ function renderTokenLine({
           onMouseLeave={() => token.interactive && onLeaveWord()}
           onFocus={() => token.interactive && onHoverWord(token)}
           onClick={() => {
-            if (!token.interactive || ignoreNextClickFromTouch) {
+            if (!token.interactive) {
               return;
             }
-            onSelectWord(token);
-          }}
-          onTouchStart={(event) => {
-            if (!token.interactive || !isTouchMode) {
-              return;
-            }
-
-            event.stopPropagation();
-            registerTouchInteraction();
             onSelectWord(token);
           }}
           data-token-button="true"
