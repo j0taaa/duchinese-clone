@@ -72,34 +72,50 @@ export function LibraryScreen({
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-4 py-4 sm:gap-6 sm:px-5 sm:py-6 xl:px-6">
-      <section className="space-y-3 rounded-[20px] border border-white/70 bg-white/86 p-3.5 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.38)] backdrop-blur sm:rounded-[24px] sm:p-4">
-        <div className="max-w-[30rem]">
-          <label className="relative block">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-3.5 -translate-y-1/2 text-[#9e918a]" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search titles, summaries, and excerpts…"
-              className="h-10 w-full rounded-xl border border-[#e7d8cf] bg-white pl-10 pr-4 text-xs text-[#241815] outline-none transition-colors placeholder:text-[#a2958e] focus:border-[#d8b1a6]"
-            />
-          </label>
-        </div>
+      <section className="rounded-[24px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(251,247,243,0.94))] p-4 shadow-[0_20px_60px_-50px_rgba(92,46,24,0.35)] backdrop-blur sm:p-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex items-center gap-2 px-1">
+              <span className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[#b07f72]">
+                Browse Library
+              </span>
+              <span className="hidden h-px flex-1 bg-[#ead9cf] sm:block" />
+            </div>
 
-        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 sm:flex-wrap sm:gap-2 sm:overflow-visible sm:px-0 sm:pb-0">
-          {filterOptions.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => setFilter(option)}
-              className={
-                filter === option
-                  ? "shrink-0 rounded-full bg-[#ea4e47] px-3 py-1.5 text-xs font-medium text-white shadow-[0_14px_28px_-20px_rgba(234,78,71,0.8)]"
-                  : "shrink-0 rounded-full border border-[#ead9cf] bg-white px-3 py-1.5 text-xs text-[#554842] hover:bg-[#faf4ef]"
-              }
-            >
-              {option === "all" ? "All levels" : getHskLabel(option)}
-            </button>
-          ))}
+            <label className="relative block">
+              <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#9e918a]" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search titles, summaries, and excerpts…"
+                className="h-11 w-full rounded-2xl border border-[#e7d8cf] bg-white pl-11 pr-4 text-sm text-[#241815] outline-none transition-[border-color,box-shadow,background-color] placeholder:text-[#a2958e] focus:border-[#d8b1a6] focus:bg-[#fffdfa] focus:shadow-[0_0_0_4px_rgba(234,78,71,0.08)]"
+              />
+            </label>
+          </div>
+
+          <div className="rounded-2xl border border-[#ede0d6] bg-white/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] lg:max-w-[38rem]">
+            <div className="-mx-0.5 flex gap-1.5 overflow-x-auto px-0.5 pb-0.5 sm:flex-wrap sm:overflow-visible">
+              {filterOptions.map((option) => {
+                const active = filter === option;
+
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setFilter(option)}
+                    className={[
+                      "shrink-0 rounded-xl px-3.5 py-2 text-xs font-medium transition-all",
+                      active
+                        ? "bg-[#ea4e47] text-white shadow-[0_12px_24px_-18px_rgba(234,78,71,0.9)]"
+                        : "bg-transparent text-[#5a4d47] hover:bg-[#f8f1eb]",
+                    ].join(" ")}
+                  >
+                    {option === "all" ? "All levels" : getHskLabel(option)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
