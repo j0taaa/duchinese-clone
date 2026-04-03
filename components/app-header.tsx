@@ -92,7 +92,35 @@ export async function AppHeader({ active }: AppHeaderProps) {
           </div>
         </div>
 
-        <nav className="-mx-1 flex w-full items-center gap-1 overflow-x-auto px-1 pb-1 lg:mx-0 lg:w-auto lg:flex-none lg:gap-1.5 lg:overflow-visible lg:px-0 lg:pb-0">
+        <nav
+          className={cn(
+            "grid w-full gap-1 pb-1 lg:hidden",
+            session ? "grid-cols-4" : "grid-cols-2",
+          )}
+        >
+          {navItems.map((item) => {
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                prefetch={false}
+                className={cn(
+                  "inline-flex min-w-0 items-center justify-center gap-1 rounded-full px-2 py-1.5 text-[0.68rem] font-medium transition-colors sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs",
+                  active === item.key
+                    ? "bg-[#ea4e47] text-white shadow-[0_14px_28px_-18px_rgba(234,78,71,0.8)]"
+                    : "bg-white text-[#4e433d] hover:bg-[#f8f1eb]",
+                )}
+              >
+                <span className="inline-flex items-center justify-center">
+                  {item.icon}
+                </span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <nav className="hidden w-full items-center gap-1.5 lg:flex lg:w-auto lg:flex-none">
           {navItems.map((item) => {
             return (
               <Link
@@ -103,7 +131,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
                   "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[0.68rem] font-medium transition-colors sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs",
                   active === item.key
                     ? "bg-[#ea4e47] text-white shadow-[0_14px_28px_-18px_rgba(234,78,71,0.8)]"
-                    : "bg-white text-[#4e433d] hover:bg-[#f8f1eb] lg:bg-transparent",
+                    : "bg-transparent text-[#4e433d] hover:bg-[#f8f1eb]",
                 )}
               >
                 <span className="inline-flex items-center justify-center">
