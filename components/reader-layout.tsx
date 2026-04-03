@@ -131,10 +131,19 @@ export function ReaderLayout({
     };
 
     syncTouchMode();
-    mediaQuery.addEventListener("change", syncTouchMode);
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncTouchMode);
+    } else if (typeof mediaQuery.addListener === "function") {
+      mediaQuery.addListener(syncTouchMode);
+    }
 
     return () => {
-      mediaQuery.removeEventListener("change", syncTouchMode);
+      if (typeof mediaQuery.removeEventListener === "function") {
+        mediaQuery.removeEventListener("change", syncTouchMode);
+      } else if (typeof mediaQuery.removeListener === "function") {
+        mediaQuery.removeListener(syncTouchMode);
+      }
     };
   }, []);
 
