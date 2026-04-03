@@ -155,11 +155,13 @@ export function ReaderLayout({
       }}
     >
       <div className="mx-auto flex min-h-screen max-w-[1600px] gap-5 px-4 py-4 sm:gap-8 sm:px-6 sm:py-6 xl:px-10">
-        <StorySidebar
-          stories={stories}
-          activeSlug={story.slug}
-          hideDesktop
-        />
+        <div className="hidden md:block">
+          <StorySidebar
+            stories={stories}
+            activeSlug={story.slug}
+            hideDesktop
+          />
+        </div>
 
         {series ? (
           <SeriesEpisodesSidebar
@@ -169,8 +171,8 @@ export function ReaderLayout({
           />
         ) : null}
 
-        <div className="flex min-w-0 flex-1 flex-col gap-5 pb-24">
-          <div className="rounded-[24px] border border-white/70 bg-white/92 p-4 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] sm:rounded-[28px] sm:p-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 pb-20 md:gap-5 md:pb-24">
+          <div className="hidden rounded-[24px] border border-white/70 bg-white/92 p-4 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] sm:rounded-[28px] sm:p-6 md:block">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2 text-[0.82rem] text-[#6e625c] sm:gap-3 sm:text-sm">
@@ -251,8 +253,8 @@ export function ReaderLayout({
             </div>
           </div>
 
-          <Card className="border-white/70 bg-white/92 py-0 shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
-            <CardContent className="px-4 py-6 sm:px-8 sm:py-8 xl:px-12">
+          <Card className="border-0 bg-transparent py-0 shadow-none md:border md:border-white/70 md:bg-white/92 md:shadow-[0_18px_70px_-42px_rgba(80,45,24,0.34)]">
+            <CardContent className="px-0 py-2 sm:px-8 sm:py-8 md:px-8 xl:px-12">
               <div className="space-y-8 sm:space-y-10">
                 {story.tokenizedSections.map((section, index) => (
                   <section
@@ -301,22 +303,24 @@ export function ReaderLayout({
             </CardContent>
           </Card>
 
-          <RecommendedLessons
-            stories={stories}
-            activeSlug={story.slug}
-            series={series}
-            readStoryIds={readStoryIds}
-          />
+          <div className="hidden md:block">
+            <RecommendedLessons
+              stories={stories}
+              activeSlug={story.slug}
+              series={series}
+              readStoryIds={readStoryIds}
+            />
+          </div>
 
           <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white/90 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-[1600px] flex-col gap-2.5 px-4 py-3 sm:px-6 sm:py-4 lg:flex-row lg:items-center lg:justify-between xl:px-10">
-              <div className="flex items-center gap-2 text-[0.8rem] text-[#6b5f58] sm:gap-3 sm:text-sm">
+            <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-3 py-2.5 sm:px-6 sm:py-4 lg:flex-row lg:items-center lg:justify-between xl:px-10">
+              <div className="hidden items-center gap-2 text-[0.8rem] text-[#6b5f58] sm:gap-3 sm:text-sm md:flex">
                 <span className="truncate font-medium text-[#2a1e1a]">
                   {story.titleTranslation}
                 </span>
                 <span>{getHskLabel(story.hskLevel)}</span>
               </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 md:justify-start">
                 <ToolbarToggle
                   icon={<BookOpenText className="size-4" />}
                   label="Characters"
@@ -340,7 +344,7 @@ export function ReaderLayout({
                 />
                 <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-3 text-[0.78rem] font-medium text-[#443934] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm">
                   <List className="size-4" />
-                  <span className="sm:hidden">Word sheet</span>
+                  <span className="sm:hidden">Sheet</span>
                   <span className="hidden sm:inline">Word sheet on tap</span>
                 </span>
               </div>
@@ -420,13 +424,16 @@ function ToolbarToggle({
         event.preventDefault();
         onClick();
       }}
-      className="touch-manipulation inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-2.5 text-[0.78rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
+      className="touch-manipulation inline-flex h-8 items-center gap-1 rounded-full border border-[#eadcd2] bg-white px-2 text-[0.72rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
     >
       {icon}
-      <span>{label}</span>
+      <span className="sm:hidden">
+        {label === "Characters" ? "字" : label === "Pinyin" ? "拼" : "英"}
+      </span>
+      <span className="hidden sm:inline">{label}</span>
       <span
         className={cn(
-          "flex size-7 items-center justify-center rounded-full border text-[0.72rem] sm:size-9 sm:text-sm",
+          "flex min-w-6 items-center justify-center rounded-full border px-1.5 py-0.5 text-[0.65rem] leading-none sm:size-9 sm:px-0 sm:py-0 sm:text-sm",
           active
             ? "border-[#8aaed7] bg-white text-[#507db3]"
             : "border-[#cfcfcf] bg-white text-[#7a7a7a]",
