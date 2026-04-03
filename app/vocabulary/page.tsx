@@ -61,7 +61,7 @@ export default async function VocabularyPage({ searchParams }: VocabularyPagePro
               className="space-y-4 rounded-[24px] border border-white/70 bg-white/90 p-4 shadow-[0_24px_70px_-52px_rgba(92,46,24,0.34)] sm:rounded-[32px] sm:p-6"
             >
               <div className="flex items-center justify-between gap-4">
-                <h1 className="text-xl font-semibold tracking-tight text-[#241815] sm:text-3xl">
+                <h1 className="text-lg font-semibold tracking-tight text-[#241815] sm:text-3xl">
                   {level.title}
                 </h1>
                 <span className="rounded-full border border-[#eadcd2] bg-[#fcf8f4] px-3 py-1 text-sm text-[#6c5f58]">
@@ -75,7 +75,7 @@ export default async function VocabularyPage({ searchParams }: VocabularyPagePro
                     key={`${level.key}-${entry.hanzi}`}
                     className="rounded-[20px] border border-[#ebddd2] bg-[#fffdfa] px-4 py-4 shadow-[0_12px_36px_-34px_rgba(80,45,24,0.3)] sm:rounded-[24px] sm:px-5"
                   >
-                    <p className="font-reading text-[2rem] leading-none text-[#241815] sm:text-4xl">
+                    <p className="font-reading text-[1.6rem] leading-none text-[#241815] sm:text-4xl">
                       {entry.hanzi}
                     </p>
                     <p className="mt-2 text-sm text-[#ef625a] sm:mt-3 sm:text-base">

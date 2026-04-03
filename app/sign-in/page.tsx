@@ -9,7 +9,7 @@ export default function SignInPage() {
             <div className="inline-flex items-center gap-2 rounded-full border border-[#f0d6ce] bg-[#fff3ef] px-3 py-1 text-xs font-semibold tracking-[0.16em] text-[#d14f43] uppercase">
               HanziLane
             </div>
-            <h1 className="max-w-3xl text-[2rem] font-semibold tracking-tight text-[#241815] sm:text-5xl">
+            <h1 className="max-w-3xl text-[1.7rem] font-semibold tracking-tight text-[#241815] sm:text-5xl">
               Sign in to generate Chinese reading lessons with your own model
             </h1>
             <p className="max-w-2xl text-sm leading-6 text-[#6a5b55] sm:text-base sm:leading-7">

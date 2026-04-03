@@ -20,7 +20,7 @@ export default async function ProfilePage() {
             <div className="mb-5 inline-flex size-12 items-center justify-center rounded-full bg-[#fff3ef] text-[#d14f43]">
               <UserRound className="size-6" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-[#241815] sm:text-3xl">
+            <h1 className="text-[1.35rem] font-semibold tracking-tight text-[#241815] sm:text-3xl">
               {session.user.name}
             </h1>
             <p className="mt-2 text-sm leading-6 text-[#6f625c]">

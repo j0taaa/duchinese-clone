@@ -191,7 +191,7 @@ export function GenerateStudio({
                   <Sparkles className="size-3.5" />
                   AI lesson builder
                 </p>
-                <h1 className="text-[1.65rem] font-semibold tracking-tight text-[#241815] sm:text-4xl">
+                <h1 className="text-[1.45rem] font-semibold tracking-tight text-[#241815] sm:text-4xl">
                   Generate something new to read
                 </h1>
                 <p className="max-w-3xl text-sm leading-6 text-[#6d615b] sm:leading-7">
@@ -420,7 +420,7 @@ export function GenerateStudio({
 
       <section className="rounded-[24px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.32)] sm:rounded-[32px] sm:p-7">
         <div className="space-y-1">
-          <h2 className="text-lg font-semibold tracking-tight text-[#241815] sm:text-2xl">
+          <h2 className="text-[1rem] font-semibold tracking-tight text-[#241815] sm:text-2xl">
             Recent generated stories
           </h2>
           <p className="text-sm leading-6 text-[#6f625c]">
@@ -440,7 +440,7 @@ export function GenerateStudio({
                 <p className="text-sm font-semibold text-[#241815]">
                   {story.titleTranslation}
                 </p>
-                <p className="mt-2 font-reading text-[1.9rem] text-[#3a2c27] sm:text-3xl">
+                <p className="mt-2 font-reading text-[1.5rem] text-[#3a2c27] sm:text-3xl">
                   {story.title}
                 </p>
                 <p className="mt-3 text-xs text-[#7b6f69]">

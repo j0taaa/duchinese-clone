@@ -11,7 +11,7 @@ type AppHeaderProps = {
 
 function HanziIcon() {
   return (
-    <span className="font-reading text-[0.9rem] leading-none sm:text-base" aria-hidden="true">
+    <span className="font-reading text-[0.82rem] leading-none sm:text-base" aria-hidden="true">
       汉
     </span>
   );
@@ -63,7 +63,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
             <span className="flex size-8 items-center justify-center rounded-full bg-[#ea4e47] text-white shadow-[0_12px_30px_-18px_rgba(234,78,71,0.8)] sm:size-11">
               <BookOpenText className="size-3.5 sm:size-5" />
             </span>
-            <span className="text-[1rem] font-semibold tracking-tight text-[#251915] sm:text-[1.45rem]">
+            <span className="text-[0.92rem] font-semibold tracking-tight text-[#251915] sm:text-[1.45rem]">
               HanziLane
             </span>
           </Link>
@@ -76,14 +76,14 @@ export async function AppHeader({ active }: AppHeaderProps) {
                 <Link
                   href="/sign-in"
                   prefetch={false}
-                  className="inline-flex h-9 items-center rounded-full px-2.5 text-[0.82rem] font-medium text-[#473b35] hover:bg-[#f8f1eb] sm:h-10 sm:px-4 sm:text-sm"
+                  className="inline-flex h-8.5 items-center rounded-full px-2 text-[0.74rem] font-medium text-[#473b35] hover:bg-[#f8f1eb] sm:h-10 sm:px-4 sm:text-sm"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/sign-up"
                   prefetch={false}
-                  className="inline-flex h-9 items-center rounded-full bg-[#ea4e47] px-3 text-[0.82rem] font-medium text-white shadow-[0_16px_32px_-20px_rgba(234,78,71,0.8)] sm:h-11 sm:px-5 sm:text-sm"
+                  className="inline-flex h-8.5 items-center rounded-full bg-[#ea4e47] px-2.5 text-[0.74rem] font-medium text-white shadow-[0_16px_32px_-20px_rgba(234,78,71,0.8)] sm:h-11 sm:px-5 sm:text-sm"
                 >
                   Create account
                 </Link>
@@ -100,7 +100,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
                 href={item.href}
                 prefetch={false}
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[0.82rem] font-medium transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm",
+                  "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-[0.72rem] font-medium transition-colors sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm",
                   active === item.key
                     ? "bg-[#ea4e47] text-white shadow-[0_14px_28px_-18px_rgba(234,78,71,0.8)]"
                     : "bg-white text-[#4e433d] hover:bg-[#f8f1eb] lg:bg-transparent",

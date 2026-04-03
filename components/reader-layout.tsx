@@ -193,10 +193,10 @@ export function ReaderLayout({
                 </div>
 
                 <div className="space-y-2">
-                  <h1 className="font-reading text-[2rem] text-[#241815] sm:text-4xl">
+                  <h1 className="font-reading text-[1.7rem] text-[#241815] sm:text-4xl">
                     {story.title}
                   </h1>
-                  <p className="text-base text-[#5f534d] sm:text-lg">{story.titleTranslation}</p>
+                  <p className="text-[0.92rem] text-[#5f534d] sm:text-lg">{story.titleTranslation}</p>
                 </div>
               </div>
 
@@ -288,7 +288,7 @@ export function ReaderLayout({
                       })}
                     </div>
                     {showEnglish ? (
-                      <p className="max-w-5xl text-[1rem] leading-8 text-[#5e514b]">
+                      <p className="max-w-5xl text-[0.92rem] leading-7 text-[#5e514b] sm:text-[1rem] sm:leading-8">
                         {section.english}
                       </p>
                     ) : null}

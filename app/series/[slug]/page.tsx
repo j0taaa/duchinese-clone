@@ -70,10 +70,10 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
               </div>
 
               <div className="space-y-2">
-                <h1 className="font-reading text-[2rem] text-[#241815] sm:text-4xl">
+                <h1 className="font-reading text-[1.7rem] text-[#241815] sm:text-4xl">
                   {series.title}
                 </h1>
-                <p className="text-base text-[#5f534d] sm:text-lg">{series.titleTranslation}</p>
+                <p className="text-[0.92rem] text-[#5f534d] sm:text-lg">{series.titleTranslation}</p>
                 <p className="max-w-3xl text-sm leading-6 text-[#6b5e58] sm:text-base sm:leading-7">
                   {series.summary}
                 </p>
