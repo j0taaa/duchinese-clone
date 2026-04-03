@@ -309,14 +309,14 @@ export function ReaderLayout({
           />
 
           <footer className="fixed inset-x-0 bottom-0 border-t border-[#ebddd2] bg-white/90 backdrop-blur-xl">
-            <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between xl:px-10">
-              <div className="flex items-center gap-3 text-sm text-[#6b5f58]">
-                <span className="font-medium text-[#2a1e1a]">
+            <div className="mx-auto flex max-w-[1600px] flex-col gap-2.5 px-4 py-3 sm:px-6 sm:py-4 lg:flex-row lg:items-center lg:justify-between xl:px-10">
+              <div className="flex items-center gap-2 text-[0.8rem] text-[#6b5f58] sm:gap-3 sm:text-sm">
+                <span className="truncate font-medium text-[#2a1e1a]">
                   {story.titleTranslation}
                 </span>
                 <span>{getHskLabel(story.hskLevel)}</span>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <ToolbarToggle
                   icon={<BookOpenText className="size-4" />}
                   label="Characters"
@@ -335,9 +335,10 @@ export function ReaderLayout({
                   active={showEnglish}
                   onClick={() => setShowEnglish((value) => !value)}
                 />
-                <span className="inline-flex h-11 items-center gap-2 rounded-full border border-[#eadcd2] bg-white px-4 text-sm font-medium text-[#443934]">
+                <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-3 text-[0.78rem] font-medium text-[#443934] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm">
                   <List className="size-4" />
-                  Word sheet on tap
+                  <span className="sm:hidden">Word sheet</span>
+                  <span className="hidden sm:inline">Word sheet on tap</span>
                 </span>
               </div>
             </div>
@@ -406,13 +407,13 @@ function ToolbarToggle({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-11 items-center gap-2 rounded-full border border-[#eadcd2] bg-white px-4 text-sm font-medium text-[#443934] hover:bg-[#faf4ef]"
+      className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-2.5 text-[0.78rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
     >
       {icon}
       <span>{label}</span>
       <span
         className={cn(
-          "flex size-9 items-center justify-center rounded-full border text-sm",
+          "flex size-7 items-center justify-center rounded-full border text-[0.72rem] sm:size-9 sm:text-sm",
           active
             ? "border-[#8aaed7] bg-white text-[#507db3]"
             : "border-[#cfcfcf] bg-white text-[#7a7a7a]",
