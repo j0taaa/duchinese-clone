@@ -238,8 +238,36 @@ export function ReaderLayout({
             </div>
           </div>
 
+          <div className="hidden md:block">
+            <div className="sticky top-[92px] z-20 min-h-[104px]">
+              <div
+                className={cn(
+                  "rounded-[28px] border border-white/80 bg-white/96 shadow-[0_28px_80px_-44px_rgba(80,45,24,0.5)] backdrop-blur-sm transition-opacity",
+                  activeWord ? "opacity-100" : "pointer-events-none opacity-0",
+                )}
+              >
+                <div className="px-6 py-4">
+                  <div className="min-w-0">
+                    <p className="text-sm text-[#9b8e87]">Word meaning</p>
+                    <div className="flex flex-wrap items-end gap-x-3 gap-y-2 pt-2">
+                      <span className="font-reading text-[2.15rem] leading-none text-[#3a86ea]">
+                        {activeWord?.text ?? ""}
+                      </span>
+                      <span className="text-[1.1rem] text-[#ef625a]">
+                        {activeWord?.pinyin ?? ""}
+                      </span>
+                      <span className="text-[1rem] text-[#3e3e3e]">
+                        {activeWord?.definition ?? ""}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {activeWord ? (
-            <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_18px_60px_-42px_rgba(80,45,24,0.34)] backdrop-blur-sm md:top-[92px] md:rounded-[28px]">
+            <div className="sticky top-3 z-20 rounded-[24px] border border-white/70 bg-white/95 shadow-[0_20px_60px_-36px_rgba(80,45,24,0.38)] backdrop-blur-sm md:hidden">
               <div className="px-4 py-3 sm:px-6 sm:py-4">
                 <div className="min-w-0">
                   <p className="text-sm text-[#9b8e87]">Word meaning</p>
