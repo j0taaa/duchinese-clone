@@ -68,7 +68,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
             </span>
           </Link>
 
-          <div className="shrink-0">
+          <div className="shrink-0 lg:hidden">
             {session ? (
               <UserMenu name={session.user.name} compact />
             ) : (
