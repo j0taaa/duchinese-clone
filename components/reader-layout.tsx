@@ -321,18 +321,21 @@ export function ReaderLayout({
                   icon={<BookOpenText className="size-4" />}
                   label="Characters"
                   active={showCharacters}
+                  isTouchMode={isTouchMode}
                   onClick={() => setShowCharacters((value) => !value)}
                 />
                 <ToolbarToggle
                   icon={<Languages className="size-4" />}
                   label="Pinyin"
                   active={showPinyin}
+                  isTouchMode={isTouchMode}
                   onClick={() => setShowPinyin((value) => !value)}
                 />
                 <ToolbarToggle
                   icon={<NotebookPen className="size-4" />}
                   label="English"
                   active={showEnglish}
+                  isTouchMode={isTouchMode}
                   onClick={() => setShowEnglish((value) => !value)}
                 />
                 <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-3 text-[0.78rem] font-medium text-[#443934] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm">
@@ -396,18 +399,28 @@ function ToolbarToggle({
   icon,
   label,
   active,
+  isTouchMode,
   onClick,
 }: {
   icon: ReactNode;
   label: string;
   active: boolean;
+  isTouchMode: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-2.5 text-[0.78rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
+      onTouchEnd={(event) => {
+        if (!isTouchMode) {
+          return;
+        }
+
+        event.preventDefault();
+        onClick();
+      }}
+      className="touch-manipulation inline-flex h-9 items-center gap-1.5 rounded-full border border-[#eadcd2] bg-white px-2.5 text-[0.78rem] font-medium text-[#443934] hover:bg-[#faf4ef] sm:h-11 sm:gap-2 sm:px-4 sm:text-sm"
     >
       {icon}
       <span>{label}</span>
@@ -498,9 +511,17 @@ function renderTokenLine({
           onMouseLeave={() => token.interactive && onLeaveWord()}
           onFocus={() => token.interactive && onHoverWord(token)}
           onClick={() => token.interactive && onSelectWord(token)}
+          onTouchEnd={(event) => {
+            if (!token.interactive || !isTouchMode) {
+              return;
+            }
+
+            event.preventDefault();
+            onSelectWord(token);
+          }}
           data-token-button="true"
           className={cn(
-            "inline-flex flex-col items-start rounded-[10px] px-1 text-left transition-colors",
+            "touch-manipulation inline-flex flex-col items-start rounded-[10px] px-1 text-left transition-colors",
             token.interactive && "hover:bg-[#f0f7ff]",
             isSelected && !isTouchMode && "bg-[#e5f3ff]",
             isSelected && isTouchMode && "bg-[#eef6ff]",
