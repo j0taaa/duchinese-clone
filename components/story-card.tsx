@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Eye } from "lucide-react";
 
 import { getStoryArtwork } from "@/lib/story-art";
 import { getStoryHskLabel } from "@/lib/hsk";
@@ -9,10 +9,12 @@ export function StoryCard({
   story,
   showAuthor = true,
   isRead = false,
+  viewCount,
 }: {
   story: AppStory;
   showAuthor?: boolean;
   isRead?: boolean;
+  viewCount?: number;
 }) {
   const artwork = getStoryArtwork(story.id || story.slug || story.title);
   const hskMeta = hskLevelMeta[story.hskLevel];
@@ -48,6 +50,12 @@ export function StoryCard({
             <span className="inline-flex items-center gap-1 rounded-full border border-[#d6ead6] bg-[#f3fbf3] px-2 py-0.5 text-[#4f8454]">
               <CheckCircle2 className="size-3" />
               Read
+            </span>
+          ) : null}
+          {viewCount !== undefined && viewCount > 0 ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#e0d8d0] bg-[#f9f5f2] px-2 py-0.5 text-[#786b64]">
+              <Eye className="size-3" />
+              {viewCount.toLocaleString()}
             </span>
           ) : null}
           <span>

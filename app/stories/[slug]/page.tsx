@@ -53,6 +53,12 @@ export default async function StoryPage({ params }: StoryPageProps) {
     await markStoryRead(session.user.id, story.id);
   }
 
+  fetch("/api/views/story", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ storyId: story.id }),
+  }).catch(() => {});
+
   const readStoryIds = session
     ? await listReadStoryIdsForUser(session.user.id)
     : [];

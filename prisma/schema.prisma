@@ -122,12 +122,23 @@ model Story {
   authorUserId       String?
   author             User?           @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
   reads              StoryRead[]
+  views              StoryView?
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 
   @@index([visibility, createdAt(sort: Desc)])
   @@index([authorUserId, createdAt(sort: Desc)])
   @@map("story")
+}
+
+model StoryView {
+  id        String   @id @default(cuid())
+  storyId   String   @unique
+  viewCount Int      @default(0)
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+
+  @@map("story_view")
 }
 
 model StoryRead {

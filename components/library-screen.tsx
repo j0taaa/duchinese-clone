@@ -37,12 +37,14 @@ export function LibraryScreen({
   latestUserStories,
   readStoryIds,
   signedIn,
+  storyViewCounts,
 }: {
   publicStories: AppStory[];
   publicSeries: AppSeries[];
   latestUserStories: AppStory[];
   readStoryIds: string[];
   signedIn: boolean;
+  storyViewCounts?: Map<string, number>;
 }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof filterOptions)[number]>("all");
@@ -146,6 +148,7 @@ export function LibraryScreen({
           description="Freshly generated lessons attached to your account."
           stories={filteredLatestUserStories}
           readStoryIds={readStoryIds}
+          storyViewCounts={storyViewCounts}
         />
       ) : null}
 
@@ -155,6 +158,7 @@ export function LibraryScreen({
           description="Collections of lessons around the same subject."
           series={filteredSeries}
           readStoryIds={readStoryIds}
+          storyViewCounts={storyViewCounts}
         />
       ) : null}
 
@@ -163,6 +167,7 @@ export function LibraryScreen({
         description="Bundled public lessons ready to read without signing in."
         stories={starterStories}
         readStoryIds={readStoryIds}
+        storyViewCounts={storyViewCounts}
       />
 
       {communityStories.length ? (
@@ -171,6 +176,7 @@ export function LibraryScreen({
           description="User-generated lessons that have been published."
           stories={communityStories}
           readStoryIds={readStoryIds}
+          storyViewCounts={storyViewCounts}
         />
       ) : null}
     </div>
@@ -182,11 +188,13 @@ function SeriesSection({
   description,
   series,
   readStoryIds,
+  storyViewCounts,
 }: {
   title: string;
   description: string;
   series: AppSeries[];
   readStoryIds: string[];
+  storyViewCounts?: Map<string, number>;
 }) {
   return (
     <section className="space-y-3">
@@ -197,13 +205,20 @@ function SeriesSection({
         <p className="text-xs leading-5 text-[#6d615b]">{description}</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {series.map((entry) => (
-          <SeriesCard
-            key={entry.slug}
-            series={entry}
-            readCount={entry.stories.filter((story) => readStoryIds.includes(story.id)).length}
-          />
-        ))}
+        {series.map((entry) => {
+          const totalViews = entry.stories.reduce(
+            (sum, story) => sum + (storyViewCounts?.get(story.id) ?? 0),
+            0
+          );
+          return (
+            <SeriesCard
+              key={entry.slug}
+              series={entry}
+              readCount={entry.stories.filter((story) => readStoryIds.includes(story.id)).length}
+              totalViews={totalViews}
+            />
+          );
+        })}
       </div>
     </section>
   );
@@ -214,11 +229,13 @@ function LibrarySection({
   description,
   stories,
   readStoryIds,
+  storyViewCounts,
 }: {
   title: string;
   description: string;
   stories: AppStory[];
   readStoryIds: string[];
+  storyViewCounts?: Map<string, number>;
 }) {
   return (
     <section className="space-y-3">
@@ -235,6 +252,7 @@ function LibrarySection({
               key={story.id}
               story={story}
               isRead={readStoryIds.includes(story.id)}
+              viewCount={storyViewCounts?.get(story.id)}
             />
           ))}
         </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Layers3 } from "lucide-react";
+import { CheckCircle2, Eye, Layers3 } from "lucide-react";
 
 import { type AppSeries } from "@/lib/series";
 import { getStoryArtwork } from "@/lib/story-art";
@@ -8,9 +8,11 @@ import { getHskLabel, hskLevelMeta } from "@/lib/stories";
 export function SeriesCard({
   series,
   readCount = 0,
+  totalViews = 0,
 }: {
   series: AppSeries;
   readCount?: number;
+  totalViews?: number;
 }) {
   const artwork = getStoryArtwork(series.slug || series.title);
   const hskMeta = hskLevelMeta[series.hskLevel];
@@ -56,6 +58,12 @@ export function SeriesCard({
               <span className="inline-flex items-center rounded-full border border-[#eadfd6] bg-white px-2 py-0.5">
                 {series.stories.length} episodes
               </span>
+              {totalViews > 0 ? (
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#e0d8d0] bg-[#f9f5f2] px-2 py-0.5">
+                  <Eye className="size-3" />
+                  {totalViews.toLocaleString()}
+                </span>
+              ) : null}
             </div>
 
             <div className="space-y-0.5">

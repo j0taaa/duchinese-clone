@@ -8,6 +8,7 @@ import { StoryCard } from "@/components/story-card";
 import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "@/lib/session";
 import { getAccessibleSeriesBySlug, listReadStoryIdsForUser } from "@/lib/story-service";
+import { getViewCounts } from "@/lib/view-buffer";
 
 type SeriesPageProps = {
   params: Promise<{
@@ -47,6 +48,9 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
   const seriesReadCount = readStoryIds.filter((id: string) =>
     series.stories.some((story) => story.id === id),
   ).length;
+
+  const storyIds = series.stories.map((s) => s.id);
+  const viewCounts = storyIds.length > 0 ? await getViewCounts(storyIds) : new Map<string, number>();
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f5,_#f7f0e8_52%,_#f3ede4_100%)] text-[#202020]">
@@ -107,6 +111,7 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
                 key={story.id}
                 story={story}
                 isRead={readStoryIds.includes(story.id)}
+                viewCount={viewCounts.get(story.id)}
               />
             ))}
           </div>
