@@ -144,15 +144,6 @@ ${focusCharactersBrief}
 
   if (!response.ok) {
     const errorText = await response.text();
-    if (
-      errorText.includes("does not support image input") ||
-      errorText.includes("image") ||
-      errorText.includes("image input")
-    ) {
-      throw new Error(
-        `Model "${input.model}" appears to be an image model and does not support text generation. Please use a text model like gpt-4o-mini, gpt-4o, or similar.`,
-      );
-    }
     throw new Error(`Model request failed: ${response.status} ${errorText}`);
   }
 
