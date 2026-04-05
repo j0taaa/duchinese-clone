@@ -2,7 +2,7 @@ import { unstable_noStore as noStore } from "next/cache";
 
 import { AppHeader } from "@/components/app-header";
 import { LibraryScreen } from "@/components/library-screen";
-import { hydrateSeries } from "@/lib/series";
+import { getSeriesStorySlugs, hydrateSeries } from "@/lib/series";
 import { getServerSession } from "@/lib/session";
 import {
   listGeneratedStoriesForUser,
@@ -19,6 +19,11 @@ export default async function Home() {
     session ? listGeneratedStoriesForUser(session.user.id) : Promise.resolve([]),
     session ? listReadStoryIdsForUser(session.user.id) : Promise.resolve([]),
   ]);
+
+  const seriesStorySlugs = getSeriesStorySlugs(publicStories);
+  const standaloneStories = publicStories.filter(
+    (story) => !seriesStorySlugs.has(story.slug)
+  );
   const publicSeries = hydrateSeries(publicStories);
 
   const allStoryIds = [
@@ -33,7 +38,7 @@ export default async function Home() {
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f5,_#f7f0e8_52%,_#f3ede4_100%)] text-[#202020]">
       <AppHeader active="library" />
       <LibraryScreen
-        publicStories={publicStories}
+        publicStories={standaloneStories}
         publicSeries={publicSeries}
         latestUserStories={latestUserStories}
         readStoryIds={readStoryIds}

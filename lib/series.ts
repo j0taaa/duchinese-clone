@@ -73,3 +73,7 @@ export function getSeriesBySlug(slug: string, stories: AppStory[]) {
 export function getSeriesForStory(storySlug: string, stories: AppStory[]) {
   return hydrateSeries(stories).find((series) => series.storySlugs.includes(storySlug)) ?? null;
 }
+
+export function getSeriesStorySlugs(stories: AppStory[]) {
+  return new Set(hydrateSeries(stories).flatMap((series) => series.storySlugs));
+}
