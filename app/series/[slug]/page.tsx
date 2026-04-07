@@ -3,10 +3,13 @@ import { ChevronLeft, Layers3 } from "lucide-react";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 
+import { AuthorAttribution } from "@/components/author-attribution";
 import { AppHeader } from "@/components/app-header";
-import { StoryCard } from "@/components/story-card";
+import { SeriesAppendNextEpisode } from "@/components/series-append-next-episode";
+import { SeriesEpisodesList } from "@/components/series-episodes-list";
 import { Badge } from "@/components/ui/badge";
 import { getServerSession } from "@/lib/session";
+import { getSharedSeriesAuthor } from "@/lib/series";
 import { getAccessibleSeriesBySlug, listReadStoryIdsForUser } from "@/lib/story-service";
 import { getViewCounts } from "@/lib/view-buffer";
 
@@ -51,12 +54,21 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
 
   const storyIds = series.stories.map((s) => s.id);
   const viewCounts = storyIds.length > 0 ? await getViewCounts(storyIds) : new Map<string, number>();
+  const seriesAuthor = getSharedSeriesAuthor(series.stories);
+
+  const ownerId = series.stories[0]?.authorUserId;
+  const isSeriesOwner =
+    Boolean(session?.user.id) &&
+    Boolean(ownerId) &&
+    ownerId === session?.user.id &&
+    series.stories.every((s) => s.authorUserId === ownerId) &&
+    !series.stories.some((s) => s.isSeeded);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff8f5,_#f7f0e8_52%,_#f3ede4_100%)] text-[#202020]">
       <AppHeader active="library" />
 
-      <div className="mx-auto flex w-full max-w-[1580px] flex-col gap-6 px-4 py-5 sm:gap-8 sm:px-6 sm:py-8 lg:px-10">
+      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-4 py-4 sm:gap-8 sm:px-5 sm:py-6 xl:px-6">
         <section className="rounded-[24px] border border-white/70 bg-white/90 p-4 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.38)] backdrop-blur sm:rounded-[30px] sm:p-7">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-4">
@@ -80,6 +92,12 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
                   {series.title}
                 </h1>
                 <p className="text-[0.92rem] text-[#5f534d] sm:text-lg">{series.titleTranslation}</p>
+                {seriesAuthor ? (
+                  <AuthorAttribution
+                    authorUserId={seriesAuthor.authorUserId}
+                    authorName={seriesAuthor.authorName}
+                  />
+                ) : null}
                 <p className="max-w-3xl text-sm leading-6 text-[#6b5e58] sm:text-base sm:leading-7">
                   {series.summary}
                 </p>
@@ -95,26 +113,24 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           </div>
         </section>
 
-        <section className="space-y-4">
-          <div className="space-y-1">
-            <h2 className="text-xl font-semibold tracking-tight text-[#271d18] sm:text-2xl">
-              Stories in this series
+        <section className="space-y-3">
+          <div className="space-y-1 px-0.5">
+            <h2 className="text-lg font-semibold tracking-tight text-[#271d18] sm:text-xl">
+              Episodes
             </h2>
-            <p className="text-sm leading-6 text-[#6d615b]">
-              Open any lesson below to keep reading around the same subject.
+            <p className="text-xs leading-5 text-[#6d615b] sm:text-sm sm:leading-6">
+              Lessons in reading order. Tap a row to open the full reader.
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
-            {series.stories.map((story) => (
-              <StoryCard
-                key={story.id}
-                story={story}
-                isRead={readStoryIds.includes(story.id)}
-                viewCount={viewCounts.get(story.id)}
-              />
-            ))}
-          </div>
+          <SeriesEpisodesList
+            stories={series.stories}
+            readStoryIds={readStoryIds}
+            viewCounts={viewCounts}
+            footer={
+              isSeriesOwner ? <SeriesAppendNextEpisode seriesSlug={slug} /> : undefined
+            }
+          />
         </section>
       </div>
     </main>

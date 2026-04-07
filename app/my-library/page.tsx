@@ -17,7 +17,7 @@ export default async function MyLibraryPage() {
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7f3,_#f7f1eb_48%,_#f4efe8_100%)]">
       <AppHeader active="my-library" />
 
-      <div className="mx-auto flex w-full max-w-[1580px] flex-col gap-6 px-4 py-5 sm:gap-8 sm:px-6 sm:py-8 lg:px-10">
+      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-4 py-4 sm:gap-6 sm:px-5 sm:py-6 xl:px-6">
         <Section
           title="Your latest generations"
           description="Private by default. Public if you chose to publish them."
@@ -53,7 +53,7 @@ function Section({
       </div>
 
       {stories.length ? (
-        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {stories.map((story) => (
             <StoryCard
               key={story.id}

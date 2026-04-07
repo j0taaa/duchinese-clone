@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { LessonLength } from "@/lib/story-length-standards";
+
 export const storyTypeValues = ["story", "dialogue", "journal"] as const;
 export const storyLevelValues = ["beginner", "elementary", "intermediate"] as const;
 export const hskLevelValues = ["1", "2", "3", "4", "5", "6"] as const;
@@ -48,6 +50,13 @@ export type AppStory = {
   isSeeded: boolean;
   authorUserId: string | null;
   authorName: string | null;
+  seriesGroupSlug: string | null;
+  seriesEpisode: number | null;
+  seriesTitle: string | null;
+  seriesTitleTranslation: string | null;
+  seriesSummary: string | null;
+  /** Target length when the story was AI-generated; null for seeds and older rows. */
+  lessonLength: LessonLength | null;
   createdAt: Date | string;
   updatedAt: Date | string;
 };
@@ -59,6 +68,12 @@ export type SeedStory = Omit<
   | "isSeeded"
   | "authorUserId"
   | "authorName"
+  | "seriesGroupSlug"
+  | "seriesEpisode"
+  | "seriesTitle"
+  | "seriesTitleTranslation"
+  | "seriesSummary"
+  | "lessonLength"
   | "createdAt"
   | "updatedAt"
   | "emojiTitle"
@@ -362,6 +377,118 @@ export const seedStories: SeedStory[] = [
           "Yì běn yì běn ná xià lái yǐ hòu, wǒ hū rán jué de, shū jià bú zhǐ shì fàng shū de dì fang, yě xiàng shì zài ān jìng de jì lù guò qù jǐ nián de shēng huó.",
         english:
           "After taking them down one by one, I suddenly felt that a bookshelf is not just a place for books, but also quietly records the life of the past few years.",
+      },
+    ],
+  },
+  {
+    slug: "first-visit-to-the-gym",
+    title: "第一次去健身房",
+    titleTranslation: "First Visit to the Gym",
+    type: "story",
+    hskLevel: "2",
+    level: "elementary",
+    summary:
+      "A beginner's experience visiting a gym for the first time and learning how to use the equipment.",
+    excerpt: "今天我第一次去健身房，心里有一点紧张。",
+    hanziText:
+      "今天我第一次去健身房，心里有一点紧张。我不知道怎么用那些机器，所以请教练帮我。教练很耐心地教我，告诉我怎么跑步、怎么举重。虽然有点累，但是我觉得很开心。以后我要常常来，让自己变得更健康。",
+    pinyinText:
+      "Jīn tiān wǒ dì yī cì qù jiàn shēn fáng, xīn li yǒu yì diǎn jǐn zhāng. Wǒ bù zhī dào zěn me yòng nà xiē jī qì, suǒ yǐ qǐng jiào liàn bāng wǒ. Jiào liàn hěn nài xīn de jiāo wǒ, gào su wǒ zěn me pǎo bù, zěn me jǔ zhòng. Suī rán yǒu diǎn lèi, dàn shì wǒ jué de hěn kāi xīn. Yǐ hòu wǒ yào cháng cháng lái, ràng zì jǐ biàn de gèng jiàn kāng.",
+    englishTranslation:
+      "Today I went to the gym for the first time and felt a little nervous. I didn't know how to use those machines, so I asked the trainer to help me. The trainer patiently taught me how to run and how to lift weights. Although it was a bit tiring, I felt very happy. I will come often from now on to make myself healthier.",
+    sections: [
+      {
+        hanzi: "今天我第一次去健身房，心里有一点紧张。",
+        pinyin: "Jīn tiān wǒ dì yī cì qù jiàn shēn fáng, xīn li yǒu yì diǎn jǐn zhāng.",
+        english:
+          "Today I went to the gym for the first time and felt a little nervous.",
+      },
+      {
+        hanzi: "我不知道怎么用那些机器，所以请教练帮我。教练很耐心地教我，告诉我怎么跑步、怎么举重。",
+        pinyin:
+          "Wǒ bù zhī dào zěn me yòng nà xiē jī qì, suǒ yǐ qǐng jiào liàn bāng wǒ. Jiào liàn hěn nài xīn de jiāo wǒ, gào su wǒ zěn me pǎo bù, zěn me jǔ zhòng.",
+        english:
+          "I didn't know how to use those machines, so I asked the trainer to help me. The trainer patiently taught me how to run and how to lift weights.",
+      },
+      {
+        hanzi: "虽然有点累，但是我觉得很开心。以后我要常常来，让自己变得更健康。",
+        pinyin:
+          "Suī rán yǒu diǎn lèi, dàn shì wǒ jué de hěn kāi xīn. Yǐ hòu wǒ yào cháng cháng lái, ràng zì jǐ biàn de gèng jiàn kāng.",
+        english:
+          "Although it was a bit tiring, I felt very happy. I will come often from now on to make myself healthier.",
+      },
+    ],
+  },
+  {
+    slug: "learning-to-cook",
+    title: "学做饭",
+    titleTranslation: "Learning to Cook",
+    type: "story",
+    hskLevel: "1",
+    level: "beginner",
+    summary:
+      "A simple story about trying to cook a meal at home for the first time.",
+    excerpt: "我想学做饭，所以今天早上去了超市。",
+    hanziText:
+      "我想学做饭，所以今天早上去了超市。我买了米、鸡蛋和一些青菜。回家后，我试着做炒饭。虽然味道不是特别好，但是我很开心，因为这是我第一次自己做的饭。",
+    pinyinText:
+      "Wǒ xiǎng xué zuò fàn, suǒ yǐ jīn tiān zǎo shang qù le chāo shì. Wǒ mǎi le mǐ, jī dàn hé yì xiē qīng cài. Huí jiā hòu, wǒ shì zhe zuò chǎo fàn. Suī rán wèi dào bú shì tè bié hǎo, dàn shì wǒ hěn kāi xīn, yīn wèi zhè shì wǒ dì yī cì zì jǐ zuò de fàn.",
+    englishTranslation:
+      "I wanted to learn to cook, so I went to the supermarket this morning. I bought rice, eggs, and some vegetables. After returning home, I tried to make fried rice. Although the taste wasn't especially good, I was very happy because this was the first meal I made by myself.",
+    sections: [
+      {
+        hanzi: "我想学做饭，所以今天早上去了超市。我买了米、鸡蛋和一些青菜。",
+        pinyin:
+          "Wǒ xiǎng xué zuò fàn, suǒ yǐ jīn tiān zǎo shang qù le chāo shì. Wǒ mǎi le mǐ, jī dàn hé yì xiē qīng cài.",
+        english:
+          "I wanted to learn to cook, so I went to the supermarket this morning. I bought rice, eggs, and some vegetables.",
+      },
+      {
+        hanzi: "回家后，我试着做炒饭。虽然味道不是特别好，但是我很开心，因为这是我第一次自己做的饭。",
+        pinyin:
+          "Huí jiā hòu, wǒ shì zhe zuò chǎo fàn. Suī rán wèi dào bú shì tè bié hǎo, dàn shì wǒ hěn kāi xīn, yīn wèi zhè shì wǒ dì yī cì zì jǐ zuò de fàn.",
+        english:
+          "After returning home, I tried to make fried rice. Although the taste wasn't especially good, I was very happy because this was the first meal I made by myself.",
+      },
+    ],
+  },
+  {
+    slug: "late-night-convenience-store",
+    title: "深夜便利店",
+    titleTranslation: "Late Night at the Convenience Store",
+    type: "story",
+    hskLevel: "3",
+    level: "intermediate",
+    summary:
+      "A quiet moment at a 24-hour convenience store during a sleepless night.",
+    excerpt: "昨天晚上睡不着，我就出门走走，发现附近的便利店还开着。",
+    hanziText:
+      "昨天晚上睡不着，我就出门走走，发现附近的便利店还开着。店里的灯光很亮，只有一个店员在看手机。我买了一瓶热茶和一个三明治，坐在窗边的位置。看着外面空空的街道，突然觉得深夜的城市也有它安静的美。",
+    pinyinText:
+      "Zuó tiān wǎn shang shuì bù zháo, wǒ jiù chū mén zǒu zou, fā xiàn fù jìn de biàn lì diàn hái kāi zhe. Diàn lǐ de dēng guāng hěn liàng, zhǐ yǒu yí ge diàn yuán zài kàn shǒu jī. Wǒ mǎi le yì píng rè chá hé yí ge sān míng zhì, zuò zài chuāng biān de wèi zhi. Kàn zhe wài miàn kōng kōng de jiē dào, tū rán jué de shēn yè de chéng shì yě yǒu tā ān jìng de měi.",
+    englishTranslation:
+      "Last night I couldn't sleep, so I went out for a walk and found that the nearby convenience store was still open. The lights in the store were bright, and only one employee was looking at their phone. I bought a bottle of hot tea and a sandwich, sitting by the window. Looking at the empty street outside, I suddenly felt that the late-night city also has its quiet beauty.",
+    sections: [
+      {
+        hanzi: "昨天晚上睡不着，我就出门走走，发现附近的便利店还开着。",
+        pinyin:
+          "Zuó tiān wǎn shang shuì bù zháo, wǒ jiù chū mén zǒu zou, fā xiàn fù jìn de biàn lì diàn hái kāi zhe.",
+        english:
+          "Last night I couldn't sleep, so I went out for a walk and found that the nearby convenience store was still open.",
+      },
+      {
+        hanzi: "店里的灯光很亮，只有一个店员在看手机。我买了一瓶热茶和一个三明治，坐在窗边的位置。",
+        pinyin:
+          "Diàn lǐ de dēng guāng hěn liàng, zhǐ yǒu yí ge diàn yuán zài kàn shǒu jī. Wǒ mǎi le yì píng rè chá hé yí ge sān míng zhì, zuò zài chuāng biān de wèi zhi.",
+        english:
+          "The lights in the store were bright, and only one employee was looking at their phone. I bought a bottle of hot tea and a sandwich, sitting by the window.",
+      },
+      {
+        hanzi: "看着外面空空的街道，突然觉得深夜的城市也有它安静的美。",
+        pinyin:
+          "Kàn zhe wài miàn kōng kōng de jiē dào, tū rán jué de shēn yè de chéng shì yě yǒu tā ān jìng de měi.",
+        english:
+          "Looking at the empty street outside, I suddenly felt that the late-night city also has its quiet beauty.",
       },
     ],
   },
