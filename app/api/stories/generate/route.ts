@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { generateStoryWithModel } from "@/lib/ai";
+import { generateSeriesWithModel, generateStoryWithModel } from "@/lib/ai";
 import { getServerSession } from "@/lib/session";
+import { buildStoryTopicViaWordBankAndLlm } from "@/lib/story-topic-pipeline";
 import {
+  createGeneratedSeries,
   createGeneratedStory,
-  getAiSettingsForGeneration,
+  newSeriesGroupSlug,
   validateSuggestedReviewCharactersForUser,
 } from "@/lib/story-service";
 import {
@@ -16,6 +18,7 @@ import {
 } from "@/lib/stories";
 
 const generateSchema = z.object({
+  creationMode: z.enum(["story", "series"]).optional().default("story"),
   topic: z.string().trim().optional().default(""),
   hskLevel: z.enum(hskLevelValues),
   type: z.enum(storyTypeValues),
@@ -27,15 +30,6 @@ const generateSchema = z.object({
     "Seed visibility is reserved for starter stories.",
   ),
 });
-
-const randomTopics = [
-  "A quiet evening in a city bookstore",
-  "Two friends trying a new breakfast place before class",
-  "A small misunderstanding while buying fruit at a market",
-  "A rainy subway ride home after work",
-  "Planning a weekend walk in the park",
-  "A first visit to a neighborhood tea shop",
-];
 
 function slugify(input: string) {
   return input
@@ -63,20 +57,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const settings = await getAiSettingsForGeneration(session.user.id);
-
-  if (!settings) {
-    return NextResponse.json(
-      { error: "Save your model URL, API key, and model before generating." },
-      { status: 400 },
-    );
-  }
-
   try {
-    const topic = parsed.data.topic || randomTopics[Math.floor(Math.random() * randomTopics.length)];
+    const userTopic = parsed.data.topic.trim();
+    const needsGeneratedTopic = userTopic.length === 0;
+    const topic = needsGeneratedTopic
+      ? (
+          await buildStoryTopicViaWordBankAndLlm({
+            userId: session.user.id,
+            hskLevel: parsed.data.hskLevel,
+          })
+        ).topic
+      : userTopic;
     const storyLevel = mapHskLevelToStoryLevel(parsed.data.hskLevel);
     const focusCharacters =
-      !parsed.data.topic && parsed.data.useVocabularyTargets
+      (parsed.data.creationMode === "story" || parsed.data.creationMode === "series") &&
+      needsGeneratedTopic &&
+      parsed.data.useVocabularyTargets
         ? await validateSuggestedReviewCharactersForUser({
             userId: session.user.id,
             hskLevel: parsed.data.hskLevel,
@@ -84,10 +80,61 @@ export async function POST(request: Request) {
           })
         : [];
 
-    const generated = await generateStoryWithModel({
-      apiKey: settings.apiKey,
-      baseUrl: settings.baseUrl,
-      model: settings.model,
+    if (parsed.data.creationMode === "series") {
+      const {
+        seriesTitle,
+        seriesTitleTranslation,
+        seriesSummary,
+        episodes,
+        model,
+        usage,
+      } = await generateSeriesWithModel({
+        topic,
+        hskLevel: parsed.data.hskLevel,
+        type: parsed.data.type,
+        length: parsed.data.length,
+        focusCharacters,
+      });
+
+      const seriesGroupSlug = newSeriesGroupSlug();
+
+      const result = await createGeneratedSeries({
+        userId: session.user.id,
+        seriesGroupSlug,
+        seriesTitle,
+        seriesTitleTranslation,
+        seriesSummary,
+        episodes,
+        type: parsed.data.type,
+        hskLevel: parsed.data.hskLevel,
+        level: storyLevel,
+        visibility: parsed.data.visibility,
+        lessonLength: parsed.data.length,
+        aiUsage: {
+          model,
+          promptTokens: usage.promptTokens,
+          completionTokens: usage.completionTokens,
+          totalTokens: usage.totalTokens,
+          costCredits: usage.costCredits,
+          providerRequestId: usage.providerRequestId,
+        },
+      });
+
+      return NextResponse.json({
+        ok: true,
+        kind: "series" as const,
+        series: {
+          slug: result.seriesSlug,
+          titleTranslation: seriesTitleTranslation,
+        },
+        firstStory: {
+          slug: result.firstStory.slug,
+          titleTranslation: result.firstStory.titleTranslation,
+        },
+      });
+    }
+
+    const { story: generated, model, usage } = await generateStoryWithModel({
       topic,
       hskLevel: parsed.data.hskLevel,
       type: parsed.data.type,
@@ -115,10 +162,20 @@ export async function POST(request: Request) {
       hskLevel: parsed.data.hskLevel,
       level: storyLevel,
       visibility: parsed.data.visibility,
+      lessonLength: parsed.data.length,
+      aiUsage: {
+        model,
+        promptTokens: usage.promptTokens,
+        completionTokens: usage.completionTokens,
+        totalTokens: usage.totalTokens,
+        costCredits: usage.costCredits,
+        providerRequestId: usage.providerRequestId,
+      },
     });
 
     return NextResponse.json({
       ok: true,
+      kind: "story" as const,
       story: {
         id: story.id,
         slug: story.slug,
@@ -127,6 +184,13 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    if (error instanceof Error && error.message.includes("OPENROUTER_API_KEY")) {
+      return NextResponse.json(
+        { error: "AI generation is not configured on this server." },
+        { status: 503 },
+      );
+    }
+
     return NextResponse.json(
       {
         error:

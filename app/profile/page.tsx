@@ -1,14 +1,14 @@
 import { UserRound } from "lucide-react";
 
 import { AppHeader } from "@/components/app-header";
-import { SettingsForm } from "@/components/settings-form";
+import { ProfileAiUsage } from "@/components/profile-ai-usage";
 import { SignOutButton } from "@/components/sign-out-button";
 import { requireServerSession } from "@/lib/session";
-import { getAiSettingsSummary } from "@/lib/story-service";
+import { getAiUsageProfileData } from "@/lib/story-service";
 
 export default async function ProfilePage() {
   const session = await requireServerSession();
-  const settings = await getAiSettingsSummary(session.user.id);
+  const usage = await getAiUsageProfileData(session.user.id);
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff9f7,_#f7f2ec_52%,_#f4efe8_100%)]">
@@ -34,12 +34,7 @@ export default async function ProfilePage() {
         </aside>
 
         <section className="rounded-[24px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] sm:rounded-[32px] sm:p-6 xl:p-8">
-          <SettingsForm
-            initialBaseUrl={settings?.baseUrl ?? ""}
-            initialModel={settings?.model ?? ""}
-            hasApiKey={settings?.hasApiKey ?? false}
-            apiKeyHint={settings?.apiKeyHint ?? null}
-          />
+          <ProfileAiUsage summary={usage.summary} recent={usage.recent} />
         </section>
       </div>
     </main>

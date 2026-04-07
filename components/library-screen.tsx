@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 
 import { SeriesCard } from "@/components/series-card";
 import { StoryCard } from "@/components/story-card";
-import { type AppSeries } from "@/lib/series";
+import { partitionStoriesIntoSeriesAndStandalone, type AppSeries } from "@/lib/series";
 import { type AppStory, getHskLabel, hskLevelValues } from "@/lib/stories";
 
 const filterOptions = ["all", ...hskLevelValues] as const;
@@ -57,13 +57,47 @@ export function LibraryScreen({
     });
   }, [filter, publicStories, query]);
 
-  const filteredLatestUserStories = useMemo(() => {
+  const { series: latestUserSeriesRaw, standalone: latestStandaloneRaw } = useMemo(
+    () => partitionStoriesIntoSeriesAndStandalone(latestUserStories),
+    [latestUserStories],
+  );
+
+  const filteredLatestUserSeries = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+
+    return latestUserSeriesRaw.filter((entry) => {
+      const matchesLevel = filter === "all" ? true : entry.hskLevel === filter;
+      const matchesQuery = needle
+        ? [
+            entry.title,
+            entry.titleTranslation,
+            entry.summary,
+            ...entry.stories.flatMap((story) => [
+              story.title,
+              story.titleTranslation,
+              story.summary,
+            ]),
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(needle)
+        : true;
+
+      return matchesLevel && matchesQuery;
+    });
+  }, [filter, latestUserSeriesRaw, query]);
+
+  const filteredLatestStandalone = useMemo(() => {
     return filterStoriesByLibraryControls({
-      stories: latestUserStories,
+      stories: latestStandaloneRaw,
       filter,
       query,
     });
-  }, [filter, latestUserStories, query]);
+  }, [filter, latestStandaloneRaw, query]);
+
+  const showLatestUserSection =
+    signedIn &&
+    (filteredLatestUserSeries.length > 0 || filteredLatestStandalone.length > 0);
 
   const filteredSeries = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -142,14 +176,35 @@ export function LibraryScreen({
         </div>
       </section>
 
-      {signedIn && filteredLatestUserStories.length ? (
-        <LibrarySection
-          title="Your latest stories"
-          description="Freshly generated lessons attached to your account."
-          stories={filteredLatestUserStories}
-          readStoryIds={readStoryIds}
-          storyViewCounts={storyViewCounts}
-        />
+      {showLatestUserSection ? (
+        <div className="space-y-8 sm:space-y-10">
+          {filteredLatestUserSeries.length ? (
+            <SeriesSection
+              title="Your latest series"
+              description="Multi-part lessons you generated, shown as one collection each."
+              series={filteredLatestUserSeries}
+              readStoryIds={readStoryIds}
+              storyViewCounts={storyViewCounts}
+            />
+          ) : null}
+          {filteredLatestStandalone.length ? (
+            <LibrarySection
+              title={
+                filteredLatestUserSeries.length
+                  ? "Your latest single lessons"
+                  : "Your latest stories"
+              }
+              description={
+                filteredLatestUserSeries.length
+                  ? "Stand-alone generations not grouped into a series above."
+                  : "Freshly generated lessons attached to your account."
+              }
+              stories={filteredLatestStandalone}
+              readStoryIds={readStoryIds}
+              storyViewCounts={storyViewCounts}
+            />
+          ) : null}
+        </div>
       ) : null}
 
       {filteredSeries.length ? (

@@ -36,7 +36,7 @@ const creationModes = [
   {
     value: "series",
     label: "Series",
-    description: "A collection around one subject. Multi-part generation comes next.",
+    description: "Three connected episodes in one go—same level, tone, and a light story arc.",
     icon: Layers3,
   },
 ] as const;
@@ -102,18 +102,7 @@ type ReviewCharacter = {
   lastReadAt: string | null;
 };
 
-export function GenerateStudio({
-  settingsSummary,
-  recentStories,
-}: {
-  settingsSummary: {
-    baseUrl: string;
-    model: string;
-    hasApiKey: boolean;
-    apiKeyHint: string | null;
-  } | null;
-  recentStories: AppStory[];
-}) {
+export function GenerateStudio({ recentStories }: { recentStories: AppStory[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -135,13 +124,14 @@ export function GenerateStudio({
 
   const helperCopy = useMemo(() => {
     if (creationMode === "series") {
-      return "Choose the tone and difficulty for the first lesson in a new series direction.";
+      return "Pick HSK level, lesson type, and length—the model writes three linked episodes you can open from your new series page.";
     }
 
     return "Set the lesson style, length, and difficulty. If you leave the topic empty, HanziLane will pick a random idea.";
   }, [creationMode]);
 
-  const shouldShowReviewCharacters = creationMode === "story" && !useCustomTopic;
+  const shouldShowReviewCharacters =
+    !useCustomTopic && (creationMode === "story" || creationMode === "series");
 
   useEffect(() => {
     if (!shouldShowReviewCharacters || !useVocabularyTargets) {
@@ -210,11 +200,6 @@ export function GenerateStudio({
     setError(null);
     setSuccess(null);
 
-    if (creationMode === "series") {
-      setError("Series generation UI is ready, but the backend still generates a single lesson for now.");
-      return;
-    }
-
     startTransition(async () => {
       const response = await fetch("/api/stories/generate", {
         method: "POST",
@@ -222,6 +207,7 @@ export function GenerateStudio({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          creationMode,
           topic: useCustomTopic ? topic : "",
           hskLevel,
           type,
@@ -234,11 +220,21 @@ export function GenerateStudio({
 
       const data = (await response.json()) as {
         error?: string;
+        kind?: "story" | "series";
         story?: { slug: string; titleTranslation: string };
+        series?: { slug: string; titleTranslation: string };
+        firstStory?: { slug: string; titleTranslation: string };
       };
 
       if (!response.ok) {
-        setError(data.error ?? "Failed to generate a story.");
+        setError(data.error ?? "Failed to generate.");
+        return;
+      }
+
+      if (data.kind === "series" && data.series?.slug) {
+        setSuccess(`Saved series "${data.series.titleTranslation}".`);
+        router.push(`/series/${data.series.slug}`);
+        router.refresh();
         return;
       }
 
@@ -250,22 +246,7 @@ export function GenerateStudio({
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {!settingsSummary ? (
-        <section className="rounded-[24px] border border-[#f0d6ce] bg-[#fff6f3] p-5 text-sm leading-7 text-[#7b5951] shadow-[0_24px_80px_-56px_rgba(92,46,24,0.34)] sm:rounded-[32px] sm:p-7">
-          <p className="font-semibold text-[#9f4339]">Model settings missing</p>
-          <p className="mt-2">
-            Save your `Model URL`, `API key`, and `Model` in your profile before generating.
-          </p>
-          <Link
-            href="/profile"
-            prefetch={false}
-            className="mt-5 inline-flex rounded-full bg-[#ea4e47] px-4 py-2 font-medium text-white"
-          >
-            Open profile
-          </Link>
-        </section>
-      ) : (
-        <section className="rounded-[24px] border border-white/70 bg-white/92 p-4 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] sm:rounded-[34px] sm:p-7 xl:p-8">
+      <section className="rounded-[24px] border border-white/70 bg-white/92 p-4 shadow-[0_24px_80px_-54px_rgba(92,46,24,0.42)] sm:rounded-[34px] sm:p-7 xl:p-8">
           <div className="space-y-6 sm:space-y-8">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div className="space-y-2">
@@ -602,7 +583,6 @@ export function GenerateStudio({
             </div>
           </div>
         </section>
-      )}
 
       <section className="rounded-[24px] border border-white/70 bg-white/90 p-5 shadow-[0_24px_80px_-56px_rgba(92,46,24,0.32)] sm:rounded-[32px] sm:p-7">
         <div className="space-y-1">

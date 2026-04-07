@@ -1,5 +1,8 @@
+import type { GeneratedSeriesEpisode } from "@/lib/ai";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { LessonLength } from "@/lib/story-length-standards";
+import { syncStoryHanziIndex } from "@/lib/story-hanzi-index";
 import { getStoryEmojiTitle } from "@/lib/story-labels";
 import { getSeriesBySlug, getSeriesForStory, hydrateSeries } from "@/lib/series";
 import {
@@ -48,6 +51,12 @@ function mapSeedStory(story: SeedStory): AppStory {
     isSeeded: true,
     authorUserId: null,
     authorName: null,
+    seriesGroupSlug: null,
+    seriesEpisode: null,
+    seriesTitle: null,
+    seriesTitleTranslation: null,
+    seriesSummary: null,
+    lessonLength: null,
     createdAt: fallbackSeedTimestamp,
     updatedAt: fallbackSeedTimestamp,
   };
@@ -80,7 +89,7 @@ function shuffleArray<T>(items: T[]) {
   return shuffled;
 }
 
-function rankVocabularyByStaleness(
+export function rankVocabularyByStaleness(
   characters: VocabularyCharacterEntry[],
   stats: Map<string, { readCount: number; lastReadAt: Date | string | null }>,
 ) {
@@ -148,6 +157,12 @@ function mapStory(record: {
   visibility: StoryVisibility;
   isSeeded: boolean;
   authorUserId: string | null;
+  seriesGroupSlug?: string | null;
+  seriesEpisode?: number | null;
+  seriesTitle?: string | null;
+  seriesTitleTranslation?: string | null;
+  seriesSummary?: string | null;
+  lessonLength?: LessonLength | null;
   createdAt: Date;
   updatedAt: Date;
   author?: {
@@ -179,6 +194,12 @@ function mapStory(record: {
     isSeeded: record.isSeeded,
     authorUserId: record.authorUserId,
     authorName: record.author?.name ?? null,
+    seriesGroupSlug: record.seriesGroupSlug ?? null,
+    seriesEpisode: record.seriesEpisode ?? null,
+    seriesTitle: record.seriesTitle ?? null,
+    seriesTitleTranslation: record.seriesTitleTranslation ?? null,
+    seriesSummary: record.seriesSummary ?? null,
+    lessonLength: record.lessonLength ?? null,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
   };
@@ -267,6 +288,49 @@ export async function listGeneratedStoriesForUser(userId: string) {
   });
 
   return stories.map(mapStory);
+}
+
+export async function listPublicStoriesByAuthor(authorUserId: string) {
+  const stories = await prisma.story.findMany({
+    where: {
+      authorUserId,
+      visibility: "public_user",
+      isSeeded: false,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      author: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  return stories.map(mapStory);
+}
+
+export async function getPublicAuthorProfile(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      image: true,
+    },
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  const stories = await listPublicStoriesByAuthor(userId);
+
+  return { user, stories };
 }
 
 export async function getAccessibleStoryBySlug(slug: string, userId?: string | null) {
@@ -510,55 +574,113 @@ export async function getSeriesForAccessibleStory(storySlug: string, userId?: st
   return getSeriesForStory(storySlug, stories);
 }
 
-export async function getAiSettingsSummary(userId: string) {
-  const settings = await prisma.userAiSettings.findUnique({
-    where: {
-      userId,
+export type AiUsageForStory = {
+  model: string;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  totalTokens: number | null;
+  costCredits: number | null;
+  providerRequestId: string | null;
+};
+
+export async function recordStandaloneAiUsage(input: {
+  userId: string;
+  storyId?: string | null;
+  aiUsage: AiUsageForStory;
+}) {
+  const usage = input.aiUsage;
+  await prisma.aiUsageEvent.create({
+    data: {
+      userId: input.userId,
+      storyId: input.storyId ?? null,
+      model: usage.model,
+      promptTokens: usage.promptTokens,
+      completionTokens: usage.completionTokens,
+      totalTokens: usage.totalTokens,
+      costCredits:
+        usage.costCredits != null ? new Prisma.Decimal(usage.costCredits) : null,
+      providerRequestId: usage.providerRequestId,
     },
   });
+}
 
-  if (!settings) {
-    return null;
-  }
+export type AiUsageProfileSummary = {
+  generationCount: number;
+  totalPromptTokens: number;
+  totalCompletionTokens: number;
+  totalTokens: number;
+  totalCostCredits: Prisma.Decimal | null;
+};
+
+export type AiUsageProfileRow = {
+  id: string;
+  createdAt: Date;
+  model: string;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  totalTokens: number | null;
+  costCredits: Prisma.Decimal | null;
+  story: { titleTranslation: string; slug: string } | null;
+};
+
+export async function getAiUsageProfileData(userId: string): Promise<{
+  summary: AiUsageProfileSummary;
+  recent: AiUsageProfileRow[];
+}> {
+  const [aggregate, recentRaw] = await Promise.all([
+    prisma.aiUsageEvent.aggregate({
+      where: { userId },
+      _count: { _all: true },
+      _sum: {
+        promptTokens: true,
+        completionTokens: true,
+        totalTokens: true,
+        costCredits: true,
+      },
+    }),
+    prisma.aiUsageEvent.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: {
+        id: true,
+        createdAt: true,
+        model: true,
+        promptTokens: true,
+        completionTokens: true,
+        totalTokens: true,
+        costCredits: true,
+        story: {
+          select: {
+            titleTranslation: true,
+            slug: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  const recent: AiUsageProfileRow[] = recentRaw.map((row) => ({
+    id: row.id,
+    createdAt: row.createdAt,
+    model: row.model,
+    promptTokens: row.promptTokens,
+    completionTokens: row.completionTokens,
+    totalTokens: row.totalTokens,
+    costCredits: row.costCredits,
+    story: row.story,
+  }));
 
   return {
-    baseUrl: settings.baseUrl,
-    model: settings.model,
-    hasApiKey: Boolean(settings.apiKey),
-    apiKeyHint: settings.apiKey ? `••••${settings.apiKey.slice(-4)}` : null,
+    summary: {
+      generationCount: aggregate._count._all,
+      totalPromptTokens: aggregate._sum.promptTokens ?? 0,
+      totalCompletionTokens: aggregate._sum.completionTokens ?? 0,
+      totalTokens: aggregate._sum.totalTokens ?? 0,
+      totalCostCredits: aggregate._sum.costCredits ?? null,
+    },
+    recent,
   };
-}
-
-export async function getAiSettingsForGeneration(userId: string) {
-  return prisma.userAiSettings.findUnique({
-    where: {
-      userId,
-    },
-  });
-}
-
-export async function upsertAiSettings(input: {
-  userId: string;
-  baseUrl: string;
-  model: string;
-  apiKey: string;
-}) {
-  return prisma.userAiSettings.upsert({
-    where: {
-      userId: input.userId,
-    },
-    update: {
-      baseUrl: input.baseUrl,
-      model: input.model,
-      apiKey: input.apiKey,
-    },
-    create: {
-      userId: input.userId,
-      baseUrl: input.baseUrl,
-      model: input.model,
-      apiKey: input.apiKey,
-    },
-  });
 }
 
 export async function createGeneratedStory(input: {
@@ -576,33 +698,285 @@ export async function createGeneratedStory(input: {
   hskLevel: HskLevel;
   level: StoryLevel;
   visibility: StoryVisibility;
+  lessonLength?: LessonLength | null;
+  aiUsage?: AiUsageForStory;
 }) {
-  const story = await prisma.story.create({
-    data: {
-      slug: input.slug,
-      title: input.title,
-      titleTranslation: input.titleTranslation,
-      summary: input.summary,
-      excerpt: input.excerpt,
-      hanziText: input.hanziText,
-      pinyinText: input.pinyinText,
-      englishTranslation: input.englishTranslation,
-      sections: input.sections,
-      type: input.type,
-      hskLevel: input.hskLevel,
-      level: input.level,
-      visibility: input.visibility,
-      isSeeded: false,
-      authorUserId: input.userId,
-    },
-  });
+  if (!input.aiUsage) {
+    const story = await prisma.story.create({
+      data: {
+        slug: input.slug,
+        title: input.title,
+        titleTranslation: input.titleTranslation,
+        summary: input.summary,
+        excerpt: input.excerpt,
+        hanziText: input.hanziText,
+        pinyinText: input.pinyinText,
+        englishTranslation: input.englishTranslation,
+        sections: input.sections,
+        type: input.type,
+        hskLevel: input.hskLevel,
+        level: input.level,
+        visibility: input.visibility,
+        isSeeded: false,
+        authorUserId: input.userId,
+        lessonLength: input.lessonLength ?? null,
+      },
+    });
 
-  return mapStory(story);
+    await syncStoryHanziIndex(prisma, story.id, {
+      title: story.title,
+      hanziText: story.hanziText,
+      sections: input.sections,
+    });
+
+    return mapStory(story);
+  }
+
+  const usage = input.aiUsage;
+
+  return prisma.$transaction(async (tx) => {
+    const story = await tx.story.create({
+      data: {
+        slug: input.slug,
+        title: input.title,
+        titleTranslation: input.titleTranslation,
+        summary: input.summary,
+        excerpt: input.excerpt,
+        hanziText: input.hanziText,
+        pinyinText: input.pinyinText,
+        englishTranslation: input.englishTranslation,
+        sections: input.sections,
+        type: input.type,
+        hskLevel: input.hskLevel,
+        level: input.level,
+        visibility: input.visibility,
+        isSeeded: false,
+        authorUserId: input.userId,
+        lessonLength: input.lessonLength ?? null,
+      },
+    });
+
+    await tx.aiUsageEvent.create({
+      data: {
+        userId: input.userId,
+        storyId: story.id,
+        model: usage.model,
+        promptTokens: usage.promptTokens,
+        completionTokens: usage.completionTokens,
+        totalTokens: usage.totalTokens,
+        costCredits:
+          usage.costCredits != null ? new Prisma.Decimal(usage.costCredits) : null,
+        providerRequestId: usage.providerRequestId,
+      },
+    });
+
+    await syncStoryHanziIndex(tx, story.id, {
+      title: story.title,
+      hanziText: story.hanziText,
+      sections: input.sections,
+    });
+
+    return mapStory(story);
+  });
 }
+
+function slugifyForStorySlug(input: string) {
+  return input
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 50);
+}
+
+function newSeriesGroupSlug() {
+  return `gen-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+export async function createGeneratedSeries(input: {
+  userId: string;
+  seriesGroupSlug: string;
+  seriesTitle: string;
+  seriesTitleTranslation: string;
+  seriesSummary: string;
+  episodes: GeneratedSeriesEpisode[];
+  type: StoryType;
+  hskLevel: HskLevel;
+  level: StoryLevel;
+  visibility: StoryVisibility;
+  lessonLength: LessonLength;
+  aiUsage: AiUsageForStory;
+}) {
+  const usage = input.aiUsage;
+
+  return prisma.$transaction(async (tx) => {
+    const mapped: AppStory[] = [];
+    const stamp = Date.now().toString().slice(-7);
+
+    for (let index = 0; index < input.episodes.length; index += 1) {
+      const episode = input.episodes[index]!;
+      const baseSlug =
+        slugifyForStorySlug(episode.titleTranslation) ||
+        slugifyForStorySlug(episode.title) ||
+        `episode-${index + 1}`;
+      const slug = `${baseSlug}-${stamp}-${index}`;
+
+      const row = await tx.story.create({
+        data: {
+          slug,
+          title: episode.title,
+          titleTranslation: episode.titleTranslation,
+          summary: episode.summary,
+          excerpt: episode.excerpt,
+          hanziText: episode.hanziText,
+          pinyinText: episode.pinyinText,
+          englishTranslation: episode.englishTranslation,
+          sections: episode.sections,
+          type: input.type,
+          hskLevel: input.hskLevel,
+          level: input.level,
+          visibility: input.visibility,
+          isSeeded: false,
+          author: { connect: { id: input.userId } },
+          seriesGroupSlug: input.seriesGroupSlug,
+          seriesEpisode: index + 1,
+          seriesTitle: input.seriesTitle,
+          seriesTitleTranslation: input.seriesTitleTranslation,
+          seriesSummary: input.seriesSummary,
+          lessonLength: input.lessonLength,
+        },
+        include: {
+          author: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      await syncStoryHanziIndex(tx, row.id, {
+        title: row.title,
+        hanziText: row.hanziText,
+        sections: storySectionsSchema.parse(row.sections),
+      });
+
+      mapped.push(mapStory(row));
+    }
+
+    const first = mapped[0];
+
+    if (first) {
+      await tx.aiUsageEvent.create({
+        data: {
+          userId: input.userId,
+          storyId: first.id,
+          model: usage.model,
+          promptTokens: usage.promptTokens,
+          completionTokens: usage.completionTokens,
+          totalTokens: usage.totalTokens,
+          costCredits:
+            usage.costCredits != null ? new Prisma.Decimal(usage.costCredits) : null,
+          providerRequestId: usage.providerRequestId,
+        },
+      });
+    }
+
+    return {
+      seriesSlug: input.seriesGroupSlug,
+      stories: mapped,
+      firstStory: first ?? mapped[0]!,
+    };
+  });
+}
+
+export async function appendGeneratedSeriesEpisode(input: {
+  userId: string;
+  seriesGroupSlug: string;
+  nextEpisodeNumber: number;
+  seriesTitle: string;
+  seriesTitleTranslation: string;
+  seriesSummary: string;
+  episode: GeneratedSeriesEpisode;
+  type: StoryType;
+  hskLevel: HskLevel;
+  level: StoryLevel;
+  visibility: StoryVisibility;
+  lessonLength: LessonLength;
+  aiUsage: AiUsageForStory;
+}): Promise<AppStory> {
+  const usage = input.aiUsage;
+  const stamp = Date.now().toString().slice(-7);
+  const ep = input.episode;
+  const baseSlug =
+    slugifyForStorySlug(ep.titleTranslation) ||
+    slugifyForStorySlug(ep.title) ||
+    `episode-${input.nextEpisodeNumber}`;
+  const slug = `${baseSlug}-${stamp}-e${input.nextEpisodeNumber}`;
+
+  return prisma.$transaction(async (tx) => {
+    const row = await tx.story.create({
+      data: {
+        slug,
+        title: ep.title,
+        titleTranslation: ep.titleTranslation,
+        summary: ep.summary,
+        excerpt: ep.excerpt,
+        hanziText: ep.hanziText,
+        pinyinText: ep.pinyinText,
+        englishTranslation: ep.englishTranslation,
+        sections: ep.sections,
+        type: input.type,
+        hskLevel: input.hskLevel,
+        level: input.level,
+        visibility: input.visibility,
+        isSeeded: false,
+        author: { connect: { id: input.userId } },
+        seriesGroupSlug: input.seriesGroupSlug,
+        seriesEpisode: input.nextEpisodeNumber,
+        seriesTitle: input.seriesTitle,
+        seriesTitleTranslation: input.seriesTitleTranslation,
+        seriesSummary: input.seriesSummary,
+        lessonLength: input.lessonLength,
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    await tx.aiUsageEvent.create({
+      data: {
+        userId: input.userId,
+        storyId: row.id,
+        model: usage.model,
+        promptTokens: usage.promptTokens,
+        completionTokens: usage.completionTokens,
+        totalTokens: usage.totalTokens,
+        costCredits:
+          usage.costCredits != null ? new Prisma.Decimal(usage.costCredits) : null,
+        providerRequestId: usage.providerRequestId,
+      },
+    });
+
+    await syncStoryHanziIndex(tx, row.id, {
+      title: row.title,
+      hanziText: row.hanziText,
+      sections: storySectionsSchema.parse(row.sections),
+    });
+
+    return mapStory(row);
+  });
+}
+
+export { newSeriesGroupSlug };
 
 export async function seedStarterStories(stories: SeedStory[]) {
   for (const story of stories) {
-    await prisma.story.upsert({
+    const row = await prisma.story.upsert({
       where: {
         slug: story.slug,
       },
@@ -638,6 +1012,12 @@ export async function seedStarterStories(stories: SeedStory[]) {
         visibility: "public_seeded",
         isSeeded: true,
       },
+    });
+
+    await syncStoryHanziIndex(prisma, row.id, {
+      title: row.title,
+      hanziText: row.hanziText,
+      sections: story.sections,
     });
   }
 }

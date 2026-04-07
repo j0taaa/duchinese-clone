@@ -6,19 +6,24 @@ declare global {
   var __hanzilane_prisma__: PrismaClient | undefined;
 }
 
-function hasCurrentReadDelegates(client: PrismaClient) {
+function hasExpectedPrismaDelegates(client: PrismaClient) {
   const candidate = client as PrismaClient & {
     storyRead?: object;
     vocabularyRead?: object;
+    storyHanziTerm?: object;
   };
 
-  return Boolean(candidate.storyRead && candidate.vocabularyRead);
+  return Boolean(
+    candidate.storyRead &&
+      candidate.vocabularyRead &&
+      candidate.storyHanziTerm,
+  );
 }
 
 const cachedClient = globalThis.__hanzilane_prisma__;
 
 export const prisma =
-  cachedClient && hasCurrentReadDelegates(cachedClient)
+  cachedClient && hasExpectedPrismaDelegates(cachedClient)
     ? cachedClient
     : new PrismaClient({
         adapter: new PrismaPg({

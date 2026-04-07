@@ -1,12 +1,19 @@
 import Link from "next/link";
-import { BookOpenText, LibraryBig, Sparkles } from "lucide-react";
+import { BookOpenText, Infinity as InfinityIcon, LibraryBig, Sparkles } from "lucide-react";
 
 import { getServerSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "@/components/user-menu";
 
 type AppHeaderProps = {
-  active: "library" | "vocabulary" | "my-library" | "generate" | "profile" | "auth";
+  active:
+    | "library"
+    | "vocabulary"
+    | "my-library"
+    | "generate"
+    | "profile"
+    | "auth"
+    | "infinite";
 };
 
 function HanziIcon() {
@@ -26,6 +33,12 @@ export async function AppHeader({ active }: AppHeaderProps) {
       label: "Library",
       key: "library",
       icon: <LibraryBig className="size-4" />,
+    },
+    {
+      href: "/infinite",
+      label: "Infinite",
+      key: "infinite",
+      icon: <InfinityIcon className="size-4" />,
     },
     {
       href: "/vocabulary",
@@ -94,8 +107,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
 
         <nav
           className={cn(
-            "grid w-full gap-1 pb-1 lg:hidden",
-            session ? "grid-cols-4" : "grid-cols-2",
+            "flex w-full gap-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden",
           )}
         >
           {navItems.map((item) => {
@@ -105,7 +117,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
                 href={item.href}
                 prefetch={false}
                 className={cn(
-                  "inline-flex min-w-0 items-center justify-center gap-1 rounded-full px-2 py-1.5 text-[0.68rem] font-medium transition-colors sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs",
+                  "inline-flex min-w-0 shrink-0 items-center justify-center gap-1 rounded-full px-2 py-1.5 text-[0.68rem] font-medium transition-colors sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs",
                   active === item.key
                     ? "bg-[#ea4e47] text-white shadow-[0_14px_28px_-18px_rgba(234,78,71,0.8)]"
                     : "bg-white text-[#4e433d] hover:bg-[#f8f1eb]",
@@ -128,7 +140,7 @@ export async function AppHeader({ active }: AppHeaderProps) {
                 href={item.href}
                 prefetch={false}
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[0.68rem] font-medium transition-colors sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs",
+                  "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2 py-1 text-[0.68rem] font-medium transition-colors sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs",
                   active === item.key
                     ? "bg-[#ea4e47] text-white shadow-[0_14px_28px_-18px_rgba(234,78,71,0.8)]"
                     : "bg-transparent text-[#4e433d] hover:bg-[#f8f1eb]",
