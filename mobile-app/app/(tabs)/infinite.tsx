@@ -1,30 +1,63 @@
-import { useEffect, useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { router } from "expo-router";
 
 import { EmptyState } from "@/components/EmptyState";
 import { Pill } from "@/components/Pill";
 import { ReaderSectionCard } from "@/components/ReaderSectionCard";
+import { mobileApi } from "@/lib/api";
 import { getHskLabel } from "@/lib/content";
 import { useMobileApp } from "@/lib/mobile-app-context";
 import { colors } from "@/lib/theme";
-import { hskLevels, type HskLevel } from "@/types/content";
+import { hskLevels, type AppStory, type HskLevel } from "@/types/content";
 
 export default function InfiniteScreen() {
-  const { allStories, markRead, recordView } = useMobileApp();
+  const { markRead, recordView, refreshBootstrap, sessionToken } = useMobileApp();
   const [hskLevel, setHskLevel] = useState<HskLevel>("2");
-  const [index, setIndex] = useState(0);
+  const [story, setStory] = useState<AppStory | null>(null);
+  const [mode, setMode] = useState<"vocab" | "random" | "generated" | null>(null);
+  const [targetHanzi, setTargetHanzi] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const queue = useMemo(
-    () => allStories.filter((story) => story.hskLevel === hskLevel),
-    [allStories, hskLevel],
-  );
-  const story = queue.length ? queue[index % queue.length] : null;
+  async function loadNextStory(level: HskLevel) {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await mobileApi.fetchInfiniteNext(sessionToken, level);
+      setStory(response.story);
+      setMode(response.mode);
+      setTargetHanzi(response.targetHanzi ?? null);
+
+      if (response.mode === "generated") {
+        await refreshBootstrap();
+      }
+    } catch (loadError) {
+      setStory(null);
+      setMode(null);
+      setTargetHanzi(null);
+      setError(loadError instanceof Error ? loadError.message : "Could not load the next lesson.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadNextStory(hskLevel);
+  }, [hskLevel, sessionToken]);
 
   useEffect(() => {
     if (story) {
-      markRead(story.id);
-      recordView(story.id);
+      void markRead(story.id);
+      void recordView(story.id);
     }
   }, [markRead, recordView, story]);
 
@@ -34,7 +67,7 @@ export default function InfiniteScreen() {
         <Text style={styles.eyebrow}>Infinite</Text>
         <Text style={styles.title}>Swipe-free practice stream</Text>
         <Text style={styles.subtitle}>
-          The web app uses an endless reader. This mobile version keeps the same idea with quick next-lesson controls.
+          This stream asks the website backend for the next lesson instead of rotating through local mock data.
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pills}>
           {hskLevels.map((level) => (
@@ -42,16 +75,23 @@ export default function InfiniteScreen() {
               key={level}
               label={`HSK ${level}`}
               active={hskLevel === level}
-              onPress={() => {
-                setHskLevel(level);
-                setIndex(0);
-              }}
+              onPress={() => setHskLevel(level)}
             />
           ))}
         </ScrollView>
       </View>
 
-      {!story ? (
+      {isLoading ? (
+        <View style={styles.loadingCard}>
+          <ActivityIndicator color={colors.accent} />
+          <Text style={styles.loadingText}>Loading the next lesson...</Text>
+        </View>
+      ) : error ? (
+        <EmptyState
+          title="Could not load the stream"
+          message={error}
+        />
+      ) : !story ? (
         <EmptyState
           title="No lessons for this level"
           message="Add more stories or change the selected HSK band."
@@ -59,10 +99,14 @@ export default function InfiniteScreen() {
       ) : (
         <>
           <View style={styles.storyChrome}>
-            <Text style={styles.modeLabel}>Infinite · {getHskLabel(story.hskLevel)}</Text>
+            <Text style={styles.modeLabel}>
+              Infinite · {getHskLabel(story.hskLevel)}
+              {mode ? ` · ${mode}` : ""}
+            </Text>
             <Text style={styles.storyTitle}>{story.title}</Text>
             <Text style={styles.storyTranslation}>{story.titleTranslation}</Text>
             <Text style={styles.storySummary}>{story.summary}</Text>
+            {targetHanzi ? <Text style={styles.targetChip}>Focus character: {targetHanzi}</Text> : null}
           </View>
 
           <View style={styles.stack}>
@@ -90,7 +134,7 @@ export default function InfiniteScreen() {
               <Text style={styles.primaryButtonText}>Open full reader</Text>
             </Pressable>
             <Pressable
-              onPress={() => setIndex((current) => current + 1)}
+              onPress={() => void loadNextStory(hskLevel)}
               style={[styles.secondaryButton, styles.flexButton]}
             >
               <Text style={styles.secondaryButtonText}>Next lesson</Text>
@@ -141,6 +185,19 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingRight: 12,
   },
+  loadingCard: {
+    gap: 12,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: 24,
+    alignItems: "center",
+  },
+  loadingText: {
+    color: colors.textMuted,
+    fontSize: 14,
+  },
   storyChrome: {
     gap: 6,
     borderRadius: 24,
@@ -154,6 +211,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     textTransform: "uppercase",
+  },
+  targetChip: {
+    alignSelf: "flex-start",
+    borderRadius: 999,
+    backgroundColor: colors.backgroundMuted,
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: "600",
+    marginTop: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   storyTitle: {
     color: colors.text,

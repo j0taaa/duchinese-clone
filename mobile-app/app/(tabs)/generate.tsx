@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -14,6 +14,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Pill } from "@/components/Pill";
 import { SectionHeading } from "@/components/SectionHeading";
 import { StoryCard } from "@/components/StoryCard";
+import { mobileApi } from "@/lib/api";
 import { useMobileApp } from "@/lib/mobile-app-context";
 import { colors } from "@/lib/theme";
 import {
@@ -22,6 +23,7 @@ import {
   storyTypes,
   visibilities,
   type GenerationInput,
+  type VocabularyEntry,
 } from "@/types/content";
 
 const modes: GenerationInput["mode"][] = ["story", "series"];
@@ -30,9 +32,9 @@ export default function GenerateScreen() {
   const {
     generateLesson,
     generatedStories,
-    getReviewCharactersForLevel,
     isSignedIn,
     readStoryIds,
+    sessionToken,
     storyViewCounts,
   } = useMobileApp();
   const [topic, setTopic] = useState("");
@@ -44,7 +46,54 @@ export default function GenerateScreen() {
   const [useVocabularyTargets, setUseVocabularyTargets] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const reviewCharacters = getReviewCharactersForLevel(hskLevel);
+  const [reviewCharacters, setReviewCharacters] = useState<VocabularyEntry[]>([]);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const [isLoadingReviewCharacters, setIsLoadingReviewCharacters] = useState(false);
+
+  useEffect(() => {
+    if (!useVocabularyTargets || !sessionToken) {
+      setReviewCharacters([]);
+      setReviewError(null);
+      setIsLoadingReviewCharacters(false);
+      return;
+    }
+
+    const token: string = sessionToken;
+
+    let isCancelled = false;
+
+    async function loadReviewCharacters() {
+      setReviewError(null);
+      setIsLoadingReviewCharacters(true);
+
+      try {
+        const data = await mobileApi.fetchReviewCharacters(token, hskLevel);
+
+        if (!isCancelled) {
+          setReviewCharacters(data.characters);
+        }
+      } catch (reviewCharactersError) {
+        if (!isCancelled) {
+          setReviewCharacters([]);
+          setReviewError(
+            reviewCharactersError instanceof Error
+              ? reviewCharactersError.message
+              : "Could not load review characters.",
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingReviewCharacters(false);
+        }
+      }
+    }
+
+    void loadReviewCharacters();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [hskLevel, sessionToken, useVocabularyTargets]);
 
   async function handleGenerate() {
     setIsSubmitting(true);
@@ -109,7 +158,7 @@ export default function GenerateScreen() {
         <Text style={styles.eyebrow}>AI lesson builder</Text>
         <Text style={styles.title}>Generate something new to read</Text>
         <Text style={styles.subtitle}>
-          This mobile version simulates the web app's story and series creation flow while keeping a clean seam for real backend calls later.
+          This screen uses the website backend for story and series generation, including optional overdue-vocabulary targeting.
         </Text>
       </View>
 
@@ -157,15 +206,25 @@ export default function GenerateScreen() {
           <View style={styles.reviewCard}>
             <Text style={styles.reviewTitle}>Suggested review characters</Text>
             <Text style={styles.reviewSubtitle}>
-              Pulled from your mobile reading history, similar to the website's overdue vocabulary suggestions.
+              Pulled from your real reading history, similar to the website's overdue vocabulary suggestions.
             </Text>
-            <View style={styles.reviewRow}>
-              {reviewCharacters.map((entry) => (
-                <Text key={entry.hanzi} style={styles.reviewChip}>
-                  {entry.hanzi}
-                </Text>
-              ))}
-            </View>
+            {isLoadingReviewCharacters ? (
+              <ActivityIndicator color={colors.accent} />
+            ) : reviewError ? (
+              <Text style={styles.error}>{reviewError}</Text>
+            ) : reviewCharacters.length ? (
+              <View style={styles.reviewRow}>
+                {reviewCharacters.map((entry) => (
+                  <Text key={entry.hanzi} style={styles.reviewChip}>
+                    {entry.hanzi}
+                  </Text>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.reviewEmpty}>
+                No overdue characters were suggested for this level yet.
+              </Text>
+            )}
           </View>
         ) : null}
 
@@ -233,7 +292,7 @@ export default function GenerateScreen() {
       <View style={styles.section}>
         <SectionHeading
           title="Recent mobile generations"
-          subtitle="These live in local app state today and mirror the web app's private library concept."
+          subtitle="These are pulled from the same generated library data the website uses."
         />
         {generatedStories.length ? (
           <View style={styles.stack}>
@@ -399,5 +458,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 18,
     fontWeight: "700",
+  },
+  reviewEmpty: {
+    color: colors.textMuted,
+    fontSize: 13,
+    lineHeight: 20,
   },
 });

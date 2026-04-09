@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { Link, router } from "expo-router";
 
 import { useMobileApp } from "@/lib/mobile-app-context";
@@ -10,10 +18,21 @@ export default function SignUpScreen() {
   const [name, setName] = useState("Lin");
   const [email, setEmail] = useState("lin@example.com");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit() {
-    signUp({ name, email });
-    router.replace("/my-library");
+  async function handleSubmit() {
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await signUp({ name, email, password });
+      router.replace("/my-library");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Could not create account.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -22,7 +41,7 @@ export default function SignUpScreen() {
         <Text style={styles.eyebrow}>HanziLane</Text>
         <Text style={styles.title}>Create an account and start your mobile story library</Text>
         <Text style={styles.subtitle}>
-          The app folder is ready for real auth later, but already mirrors the website's onboarding flow.
+          Create an account against the same auth backend as the website so generated content is available in both places.
         </Text>
       </View>
 
@@ -36,8 +55,13 @@ export default function SignUpScreen() {
           placeholder="At least 8 characters"
           secureTextEntry
         />
-        <Pressable onPress={handleSubmit} style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Create account</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <Pressable onPress={() => void handleSubmit()} disabled={isSubmitting} style={styles.primaryButton}>
+          {isSubmitting ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.primaryButtonText}>Create account</Text>
+          )}
         </Pressable>
         <Text style={styles.footerText}>
           Already have an account? <Link href="/auth/sign-in" style={styles.link}>Sign in</Link>
@@ -146,6 +170,11 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "700",
+  },
+  error: {
+    color: "#a03d34",
+    fontSize: 14,
+    lineHeight: 20,
   },
   footerText: {
     color: colors.textMuted,

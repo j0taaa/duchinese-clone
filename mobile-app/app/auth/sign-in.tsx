@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { Link, router } from "expo-router";
 
 import { useMobileApp } from "@/lib/mobile-app-context";
@@ -9,13 +17,21 @@ export default function SignInScreen() {
   const { signIn } = useMobileApp();
   const [email, setEmail] = useState("lin@example.com");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit() {
-    signIn({
-      name: email.split("@")[0] || "Reader",
-      email,
-    });
-    router.replace("/my-library");
+  async function handleSubmit() {
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      await signIn({ email, password });
+      router.replace("/my-library");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Could not sign in.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -24,7 +40,7 @@ export default function SignInScreen() {
         <Text style={styles.eyebrow}>HanziLane</Text>
         <Text style={styles.title}>Sign in to keep your stories synced</Text>
         <Text style={styles.subtitle}>
-          This local-first mobile scaffold stores session state in memory today, but the screen flow matches the web app.
+          Sign in with the same account system as the website so your reading history and generated stories stay aligned.
         </Text>
       </View>
 
@@ -37,8 +53,9 @@ export default function SignInScreen() {
           placeholder="At least 8 characters"
           secureTextEntry
         />
-        <Pressable onPress={handleSubmit} style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Sign in</Text>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <Pressable onPress={() => void handleSubmit()} disabled={isSubmitting} style={styles.primaryButton}>
+          {isSubmitting ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.primaryButtonText}>Sign in</Text>}
         </Pressable>
         <Text style={styles.footerText}>
           Need an account? <Link href="/auth/sign-up" style={styles.link}>Create one</Link>
@@ -147,6 +164,11 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "700",
+  },
+  error: {
+    color: "#a03d34",
+    fontSize: 14,
+    lineHeight: 20,
   },
   footerText: {
     color: colors.textMuted,

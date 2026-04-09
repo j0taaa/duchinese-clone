@@ -1,26 +1,14 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 
-import {
-  publicSeries as basePublicSeries,
-  publicStories as basePublicStories,
-} from "@/data/mock-data";
-import {
-  simulateGeneration,
-  simulateSeriesAppendEpisode,
-} from "@/lib/mock-generation";
-import {
-  extractTrackedCharacters,
-  getReviewCharacters,
-  getVocabularyLevelGroups,
-  mergeVocabularyReadStats,
-} from "@/lib/vocabulary";
+import { mobileApi } from "@/lib/api";
+import type { BootstrapResponse } from "@/lib/api";
 import type {
   AppSeries,
   AppStory,
@@ -31,13 +19,9 @@ import type {
   VocabularyLevelGroup,
 } from "@/types/content";
 
-type ReadStat = {
-  readCount: number;
-  lastReadAt: string | null;
-};
-
 type MobileAppContextValue = {
   session: UserSession | null;
+  sessionToken: string | null;
   publicStories: AppStory[];
   publicSeries: AppSeries[];
   generatedStories: AppStory[];
@@ -50,12 +34,14 @@ type MobileAppContextValue = {
   vocabularyLevels: VocabularyLevelGroup[];
   publicAuthorProfiles: PublicAuthorProfile[];
   isSignedIn: boolean;
-  signIn: (input: Omit<UserSession, "id">) => void;
-  signUp: (input: Omit<UserSession, "id">) => void;
-  signOut: () => void;
-  markRead: (storyId: string) => void;
-  recordView: (storyId: string) => void;
-  getReviewCharactersForLevel: (hskLevel: GenerationInput["hskLevel"]) => ReturnType<typeof getReviewCharacters>;
+  isLoading: boolean;
+  bootstrapError: string | null;
+  refreshBootstrap: () => Promise<BootstrapResponse | null>;
+  signIn: (input: { email: string; password: string }) => Promise<void>;
+  signUp: (input: { name: string; email: string; password: string }) => Promise<void>;
+  signOut: () => Promise<void>;
+  markRead: (storyId: string) => Promise<void>;
+  recordView: (storyId: string) => Promise<void>;
   getAuthorProfile: (userId: string) => PublicAuthorProfile | null;
   generateLesson: (
     input: GenerationInput,
@@ -67,32 +53,6 @@ type MobileAppContextValue = {
 };
 
 const MobileAppContext = createContext<MobileAppContextValue | null>(null);
-
-const SELF_USER_ID = "mobile-self";
-
-const initialViewCounts = new Map<string, number>([
-  ["seed-morning-market", 284],
-  ["seed-subway-ride", 191],
-  ["seed-coffee-chat", 242],
-  ["seed-park-lunch", 158],
-  ["seed-rainy-notes", 173],
-  ["seed-weekend-bookshelf", 149],
-  ["public-tea-break", 64],
-]);
-
-function applyAuthorMetadata(story: AppStory, session: UserSession | null, visibility: GenerationInput["visibility"]) {
-  return {
-    ...story,
-    authorName: session?.name ?? "You",
-    authorUserId: session?.id ?? SELF_USER_ID,
-    authorImage: session?.image ?? null,
-    isPublic: visibility === "public",
-  };
-}
-
-function buildStoryText(story: AppStory) {
-  return story.sections.map((section) => section.hanzi).join("");
-}
 
 function buildPublicAuthorProfiles(stories: AppStory[], series: AppSeries[]) {
   const storiesByAuthor = new Map<string, AppStory[]>();
@@ -123,182 +83,186 @@ function buildPublicAuthorProfiles(stories: AppStory[], series: AppSeries[]) {
 }
 
 export function MobileAppProvider({ children }: { children: ReactNode }) {
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [session, setSession] = useState<UserSession | null>(null);
+  const [publicStories, setPublicStories] = useState<AppStory[]>([]);
+  const [publicSeries, setPublicSeries] = useState<AppSeries[]>([]);
   const [generatedStories, setGeneratedStories] = useState<AppStory[]>([]);
   const [generatedSeries, setGeneratedSeries] = useState<AppSeries[]>([]);
   const [readStoryIds, setReadStoryIds] = useState<string[]>([]);
   const [usage, setUsage] = useState<UsageEntry[]>([]);
-  const [storyViewCounts, setStoryViewCounts] = useState<Map<string, number>>(initialViewCounts);
-  const [vocabularyStats, setVocabularyStats] = useState<Map<string, ReadStat>>(new Map());
-  const generationSeed = useRef(100);
+  const [storyViewCounts, setStoryViewCounts] = useState<Map<string, number>>(new Map());
+  const [vocabularyLevels, setVocabularyLevels] = useState<VocabularyLevelGroup[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [bootstrapError, setBootstrapError] = useState<string | null>(null);
 
-  function signIn(input: Omit<UserSession, "id">) {
-    setSession({
-      id: SELF_USER_ID,
-      image: null,
-      ...input,
-    });
-  }
+  async function refreshBootstrap() {
+    setBootstrapError(null);
+    setIsLoading(true);
 
-  function signUp(input: Omit<UserSession, "id">) {
-    signIn(input);
-  }
-
-  function signOut() {
-    setSession(null);
-  }
-
-  function updateVocabularyStatsForStory(story: AppStory) {
-    const now = new Date().toISOString();
-    const chars = extractTrackedCharacters(buildStoryText(story));
-
-    if (!chars.length) {
-      return;
+    try {
+      const data = await mobileApi.fetchBootstrap(sessionToken);
+      setSession(data.session?.user ?? null);
+      setPublicStories(data.publicStories);
+      setPublicSeries(data.publicSeries);
+      setGeneratedStories(data.generatedStories);
+      setGeneratedSeries(data.generatedSeries);
+      setReadStoryIds(data.readStoryIds);
+      setUsage(data.usage);
+      setVocabularyLevels(data.vocabularyLevels);
+      setStoryViewCounts(new Map(Object.entries(data.storyViewCounts)));
+      return data;
+    } catch (error) {
+      setBootstrapError(
+        error instanceof Error ? error.message : "Could not load mobile app data.",
+      );
+      return null;
+    } finally {
+      setIsLoading(false);
     }
-
-    setVocabularyStats((current) => {
-      const next = new Map(current);
-
-      for (const hanzi of chars) {
-        const existing = next.get(hanzi);
-        next.set(hanzi, {
-          readCount: (existing?.readCount ?? 0) + 1,
-          lastReadAt: now,
-        });
-      }
-
-      return next;
-    });
   }
 
-  const allStories = useMemo(() => [...generatedStories, ...basePublicStories], [generatedStories]);
+  useEffect(() => {
+    void refreshBootstrap();
+  }, [sessionToken]);
 
-  function markRead(storyId: string) {
+  async function signIn(input: { email: string; password: string }) {
+    const data = await mobileApi.signIn(input.email, input.password);
+    setSessionToken(data.token);
+  }
+
+  async function signUp(input: { name: string; email: string; password: string }) {
+    const data = await mobileApi.signUp(input.name, input.email, input.password);
+    setSessionToken(data.token);
+  }
+
+  async function signOut() {
+    try {
+      await mobileApi.signOut(sessionToken);
+    } finally {
+      setSessionToken(null);
+      setSession(null);
+      setGeneratedStories([]);
+      setGeneratedSeries([]);
+      setReadStoryIds([]);
+      setUsage([]);
+    }
+  }
+
+  const allStories = useMemo(
+    () => [...generatedStories, ...publicStories],
+    [generatedStories, publicStories],
+  );
+  const allSeries = useMemo(
+    () => [...generatedSeries, ...publicSeries],
+    [generatedSeries, publicSeries],
+  );
+  const publicAuthorProfiles = useMemo(
+    () => buildPublicAuthorProfiles(publicStories, publicSeries),
+    [publicSeries, publicStories],
+  );
+
+  async function markRead(storyId: string) {
     if (readStoryIds.includes(storyId)) {
       return;
     }
 
-    const story = allStories.find((entry) => entry.id === storyId);
-    if (story) {
-      updateVocabularyStatsForStory(story);
-    }
-
     setReadStoryIds((current) => [storyId, ...current]);
+
+    try {
+      await mobileApi.markRead(sessionToken, storyId);
+    } catch {
+      /* keep optimistic state */
+    }
   }
 
-  function recordView(storyId: string) {
+  async function recordView(storyId: string) {
     setStoryViewCounts((current) => {
       const next = new Map(current);
       next.set(storyId, (next.get(storyId) ?? 0) + 1);
       return next;
     });
+
+    try {
+      await mobileApi.trackView(storyId);
+    } catch {
+      /* keep optimistic state */
+    }
   }
 
   async function generateLesson(input: GenerationInput) {
-    generationSeed.current += 1;
-    const seed = generationSeed.current;
-    const result = await simulateGeneration(input, seed);
+    if (!sessionToken) {
+      throw new Error("Sign in to generate lessons.");
+    }
 
-    if (result.kind === "story") {
-      const story = applyAuthorMetadata(result.story, session, input.visibility);
+    const response = await mobileApi.generateLesson(sessionToken, {
+      ...input,
+      creationMode: input.mode,
+      visibility: input.visibility === "public" ? "public_user" : "private_user",
+    });
 
-      setGeneratedStories((current) => [story, ...current]);
-      setUsage((current) => [result.usage, ...current]);
+    const bootstrap = await refreshBootstrap();
+
+    if (response.kind === "story") {
+      const story = [...(bootstrap?.generatedStories ?? []), ...(bootstrap?.publicStories ?? [])].find(
+        (entry) => entry.slug === response.story.slug,
+      );
       return {
         kind: "story" as const,
-        story,
+        story:
+          story ??
+          ({
+            id: response.story.id,
+            slug: response.story.slug,
+            title: response.story.title,
+            titleTranslation: response.story.titleTranslation,
+          } as AppStory),
       };
     }
 
-    const stories = result.stories.map((story) =>
-      applyAuthorMetadata(story, session, input.visibility),
-    );
-    const series: AppSeries = {
-      ...result.series,
-      stories,
-      isPublic: input.visibility === "public",
-      ownerUserId: session?.id ?? SELF_USER_ID,
-      ownerName: session?.name ?? "You",
-    };
+    const series =
+      [...(bootstrap?.generatedSeries ?? []), ...(bootstrap?.publicSeries ?? [])].find(
+        (entry) => entry.slug === response.series.slug,
+      ) ??
+      ({
+        slug: response.series.slug,
+        title: response.series.titleTranslation,
+        titleTranslation: response.series.titleTranslation,
+        summary: "",
+        hskLevel: input.hskLevel,
+        stories: [],
+        isPublic: input.visibility === "public",
+        ownerUserId: session?.id ?? null,
+        ownerName: session?.name ?? null,
+      } as AppSeries);
 
-    setGeneratedSeries((current) => [series, ...current]);
-    setGeneratedStories((current) => [...stories, ...current]);
-    setUsage((current) => [result.usage, ...current]);
     return {
       kind: "series" as const,
       series,
-      stories,
+      stories: series.stories,
     };
   }
 
   async function appendSeriesEpisode(seriesSlug: string) {
-    const series = generatedSeries.find((entry) => entry.slug === seriesSlug);
-
-    if (!series) {
-      return null;
+    if (!sessionToken) {
+      throw new Error("Sign in to continue a series.");
     }
 
-    generationSeed.current += 1;
-    const seed = generationSeed.current;
-    const anchor = series.stories[0];
+    const response = await mobileApi.appendSeriesEpisode(sessionToken, seriesSlug);
+    const bootstrap = await refreshBootstrap();
 
-    if (!anchor) {
-      return null;
-    }
-
-    const result = await simulateSeriesAppendEpisode({
-      seed,
-      series,
-      type: anchor.type,
-      hskLevel: anchor.hskLevel,
-      length: "medium",
-      visibility: series.isPublic ? "public" : "private",
-    });
-
-    const story = applyAuthorMetadata(
-      {
-        ...result.story,
-        seriesGroupSlug: series.slug,
-      },
-      session,
-      series.isPublic ? "public" : "private",
+    return (
+      [...(bootstrap?.generatedStories ?? []), ...(bootstrap?.publicStories ?? [])].find(
+        (story) => story.slug === response.story.slug,
+      ) ??
+      null
     );
-
-    setGeneratedSeries((current) =>
-      current.map((entry) =>
-        entry.slug === seriesSlug
-          ? {
-              ...entry,
-              stories: [...entry.stories, story],
-            }
-          : entry,
-      ),
-    );
-    setGeneratedStories((current) => [story, ...current]);
-    setUsage((current) => [result.usage, ...current]);
-    return story;
   }
 
-  const value = useMemo<MobileAppContextValue>(() => {
-    const publicStories = [
-      ...generatedStories.filter((story) => story.isPublic),
-      ...basePublicStories,
-    ].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
-
-    const publicSeries = [
-      ...generatedSeries.filter((series) => series.isPublic),
-      ...basePublicSeries,
-    ];
-
-    const allSeries = [...generatedSeries, ...basePublicSeries];
-    const vocabularyLevels = mergeVocabularyReadStats(
-      getVocabularyLevelGroups(),
-      vocabularyStats,
-    );
-    const publicAuthorProfiles = buildPublicAuthorProfiles(publicStories, publicSeries);
-
-    return {
+  const value = useMemo<MobileAppContextValue>(
+    () => ({
       session,
+      sessionToken,
       publicStories,
       publicSeries,
       generatedStories,
@@ -310,28 +274,38 @@ export function MobileAppProvider({ children }: { children: ReactNode }) {
       storyViewCounts,
       vocabularyLevels,
       publicAuthorProfiles,
-      isSignedIn: Boolean(session),
+      isSignedIn: Boolean(session && sessionToken),
+      isLoading,
+      bootstrapError,
+      refreshBootstrap,
       signIn,
       signUp,
       signOut,
       markRead,
       recordView,
-      getReviewCharactersForLevel: (hskLevel) => getReviewCharacters(hskLevel, vocabularyStats),
       getAuthorProfile: (userId) =>
         publicAuthorProfiles.find((profile) => profile.user.id === userId) ?? null,
       generateLesson,
       appendSeriesEpisode,
-    };
-  }, [
-    allStories,
-    generatedSeries,
-    generatedStories,
-    readStoryIds,
-    session,
-    storyViewCounts,
-    usage,
-    vocabularyStats,
-  ]);
+    }),
+    [
+      allSeries,
+      allStories,
+      bootstrapError,
+      generatedSeries,
+      generatedStories,
+      isLoading,
+      publicAuthorProfiles,
+      publicSeries,
+      publicStories,
+      readStoryIds,
+      session,
+      sessionToken,
+      storyViewCounts,
+      usage,
+      vocabularyLevels,
+    ],
+  );
 
   return <MobileAppContext.Provider value={value}>{children}</MobileAppContext.Provider>;
 }
