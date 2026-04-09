@@ -27,7 +27,10 @@ function makeStory(input: {
     type: input.type,
     sections: input.sections,
     createdAt: input.createdAt ?? "2026-04-02T00:00:00.000Z",
+    updatedAt: input.createdAt ?? "2026-04-02T00:00:00.000Z",
     authorName: input.authorName ?? null,
+    authorUserId: input.authorName ? "community-1" : null,
+    authorImage: null,
     isSeeded: input.isSeeded ?? true,
     isPublic: input.isPublic ?? true,
     seriesGroupSlug: input.seriesGroupSlug ?? null,
@@ -276,6 +279,8 @@ export const publicSeries: AppSeries[] = [
       "A small collection about the rhythm of daily city life, from markets to subways to after-work coffee.",
     hskLevel: "2",
     isPublic: true,
+    ownerUserId: null,
+    ownerName: null,
     stories: [morningMarket, subwayRide, coffeeChat],
   },
   {
@@ -286,6 +291,8 @@ export const publicSeries: AppSeries[] = [
       "Stories about quieter moments: lunch in the park, rainy afternoons, and slow weekends at home.",
     hskLevel: "3",
     isPublic: true,
+    ownerUserId: null,
+    ownerName: null,
     stories: [parkLunch, rainyNotes, weekendBookshelf],
   },
 ];

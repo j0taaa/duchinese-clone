@@ -1,5 +1,11 @@
 import { slugify } from "@/lib/content";
-import type { AppSeries, AppStory, GenerationInput, StorySection, UsageEntry } from "@/types/content";
+import type {
+  AppSeries,
+  AppStory,
+  GenerationInput,
+  StorySection,
+  UsageEntry,
+} from "@/types/content";
 
 const titleRoots = {
   story: ["新的练习", "城市片段", "今天的小故事"],
@@ -399,8 +405,9 @@ function buildTitle(input: GenerationInput, seed: number, episode?: number) {
 
 function buildSections(input: GenerationInput, episode?: number) {
   const base = sectionTemplates[input.type][input.hskLevel];
+  const reviewCharacters = input.reviewCharacters?.slice(0, 3) ?? [];
 
-  if (!episode) {
+  if (!episode && reviewCharacters.length === 0) {
     return base;
   }
 
@@ -409,10 +416,21 @@ function buildSections(input: GenerationInput, episode?: number) {
       return section;
     }
 
+    const reviewLead =
+      reviewCharacters.length > 0
+        ? `复习字 ${reviewCharacters.join("")}。`
+        : "";
+    const reviewLeadPinyin =
+      reviewCharacters.length > 0 ? `Fu xi zi ${reviewCharacters.join(" ")}. ` : "";
+    const reviewLeadEnglish =
+      reviewCharacters.length > 0
+        ? `Review characters ${reviewCharacters.join(", ")}. `
+        : "";
+
     return {
-      hanzi: `第${episode}天，${section.hanzi}`,
-      pinyin: `Di ${episode} tian, ${section.pinyin}`,
-      english: `Day ${episode}: ${section.english}`,
+      hanzi: `${episode ? `第${episode}天，` : ""}${reviewLead}${section.hanzi}`,
+      pinyin: `${episode ? `Di ${episode} tian, ` : ""}${reviewLeadPinyin}${section.pinyin}`,
+      english: `${episode ? `Day ${episode}: ` : ""}${reviewLeadEnglish}${section.english}`,
     };
   });
 }
@@ -455,7 +473,10 @@ function buildStory(
     type: input.type,
     sections,
     createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     authorName: "You",
+    authorUserId: "mobile-self",
+    authorImage: null,
     isSeeded: false,
     isPublic: input.visibility === "public",
     seriesGroupSlug: seriesGroupSlug ?? null,
@@ -488,6 +509,8 @@ export async function simulateGeneration(input: GenerationInput, seed: number) {
     hskLevel: input.hskLevel,
     stories,
     isPublic: input.visibility === "public",
+    ownerUserId: "mobile-self",
+    ownerName: "You",
   };
 
   return {
@@ -495,5 +518,37 @@ export async function simulateGeneration(input: GenerationInput, seed: number) {
     series,
     stories,
     usage: buildUsage(seed, series.titleTranslation, "series"),
+  };
+}
+
+export async function simulateSeriesAppendEpisode(input: {
+  seed: number;
+  series: AppSeries;
+  type: GenerationInput["type"];
+  hskLevel: GenerationInput["hskLevel"];
+  length: GenerationInput["length"];
+  visibility: GenerationInput["visibility"];
+}) {
+  await delay(700);
+
+  const nextEpisode = input.series.stories.length + 1;
+  const story = buildStory(
+    {
+      topic: input.series.titleTranslation,
+      hskLevel: input.hskLevel,
+      type: input.type,
+      length: input.length,
+      visibility: input.visibility,
+      mode: "story",
+      reviewCharacters: [],
+    },
+    input.seed,
+    nextEpisode,
+    input.series.slug,
+  );
+
+  return {
+    story,
+    usage: buildUsage(input.seed, story.titleTranslation, "story"),
   };
 }

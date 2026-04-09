@@ -9,7 +9,8 @@ import { useMobileApp } from "@/lib/mobile-app-context";
 import { colors } from "@/lib/theme";
 
 export default function MyLibraryScreen() {
-  const { generatedSeries, generatedStories, isSignedIn, readStoryIds } = useMobileApp();
+  const { generatedSeries, generatedStories, isSignedIn, readStoryIds, storyViewCounts } =
+    useMobileApp();
   const standaloneStories = generatedStories.filter((story) => !story.seriesGroupSlug);
 
   return (
@@ -43,6 +44,10 @@ export default function MyLibraryScreen() {
                       key={series.slug}
                       series={series}
                       readCount={readCount}
+                      totalViews={series.stories.reduce(
+                        (sum, story) => sum + (storyViewCounts.get(story.id) ?? 0),
+                        0,
+                      )}
                       onPress={() =>
                         router.push({
                           pathname: "/series/[slug]",
@@ -73,6 +78,7 @@ export default function MyLibraryScreen() {
                     key={story.id}
                     story={story}
                     isRead={readStoryIds.includes(story.id)}
+                    viewCount={storyViewCounts.get(story.id)}
                     onPress={() =>
                       router.push({
                         pathname: "/stories/[slug]",

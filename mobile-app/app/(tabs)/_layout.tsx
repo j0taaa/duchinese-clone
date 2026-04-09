@@ -26,6 +26,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: "Library", headerTitle: "HanziLane" }} />
       <Tabs.Screen name="infinite" options={{ title: "Infinite" }} />
+      <Tabs.Screen name="vocabulary" options={{ title: "Vocabulary" }} />
       <Tabs.Screen name="generate" options={{ title: "Generate" }} />
       <Tabs.Screen name="my-library" options={{ title: "My Library" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
@@ -39,6 +40,8 @@ function getTabIcon(name: string): keyof typeof Ionicons.glyphMap {
       return "library-outline";
     case "infinite":
       return "infinite-outline";
+    case "vocabulary":
+      return "text-outline";
     case "generate":
       return "sparkles-outline";
     case "my-library":

@@ -13,7 +13,14 @@ import { colors } from "@/lib/theme";
 import { hskLevels, type HskLevel } from "@/types/content";
 
 export default function LibraryScreen() {
-  const { publicSeries, publicStories, readStoryIds } = useMobileApp();
+  const {
+    generatedSeries,
+    generatedStories,
+    publicSeries,
+    publicStories,
+    readStoryIds,
+    storyViewCounts,
+  } = useMobileApp();
   const [query, setQuery] = useState("");
   const [hsk, setHsk] = useState<HskLevel | "all">("all");
 
@@ -27,11 +34,19 @@ export default function LibraryScreen() {
   );
 
   const standaloneStories = useMemo(
-    () => getStandaloneStories(filteredStories, publicSeries),
-    [filteredStories, publicSeries],
+    () => getStandaloneStories(filteredStories, filteredSeries),
+    [filteredStories, filteredSeries],
   );
   const starterStories = standaloneStories.filter((story) => story.isSeeded);
   const communityStories = standaloneStories.filter((story) => !story.isSeeded);
+  const latestUserSeries = useMemo(
+    () => filterSeries(generatedSeries, query, hsk),
+    [generatedSeries, hsk, query],
+  );
+  const latestUserStandalone = useMemo(
+    () => getStandaloneStories(filterStories(generatedStories, query, hsk), latestUserSeries),
+    [generatedStories, hsk, latestUserSeries, query],
+  );
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -61,6 +76,62 @@ export default function LibraryScreen() {
         </ScrollView>
       </View>
 
+      {latestUserSeries.length || latestUserStandalone.length ? (
+        <View style={styles.section}>
+          <SectionHeading
+            title="Your latest lessons"
+            subtitle="Fresh generations attached to your account."
+          />
+          <View style={styles.stack}>
+            {latestUserSeries.map((series) => {
+              const readCount = series.stories.filter((story) => readStoryIds.includes(story.id)).length;
+              const totalViews = series.stories.reduce(
+                (sum, story) => sum + (storyViewCounts.get(story.id) ?? 0),
+                0,
+              );
+
+              return (
+                <SeriesCard
+                  key={series.slug}
+                  series={series}
+                  readCount={readCount}
+                  totalViews={totalViews}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/series/[slug]",
+                      params: { slug: series.slug },
+                    })
+                  }
+                />
+              );
+            })}
+            {latestUserStandalone.map((story) => (
+              <StoryCard
+                key={story.id}
+                story={story}
+                isRead={readStoryIds.includes(story.id)}
+                viewCount={storyViewCounts.get(story.id)}
+                onPress={() =>
+                  router.push({
+                    pathname: "/stories/[slug]",
+                    params: { slug: story.slug },
+                  })
+                }
+                onPressAuthor={
+                  story.authorUserId
+                    ? () =>
+                        router.push({
+                          pathname: "/authors/[userId]",
+                          params: { userId: story.authorUserId! },
+                        })
+                    : null
+                }
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
+
       {filteredSeries.length ? (
         <View style={styles.section}>
           <SectionHeading
@@ -75,6 +146,10 @@ export default function LibraryScreen() {
                   key={series.slug}
                   series={series}
                   readCount={readCount}
+                  totalViews={series.stories.reduce(
+                    (sum, story) => sum + (storyViewCounts.get(story.id) ?? 0),
+                    0,
+                  )}
                   onPress={() =>
                     router.push({
                       pathname: "/series/[slug]",
@@ -100,11 +175,21 @@ export default function LibraryScreen() {
                 key={story.id}
                 story={story}
                 isRead={readStoryIds.includes(story.id)}
+                viewCount={storyViewCounts.get(story.id)}
                 onPress={() =>
                   router.push({
                     pathname: "/stories/[slug]",
                     params: { slug: story.slug },
                   })
+                }
+                onPressAuthor={
+                  story.authorUserId
+                    ? () =>
+                        router.push({
+                          pathname: "/authors/[userId]",
+                          params: { userId: story.authorUserId! },
+                        })
+                    : null
                 }
               />
             ))}
@@ -126,11 +211,21 @@ export default function LibraryScreen() {
                 key={story.id}
                 story={story}
                 isRead={readStoryIds.includes(story.id)}
+                viewCount={storyViewCounts.get(story.id)}
                 onPress={() =>
                   router.push({
                     pathname: "/stories/[slug]",
                     params: { slug: story.slug },
                   })
+                }
+                onPressAuthor={
+                  story.authorUserId
+                    ? () =>
+                        router.push({
+                          pathname: "/authors/[userId]",
+                          params: { userId: story.authorUserId! },
+                        })
+                    : null
                 }
               />
             ))}

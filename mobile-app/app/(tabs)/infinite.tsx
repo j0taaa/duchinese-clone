@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 
@@ -11,7 +11,7 @@ import { colors } from "@/lib/theme";
 import { hskLevels, type HskLevel } from "@/types/content";
 
 export default function InfiniteScreen() {
-  const { allStories } = useMobileApp();
+  const { allStories, markRead, recordView } = useMobileApp();
   const [hskLevel, setHskLevel] = useState<HskLevel>("2");
   const [index, setIndex] = useState(0);
 
@@ -20,6 +20,13 @@ export default function InfiniteScreen() {
     [allStories, hskLevel],
   );
   const story = queue.length ? queue[index % queue.length] : null;
+
+  useEffect(() => {
+    if (story) {
+      markRead(story.id);
+      recordView(story.id);
+    }
+  }, [markRead, recordView, story]);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -63,6 +70,7 @@ export default function InfiniteScreen() {
               <ReaderSectionCard
                 key={`${story.id}-${sectionIndex}`}
                 section={section}
+                showCharacters
                 showPinyin
                 showEnglish
               />

@@ -27,15 +27,24 @@ import {
 const modes: GenerationInput["mode"][] = ["story", "series"];
 
 export default function GenerateScreen() {
-  const { generateLesson, generatedStories, isSignedIn, readStoryIds } = useMobileApp();
+  const {
+    generateLesson,
+    generatedStories,
+    getReviewCharactersForLevel,
+    isSignedIn,
+    readStoryIds,
+    storyViewCounts,
+  } = useMobileApp();
   const [topic, setTopic] = useState("");
   const [hskLevel, setHskLevel] = useState<GenerationInput["hskLevel"]>("2");
   const [type, setType] = useState<GenerationInput["type"]>("dialogue");
   const [length, setLength] = useState<GenerationInput["length"]>("short");
   const [visibility, setVisibility] = useState<GenerationInput["visibility"]>("private");
   const [mode, setMode] = useState<GenerationInput["mode"]>("story");
+  const [useVocabularyTargets, setUseVocabularyTargets] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const reviewCharacters = getReviewCharactersForLevel(hskLevel);
 
   async function handleGenerate() {
     setIsSubmitting(true);
@@ -49,6 +58,10 @@ export default function GenerateScreen() {
         length,
         visibility,
         mode,
+        useVocabularyTargets,
+        reviewCharacters: useVocabularyTargets
+          ? reviewCharacters.map((entry) => entry.hanzi)
+          : [],
       });
 
       if (result.kind === "story") {
@@ -127,6 +140,35 @@ export default function GenerateScreen() {
           style={styles.textInput}
         />
 
+        <Text style={styles.label}>Vocabulary targets</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pills}>
+          <Pill
+            label="Off"
+            active={!useVocabularyTargets}
+            onPress={() => setUseVocabularyTargets(false)}
+          />
+          <Pill
+            label="Use overdue words"
+            active={useVocabularyTargets}
+            onPress={() => setUseVocabularyTargets(true)}
+          />
+        </ScrollView>
+        {useVocabularyTargets ? (
+          <View style={styles.reviewCard}>
+            <Text style={styles.reviewTitle}>Suggested review characters</Text>
+            <Text style={styles.reviewSubtitle}>
+              Pulled from your mobile reading history, similar to the website's overdue vocabulary suggestions.
+            </Text>
+            <View style={styles.reviewRow}>
+              {reviewCharacters.map((entry) => (
+                <Text key={entry.hanzi} style={styles.reviewChip}>
+                  {entry.hanzi}
+                </Text>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         <Text style={styles.label}>HSK level</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pills}>
           {hskLevels.map((entry) => (
@@ -200,6 +242,7 @@ export default function GenerateScreen() {
                 key={story.id}
                 story={story}
                 isRead={readStoryIds.includes(story.id)}
+                viewCount={storyViewCounts.get(story.id)}
                 onPress={() =>
                   router.push({
                     pathname: "/stories/[slug]",
@@ -323,5 +366,38 @@ const styles = StyleSheet.create({
     color: "#a03d34",
     fontSize: 13,
     lineHeight: 20,
+  },
+  reviewCard: {
+    gap: 6,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.backgroundMuted,
+    padding: 14,
+  },
+  reviewTitle: {
+    color: colors.text,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  reviewSubtitle: {
+    color: colors.textMuted,
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  reviewRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 4,
+  },
+  reviewChip: {
+    borderRadius: 999,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: "700",
   },
 });

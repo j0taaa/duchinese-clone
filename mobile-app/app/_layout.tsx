@@ -25,6 +25,8 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="auth/sign-in" options={{ title: "Sign In" }} />
           <Stack.Screen name="auth/sign-up" options={{ title: "Create Account" }} />
+          <Stack.Screen name="authors/[userId]" options={{ title: "Author" }} />
+          <Stack.Screen name="settings" options={{ title: "Settings" }} />
           <Stack.Screen name="stories/[slug]" options={{ title: "Lesson" }} />
           <Stack.Screen name="series/[slug]" options={{ title: "Series" }} />
         </Stack>

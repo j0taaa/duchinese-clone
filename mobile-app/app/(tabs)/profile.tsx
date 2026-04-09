@@ -66,6 +66,14 @@ export default function ProfileScreen() {
         <StatCard label="Credits" value={totals.costCredits.toFixed(4)} />
       </View>
 
+      <View style={styles.usageCard}>
+        <Text style={styles.sectionTitle}>Active model</Text>
+        <Text style={styles.usageTitle}>Local mobile scaffold generator</Text>
+        <Text style={styles.usageMeta}>
+          The website shows the configured model and usage source. This mobile version keeps the same profile surface, but generation is still local-first until a real backend is connected.
+        </Text>
+      </View>
+
       <View style={styles.usageSection}>
         <Text style={styles.sectionTitle}>Recent activity</Text>
         {usage.length ? (

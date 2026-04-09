@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { getHskLabel } from "@/lib/content";
 import { colors, radius, shadow } from "@/lib/theme";
@@ -7,10 +8,12 @@ import type { AppSeries } from "@/types/content";
 export function SeriesCard({
   series,
   readCount,
+  totalViews,
   onPress,
 }: {
   series: AppSeries;
   readCount: number;
+  totalViews?: number;
   onPress: () => void;
 }) {
   return (
@@ -27,10 +30,16 @@ export function SeriesCard({
           <Text style={[styles.chip, readCount > 0 && styles.progressChip]}>
             {readCount}/{series.stories.length} read
           </Text>
+          {typeof totalViews === "number" && totalViews > 0 ? (
+            <Text style={styles.chip}>
+              <Ionicons name="eye-outline" size={11} color={colors.textMuted} /> {totalViews}
+            </Text>
+          ) : null}
         </View>
         <Text style={styles.title}>{series.title}</Text>
         <Text style={styles.translation}>{series.titleTranslation}</Text>
         <Text style={styles.summary}>{series.summary}</Text>
+        {series.ownerName ? <Text style={styles.owner}>by {series.ownerName}</Text> : null}
       </View>
     </Pressable>
   );
@@ -101,5 +110,9 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 14,
     lineHeight: 21,
+  },
+  owner: {
+    color: colors.textMuted,
+    fontSize: 12,
   },
 });

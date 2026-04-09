@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { formatDate, getHskLabel } from "@/lib/content";
 import { colors, radius, shadow } from "@/lib/theme";
@@ -7,11 +8,17 @@ import type { AppStory } from "@/types/content";
 export function StoryCard({
   story,
   isRead = false,
+  viewCount,
+  showAuthor = true,
   onPress,
+  onPressAuthor,
 }: {
   story: AppStory;
   isRead?: boolean;
+  viewCount?: number;
+  showAuthor?: boolean;
   onPress: () => void;
+  onPressAuthor?: (() => void) | null;
 }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
@@ -22,6 +29,11 @@ export function StoryCard({
       <View style={styles.metaRow}>
         <Text style={styles.metaChip}>{getHskLabel(story.hskLevel)}</Text>
         {isRead ? <Text style={[styles.metaChip, styles.readChip]}>Read</Text> : null}
+        {typeof viewCount === "number" && viewCount > 0 ? (
+          <Text style={styles.metaChip}>
+            <Ionicons name="eye-outline" size={11} color={colors.textMuted} /> {viewCount}
+          </Text>
+        ) : null}
         <Text style={styles.metaText}>{formatDate(story.createdAt)}</Text>
       </View>
 
@@ -30,7 +42,15 @@ export function StoryCard({
       <Text numberOfLines={3} style={styles.summary}>
         {story.summary}
       </Text>
-      {story.authorName ? <Text style={styles.author}>by {story.authorName}</Text> : null}
+      {showAuthor && story.authorName ? (
+        onPressAuthor ? (
+          <Pressable onPress={onPressAuthor}>
+            <Text style={[styles.author, styles.linkAuthor]}>by {story.authorName}</Text>
+          </Pressable>
+        ) : (
+          <Text style={styles.author}>by {story.authorName}</Text>
+        )
+      ) : null}
     </Pressable>
   );
 }
@@ -103,5 +123,9 @@ const styles = StyleSheet.create({
   author: {
     color: colors.textMuted,
     fontSize: 12,
+  },
+  linkAuthor: {
+    color: colors.accent,
+    fontWeight: "600",
   },
 });

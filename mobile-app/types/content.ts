@@ -28,7 +28,10 @@ export type AppStory = {
   type: StoryType;
   sections: StorySection[];
   createdAt: string;
+  updatedAt: string;
   authorName: string | null;
+  authorUserId: string | null;
+  authorImage: string | null;
   isSeeded: boolean;
   isPublic: boolean;
   seriesGroupSlug: string | null;
@@ -43,11 +46,15 @@ export type AppSeries = {
   hskLevel: HskLevel;
   stories: AppStory[];
   isPublic: boolean;
+  ownerUserId: string | null;
+  ownerName: string | null;
 };
 
 export type UserSession = {
+  id: string;
   name: string;
   email: string;
+  image?: string | null;
 };
 
 export type UsageEntry = {
@@ -67,4 +74,32 @@ export type GenerationInput = {
   length: LessonLength;
   visibility: LessonVisibility;
   mode: "story" | "series";
+  useVocabularyTargets?: boolean;
+  reviewCharacters?: string[];
+};
+
+export type VocabularyEntry = {
+  hanzi: string;
+  pinyin: string | null;
+  definition: string | null;
+  hskLevel: HskLevel;
+  readCount: number;
+  lastReadAt: string | null;
+};
+
+export type VocabularyLevelGroup = {
+  key: string;
+  title: string;
+  hskLevel: HskLevel;
+  characters: VocabularyEntry[];
+};
+
+export type PublicAuthorProfile = {
+  user: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+  stories: AppStory[];
+  series: AppSeries[];
 };
