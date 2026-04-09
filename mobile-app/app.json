@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "HanziLane Mobile",
+    "slug": "hanzilane-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "hanzilane-mobile",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router"],
+    "web": {
+      "bundler": "metro"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
