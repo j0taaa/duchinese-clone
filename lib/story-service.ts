@@ -5,6 +5,7 @@ import type { LessonLength } from "@/lib/story-length-standards";
 import { syncStoryHanziIndex } from "@/lib/story-hanzi-index";
 import { getStoryEmojiTitle } from "@/lib/story-labels";
 import { getSeriesBySlug, getSeriesForStory, hydrateSeries } from "@/lib/series";
+import { slugify } from "@/shared/content-utils";
 import {
   type AppStory,
   type HskLevel,
@@ -780,16 +781,6 @@ export async function createGeneratedStory(input: {
   });
 }
 
-function slugifyForStorySlug(input: string) {
-  return input
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 50);
-}
-
 function newSeriesGroupSlug() {
   return `gen-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 11)}`;
 }
@@ -817,8 +808,8 @@ export async function createGeneratedSeries(input: {
     for (let index = 0; index < input.episodes.length; index += 1) {
       const episode = input.episodes[index]!;
       const baseSlug =
-        slugifyForStorySlug(episode.titleTranslation) ||
-        slugifyForStorySlug(episode.title) ||
+        slugify(episode.titleTranslation) ||
+        slugify(episode.title) ||
         `episode-${index + 1}`;
       const slug = `${baseSlug}-${stamp}-${index}`;
 
@@ -909,8 +900,8 @@ export async function appendGeneratedSeriesEpisode(input: {
   const stamp = Date.now().toString().slice(-7);
   const ep = input.episode;
   const baseSlug =
-    slugifyForStorySlug(ep.titleTranslation) ||
-    slugifyForStorySlug(ep.title) ||
+    slugify(ep.titleTranslation) ||
+    slugify(ep.title) ||
     `episode-${input.nextEpisodeNumber}`;
   const slug = `${baseSlug}-${stamp}-e${input.nextEpisodeNumber}`;
 

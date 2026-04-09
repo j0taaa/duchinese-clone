@@ -7,6 +7,10 @@ import { SeriesCard } from "@/components/series-card";
 import { StoryCard } from "@/components/story-card";
 import { partitionStoriesIntoSeriesAndStandalone, type AppSeries } from "@/lib/series";
 import { type AppStory, getHskLabel, hskLevelValues } from "@/lib/stories";
+import {
+  filterSeriesByQueryAndHsk,
+  filterStoriesByQueryAndHsk,
+} from "@/shared/content-utils";
 
 const filterOptions = ["all", ...hskLevelValues] as const;
 
@@ -15,20 +19,7 @@ export function filterStoriesByLibraryControls(input: {
   filter: (typeof filterOptions)[number];
   query: string;
 }) {
-  const needle = input.query.trim().toLowerCase();
-
-  return input.stories.filter((story) => {
-    const matchesLevel =
-      input.filter === "all" ? true : story.hskLevel === input.filter;
-    const matchesQuery = needle
-      ? [story.title, story.titleTranslation, story.summary, story.excerpt]
-          .join(" ")
-          .toLowerCase()
-          .includes(needle)
-      : true;
-
-    return matchesLevel && matchesQuery;
-  });
+  return filterStoriesByQueryAndHsk(input.stories, input.query, input.filter);
 }
 
 export function LibraryScreen({
@@ -63,28 +54,7 @@ export function LibraryScreen({
   );
 
   const filteredLatestUserSeries = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-
-    return latestUserSeriesRaw.filter((entry) => {
-      const matchesLevel = filter === "all" ? true : entry.hskLevel === filter;
-      const matchesQuery = needle
-        ? [
-            entry.title,
-            entry.titleTranslation,
-            entry.summary,
-            ...entry.stories.flatMap((story) => [
-              story.title,
-              story.titleTranslation,
-              story.summary,
-            ]),
-          ]
-            .join(" ")
-            .toLowerCase()
-            .includes(needle)
-        : true;
-
-      return matchesLevel && matchesQuery;
-    });
+    return filterSeriesByQueryAndHsk(latestUserSeriesRaw, query, filter);
   }, [filter, latestUserSeriesRaw, query]);
 
   const filteredLatestStandalone = useMemo(() => {
@@ -100,28 +70,7 @@ export function LibraryScreen({
     (filteredLatestUserSeries.length > 0 || filteredLatestStandalone.length > 0);
 
   const filteredSeries = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-
-    return publicSeries.filter((series) => {
-      const matchesLevel = filter === "all" ? true : series.hskLevel === filter;
-      const matchesQuery = needle
-        ? [
-            series.title,
-            series.titleTranslation,
-            series.summary,
-            ...series.stories.flatMap((story) => [
-              story.title,
-              story.titleTranslation,
-              story.summary,
-            ]),
-          ]
-            .join(" ")
-            .toLowerCase()
-            .includes(needle)
-        : true;
-
-      return matchesLevel && matchesQuery;
-    });
+    return filterSeriesByQueryAndHsk(publicSeries, query, filter);
   }, [filter, publicSeries, query]);
 
   const starterStories = filteredStories.filter((story) => story.isSeeded);

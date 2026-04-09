@@ -1,19 +1,24 @@
 import { z } from "zod";
 
 import type { LessonLength } from "@/lib/story-length-standards";
+import { getHskLabel as getSharedHskLabel } from "@/shared/content-utils";
+import {
+  hskLevelValues,
+  storyLevelValues,
+  storyTypeValues,
+  type HskLevel,
+  type StoryLevel,
+  type StoryType,
+} from "@/shared/content-types";
 
-export const storyTypeValues = ["story", "dialogue", "journal"] as const;
-export const storyLevelValues = ["beginner", "elementary", "intermediate"] as const;
-export const hskLevelValues = ["1", "2", "3", "4", "5", "6"] as const;
+export { storyTypeValues, storyLevelValues, hskLevelValues };
 export const storyVisibilityValues = [
   "public_seeded",
   "private_user",
   "public_user",
 ] as const;
 
-export type StoryType = (typeof storyTypeValues)[number];
-export type StoryLevel = (typeof storyLevelValues)[number];
-export type HskLevel = (typeof hskLevelValues)[number];
+export type { StoryType, StoryLevel, HskLevel };
 export type StoryVisibility = (typeof storyVisibilityValues)[number];
 const storyLevelRank: Record<StoryLevel, number> = {
   beginner: 1,
@@ -499,7 +504,7 @@ export function getLevelLabel(level: StoryLevel) {
 }
 
 export function getHskLabel(hskLevel: HskLevel) {
-  return hskLevelMeta[hskLevel].label;
+  return getSharedHskLabel(hskLevel);
 }
 
 export function compareStoryLevels(left: StoryLevel, right: StoryLevel) {

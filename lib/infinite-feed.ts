@@ -6,6 +6,7 @@ import { findStoryIdsByIndexedTerm } from "@/lib/story-hanzi-index";
 import { lookupWord } from "@/lib/dictionary";
 import { partitionStoriesIntoSeriesAndStandalone } from "@/lib/series";
 import { type HskLevel, mapHskLevelToStoryLevel, type AppStory } from "@/lib/stories";
+import { slugify } from "@/shared/content-utils";
 import {
   createGeneratedStory,
   listPublicStories,
@@ -32,16 +33,6 @@ function pickRandom<T>(items: T[]): T | null {
     return null;
   }
   return items[Math.floor(Math.random() * items.length)]!;
-}
-
-function slugify(input: string) {
-  return input
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 50);
 }
 
 export type InfiniteFeedMode = "vocab" | "random" | "generated";
